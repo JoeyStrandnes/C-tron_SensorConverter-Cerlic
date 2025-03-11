@@ -91,7 +91,30 @@ int main(void)
   MX_USART1_UART_Init();
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
-  class SensorConverterSettings Settings(LED_GPIO_Port, LED_Pin, &hi2c1, &huart1, USART1_DIR_GPIO_Port, USART1_DIR_Pin, &huart2, USART2_DIR_GPIO_Port, USART2_DIR_Pin);
+  class SensorConverterSettings Settings(
+		  LED_GPIO_Port,
+		  LED_Pin,
+		  &hi2c1,
+		  &huart1,
+		  USART1_DIR_GPIO_Port,
+		  USART1_DIR_Pin,
+		  &huart2,
+		  USART_2_DIR_GPIO_Port,
+		  USART_2_DIR_Pin,
+
+		  JP1_GPIO_Port,
+		  JP1_Pin,
+
+		  JP2_GPIO_Port,
+		  JP2_Pin,
+
+		  JP3_GPIO_Port,
+		  JP3_Pin,
+
+		  JP4_GPIO_Port,
+		  JP4_Pin
+
+  );
 
 
   /* USER CODE END 2 */
@@ -103,8 +126,9 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  Settings.HeartBeat();
-	  HAL_Delay(250);
+	  //Settings.HeartBeat();
+	  Settings.FetchSensorData();
+	  //HAL_Delay(1000);
 
 
   }
