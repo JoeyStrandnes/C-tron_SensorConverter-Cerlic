@@ -1,0 +1,5 @@
+(sym_lib_table
+  (version 7)
+  (lib (name "SensorAdapter")(type "KiCad")(uri "${KIPRJMOD}/Library/SensorAdapter.kicad_sym")(options "")(descr ""))
+  (lib (name "NyaCentralenheten")(type "KiCad")(uri "${KIPRJMOD}/../MainBoard_NyCentralenhet/Library/NyaCentralenheten.kicad_sym")(options "")(descr ""))
+)
