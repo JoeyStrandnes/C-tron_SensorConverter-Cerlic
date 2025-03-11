@@ -18,13 +18,14 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "dma.h"
 #include "i2c.h"
 #include "usart.h"
 #include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include <SensorConverter.hpp>
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -67,6 +68,7 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
+
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -87,11 +89,12 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();
   MX_I2C1_Init();
   MX_USART1_UART_Init();
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
-  class SensorConverterSettings Settings(LED_GPIO_Port, LED_Pin, &hi2c1, &huart1, USART1_DIR_GPIO_Port, USART1_DIR_Pin, &huart2, USART2_DIR_GPIO_Port, USART2_DIR_Pin);
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -101,10 +104,6 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  Settings.HeartBeat();
-	  HAL_Delay(250);
-
-
   }
   /* USER CODE END 3 */
 }
