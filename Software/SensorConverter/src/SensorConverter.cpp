@@ -9,8 +9,6 @@
 
 
 
-
-//Simply check what type of configuration to run
 SensorConverterSettings::SensorConverterSettings(
 	GPIO_TypeDef *heart_beat_port,
 	uint16_t heart_beat_pin,
@@ -24,7 +22,7 @@ SensorConverterSettings::SensorConverterSettings(
 	UART_HandleTypeDef *sensor_uart,
 	GPIO_TypeDef *sensor_uart_dir_port,
 	uint16_t sensor_uart_dir_pin){
-
+//Simply check what type of configuration to run and link all the peripherals to the backend.
 
 
 
@@ -34,9 +32,14 @@ SensorConverterSettings::SensorConverterSettings(
 	this->I2C = i2c;
 
 	this->CtronUART = ctron_uart;
+	this->CtronUART_DIR_Port = ctron_uart_dir_port;
+	this->CtronUART_DIR_Pin = ctron_uart_dir_pin;
+
 	this->SensorUART = sensor_uart;
+	this->SensorUART_DIR_Port = sensor_uart_dir_port;
+	this->SensorUART_DIR_Pin = sensor_uart_dir_pin;
 
-
+	//HAL_UART_RegisterCallback(this->CtronUART, HAL_UART_RX_COMPLETE_CB_ID, this->CtronUART_RX_Callback);
 
 	this->GetSettingsFromEEPROM();
 
@@ -44,6 +47,14 @@ SensorConverterSettings::SensorConverterSettings(
 
 }
 
+/*
+void SensorConverterSettings::CtronUART_RX_Callback(){
+
+
+
+	return;
+}
+*/
 
 void SensorConverterSettings::GetSettingsFromEEPROM(){
 //Fetch settings from EEPROM

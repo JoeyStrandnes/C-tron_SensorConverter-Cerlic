@@ -9,6 +9,7 @@
 #define INC_SENSORCONVERTER_HPP_
 
 #include "main.h"
+
 #include <cstring>
 
 #define SOFTWARE_VERSION 100
@@ -41,16 +42,30 @@ public:
 	uint16_t SoftwareVersion = {SOFTWARE_VERSION};
 	char Tag[10];
 
+
+	void SendSensorData();
+
 	void HeartBeat(){HAL_GPIO_TogglePin(HeartBeatPort, HeartBeatPin);};
+
+
 
 private:
 
 	UART_HandleTypeDef *CtronUART{NULL};
+	GPIO_TypeDef *CtronUART_DIR_Port{NULL};
+	uint16_t CtronUART_DIR_Pin{0};
+
+
 	UART_HandleTypeDef *SensorUART{NULL};
+	GPIO_TypeDef *SensorUART_DIR_Port{NULL};
+	uint16_t SensorUART_DIR_Pin{0};
+
 	I2C_HandleTypeDef *I2C{NULL};
 
 	GPIO_TypeDef *HeartBeatPort{NULL};
 	uint16_t HeartBeatPin{0};
+
+	//void CtronUART_RX_Callback();
 
 	//NVM management
 	void GetSettingsFromEEPROM();

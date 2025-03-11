@@ -92,6 +92,8 @@ int main(void)
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
   class SensorConverterSettings Settings(LED_GPIO_Port, LED_Pin, &hi2c1, &huart1, USART1_DIR_GPIO_Port, USART1_DIR_Pin, &huart2, USART2_DIR_GPIO_Port, USART2_DIR_Pin);
+
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
