@@ -99,8 +99,8 @@ int main(void)
 		  USART1_DIR_GPIO_Port,
 		  USART1_DIR_Pin,
 		  &huart2,
-		  USART_2_DIR_GPIO_Port,
-		  USART_2_DIR_Pin,
+		  USART2_DIR_GPIO_Port,
+		  USART2_DIR_Pin,
 
 		  JP1_GPIO_Port,
 		  JP1_Pin,
@@ -117,6 +117,34 @@ int main(void)
   );
 
 
+  //Setup the ModBus stack
+  uint16_t 	HoldingRegisters[10];
+  uint16_t 	InputRegisters[10];
+  uint8_t	RxBuffer[256];
+  uint8_t	TxBuffer[32];
+
+  class ModBusRTU_Class ModBusSlave;
+
+  ModBusSlave.Address = TYPE_LT600;
+  ModBusSlave.isMaster = false;
+
+  ModBusSlave.Register[0] = HoldingRegisters;
+  ModBusSlave.Register[1] = InputRegisters;
+
+  ModBusSlave.RegisterSize[0] = 10;
+  ModBusSlave.RegisterSize[1] = 10;
+
+  ModBusSlave.OutputBuffer = TxBuffer;
+  ModBusSlave.InputBuffer = RxBuffer;
+
+  ModBusSlave.OutputBufferSize = 32;
+  ModBusSlave.InputBufferSize = 256;
+
+
+  for(uint8_t i = 0; i < 10; i++){
+	  InputRegisters[i] = i;
+  }
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -126,8 +154,18 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  //Settings.HeartBeat();
-	  Settings.FetchSensorData();
+	HAL_UART_Receive(&huart1, ModBusSlave.InputBuffer, 8, 10000);
+
+	ModBusSlave.ParseModBusRTUPacket();
+
+	HAL_GPIO_WritePin(USART1_DIR_GPIO_Port, USART1_DIR_Pin, GPIO_PIN_SET);
+
+	HAL_UART_Transmit(&huart1, ModBusSlave.OutputBuffer, ModBusSlave.ResponseSize, 100);
+
+	HAL_GPIO_WritePin(USART1_DIR_GPIO_Port, USART1_DIR_Pin, GPIO_PIN_RESET);
+
+	Settings.HeartBeat();
+	  //Settings.FetchSensorData();
 	  //HAL_Delay(1000);
 
 

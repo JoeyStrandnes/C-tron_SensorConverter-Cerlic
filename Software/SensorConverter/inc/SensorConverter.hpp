@@ -9,13 +9,11 @@
 #define INC_SENSORCONVERTER_HPP_
 
 #include "main.h"
-#include <SensorRegisterMaps.hpp>
+
+#include <ModBus.hpp>
 #include <cstring>
 
 #define SOFTWARE_VERSION 100
-
-
-
 
 class SensorConverterSettings{
 
@@ -55,8 +53,12 @@ public:
 	uint8_t 	SensorType{0};
 	char 		Tag[10];
 
+	/*
 	uint8_t MasterAddress{0};
 	uint8_t SlaveAddress{0};
+*/
+	//class ModBusRTU_Class ModBusMaster;
+	//class ModBusRTU_Class ModBusSlave;
 
 
 	void FetchSensorData();
@@ -64,14 +66,18 @@ public:
 
 
 	//TODO Make nicer
+	/*
 	void (*ReloadMasterRegisters)(struct Measurement_Register *registers[2]) = NULL;
 	void (*ReloadSlaveRegisters)(struct Measurement_Register *registers[2]) = NULL;
+	*/
 
 private:
 
 	// 2 types of registers stored with each sensor. Settings & Data. Index 0 is Settings and Index 1 is Data.
+	/*
 	struct Measurement_Register *MasterRegisters[2] = {NULL,NULL};
 	struct Measurement_Register *SlaveRegisters[2] = {NULL,NULL};
+	*/
 	uint8_t MasterRegisterCount[2];
 	uint8_t SlaveRegisterCount[2];
 

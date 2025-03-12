@@ -10,7 +10,7 @@
 
 void LinkSensorConfig(class SensorConverterSettings *settings){
 
-
+/*
 	switch(settings->SensorType){
 
 	case(TYPE_CMC):
@@ -30,8 +30,8 @@ void LinkSensorConfig(class SensorConverterSettings *settings){
 
 
 	}
-
-	settings->MasterAddress = settings->SensorType;
+*/
+	//settings->MasterAddress = settings->SensorType;
 
 	return;
 }

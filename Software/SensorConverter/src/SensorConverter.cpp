@@ -78,7 +78,6 @@ SensorConverterSettings::SensorConverterSettings(
 }
 
 static uint8_t TestRxBuffer[50];
-extern UART_HandleTypeDef huart2;
 
 void SensorConverterSettings::FetchSensorData(){
 //FIXME For testing, assume a LT600 is connected.
@@ -98,18 +97,14 @@ void SensorConverterSettings::FetchSensorData(){
 	HAL_GPIO_WritePin(this->SensorUART_DIR_Port, this->SensorUART_DIR_Pin, GPIO_PIN_SET);
 	HAL_GPIO_WritePin(this->HeartBeatPort, this->HeartBeatPin, GPIO_PIN_SET);
 
-	//HAL_Delay(2);
-
 	HAL_UART_Transmit(this->SensorUART, TestBuffer, 8, 10);
-	//HAL_UART_Transmit(&huart2, TestBuffer, 8, 10);
 
 	HAL_GPIO_WritePin(this->SensorUART_DIR_Port, this->SensorUART_DIR_Pin, GPIO_PIN_RESET);
 	HAL_GPIO_WritePin(this->HeartBeatPort, this->HeartBeatPin, GPIO_PIN_RESET);
 
-	//HAL_UART_Receive(&huart2, TestRxBuffer, 19, 100);
 	HAL_UART_Receive(this->SensorUART, TestRxBuffer, 19, 1000);
 
-	//HAL_Delay(500);
+	//HAL_Delay(250);
 
 
 	return;
@@ -126,13 +121,13 @@ void SensorConverterSettings::GetSensorType(){
 
 
 	//TODO Setup what sensor is connected to the device.
-	this->SensorType = TYPE_LT600;
+	//this->SensorType = TYPE_LT600;
 	this->MasterRegisterCount[0] = 0;
 	this->MasterRegisterCount[1] = 7;
 
-	LinkSensorConfig(this);
+	//LinkSensorConfig(this);
 
-	this->ReloadMasterRegisters(this->MasterRegisters);
+	//this->ReloadMasterRegisters(this->MasterRegisters);
 
 	return;
 }

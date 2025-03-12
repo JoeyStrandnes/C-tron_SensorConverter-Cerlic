@@ -23,8 +23,6 @@ enum ModBusRegisterType{CHAR, UINT8, INT16, UINT16, UINT32, FLOAT, PONDUS_FLOAT}
 struct Measurement_Register{
 
 
-	Measurement_Register(){};
-
 	uint8_t Index{0};							// ModBus register index not index in the database.
 	enum ModBusRegisterType RegType{UINT16}; 	//Register data type.
 
@@ -41,7 +39,6 @@ struct Measurement_Register{
 };
 
 void LinkSensorConfig(class SensorConverterSettings *settings);
-
 
 void CMC_MasterRegisters(struct Measurement_Register *registers[2]);
 void CMC_SlaveRegisters(struct Measurement_Register *registers[2]);
