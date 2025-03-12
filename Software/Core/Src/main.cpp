@@ -169,10 +169,9 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-/*
-	Settings.HeartBeat();
-	HAL_Delay(100);
-*/
+
+
+
 
   }
   /* USER CODE END 3 */
@@ -241,7 +240,16 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size){
 		HAL_GPIO_WritePin(USART1_DIR_GPIO_Port, USART1_DIR_Pin, GPIO_PIN_SET);
 		HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
 
-		HAL_UART_Transmit(&huart1, ModBusSlave.OutputBuffer, ModBusSlave.RequestSize, 100);
+		HAL_UART_Transmit_IT(&huart1, ModBusSlave.OutputBuffer, ModBusSlave.ResponseSize);
+
+	}
+
+	return;
+}
+
+void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart){
+
+	if(huart->Instance == USART1){
 
 		HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
 		HAL_GPIO_WritePin(USART1_DIR_GPIO_Port, USART1_DIR_Pin, GPIO_PIN_RESET);
@@ -251,36 +259,16 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size){
 
 	}
 
-	return;
-}
-
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
-
-	/*
-	if(huart->Instance == USART1){
-
-		ModBusSlave.RequestSize = 8;
-
-		ModBusSlave.ParseModBusRTUPacket();
-
-		std::memset(ModBusSlave.InputBuffer, 0, ModBusSlave.InputBufferSize);
-
-		HAL_GPIO_WritePin(USART1_DIR_GPIO_Port, USART1_DIR_Pin, GPIO_PIN_SET);
-		HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
-
-		HAL_UART_Transmit(&huart1, ModBusSlave.OutputBuffer, ModBusSlave.RequestSize, 100);
-
-		HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
-		HAL_GPIO_WritePin(USART1_DIR_GPIO_Port, USART1_DIR_Pin, GPIO_PIN_RESET);
-
-		HAL_UARTEx_ReceiveToIdle_IT(&huart1, ModBusSlave.InputBuffer, 8);
-
-
-	}
-*/
 
 	return;
 }
+
+void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart){
+
+
+	return;
+}
+
 /* USER CODE END 4 */
 
 /**
