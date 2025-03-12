@@ -183,10 +183,13 @@ int main(void)
 
   ModBusMaster.ResponseSize = 8;
 
+  ModBusMaster.LinkRegisterMap(&LT600_MasterRegisters);
+  ModBusMaster.ReloadRegisterMap();
+
   HAL_UARTEx_ReceiveToIdle_IT(&huart1, ModBusSlave.InputBuffer, 20);
-  //HAL_TIM_Base_Start_IT(&htim3);
 
-
+  HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(USART2_DIR_GPIO_Port, USART2_DIR_Pin, GPIO_PIN_SET);
   HAL_UART_Transmit_IT(&huart2, ModBusMaster.OutputBuffer, ModBusMaster.ResponseSize);
 
   /* USER CODE END 2 */
@@ -251,6 +254,12 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 
 	if(htim->Instance == TIM3){
 
+		HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
+		HAL_GPIO_WritePin(USART2_DIR_GPIO_Port, USART2_DIR_Pin, GPIO_PIN_SET);
+		HAL_UART_Transmit_IT(&huart2, ModBusMaster.OutputBuffer, ModBusMaster.ResponseSize);
+
+
+		HAL_TIM_Base_Stop_IT(&htim3);
 
 		return;
 	}
@@ -261,6 +270,14 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size){
 
 	if(huart->Instance == USART1){
+
+		//FIXME Only for testing
+
+		ModBusSlave.Register[1][0] = (ModBusMaster.GetRegisterOutputData(3, 1) * 100);
+		ModBusSlave.Register[1][1] = (ModBusMaster.GetRegisterOutputData(4, 1) * 100);
+		ModBusSlave.Register[1][2] = (ModBusMaster.GetRegisterOutputData(5, 1) * 100);
+		ModBusSlave.Register[1][3] = (ModBusMaster.GetRegisterOutputData(6, 1) * 100);
+
 
 		ModBusSlave.RequestSize = Size;
 
@@ -297,8 +314,10 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart){
 
 		HAL_UARTEx_ReceiveToIdle_IT(&huart1, ModBusSlave.InputBuffer, 20);
 
-		ModBusSlave.Register[1][0]++;
-		ModBusSlave.Register[1][1] = ModBusSlave.Register[1][0] + 1;
+		ModBusSlave.Register[1][0] = HAL_GPIO_ReadPin(JP1_GPIO_Port, JP1_Pin);
+		ModBusSlave.Register[1][1] = HAL_GPIO_ReadPin(JP2_GPIO_Port, JP2_Pin);
+		ModBusSlave.Register[1][2] = HAL_GPIO_ReadPin(JP3_GPIO_Port, JP3_Pin);
+		ModBusSlave.Register[1][3] = HAL_GPIO_ReadPin(JP4_GPIO_Port, JP4_Pin);
 
 	}
 	if(huart->Instance == USART2){
@@ -308,6 +327,7 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart){
 
 		HAL_UARTEx_ReceiveToIdle_IT(&huart2, ModBusMaster.InputBuffer, 20);
 
+		HAL_TIM_Base_Start_IT(&htim3); //Overflows after 250 ms. Used to indicate "loss of sensors"
 
 	}
 

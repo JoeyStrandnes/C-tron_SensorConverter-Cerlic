@@ -26,6 +26,10 @@ struct Measurement_Register{
 	uint8_t Index{0};							// ModBus register index not index in the database.
 	enum ModBusRegisterType RegType{UINT16}; 	//Register data type.
 
+	//Used to always have a correctly scaled float value.
+	uint16_t ScaleFactor{1};
+	float OutputData{0};
+
 	//Raw register content from the sensor, used when forwarding it to a SCADA system.
 	union Data_Union{
 		int16_t INT16;

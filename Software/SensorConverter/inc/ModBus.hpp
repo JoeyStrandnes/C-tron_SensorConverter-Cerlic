@@ -12,6 +12,9 @@
 #include <SensorRegisterMaps.hpp>
 #include <SensorConverter.hpp>
 
+#define MODBUS_REG_OFFSET 3
+#define MODBUS_SETTINGS_REG 0
+#define MODBUS_DATA_REG 1
 
 //Exception codes
 #define MODBUS_EXCEPTION_OK                     0
@@ -48,7 +51,10 @@ public:
 
 
     void ParseModBusRTUPacket();
+    void LinkRegisterMap(void (*map_registers)(struct Measurement_Register *registers[2])){this->MapRegisters = map_registers;};
+    void ReloadRegisterMap(){this->MapRegisters(this->RegisterMap);};
 
+    float GetRegisterOutputData(uint16_t index, uint8_t register_type);
 
 private:
 
@@ -69,7 +75,7 @@ private:
     uint8_t ModBusSensorTag();
     uint8_t ModBusStoreToNVM();
 
-    //void (*MapRegisters)(struct Measurement_Register *registers[2]) = NULL;
+    void (*MapRegisters)(struct Measurement_Register *registers[2]) = NULL;
 	struct Measurement_Register *RegisterMap[2] = {NULL,NULL};
 
 };
