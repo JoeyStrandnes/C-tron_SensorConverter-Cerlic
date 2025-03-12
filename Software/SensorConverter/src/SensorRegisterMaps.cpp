@@ -49,15 +49,7 @@ void CMC_SlaveRegisters(struct Measurement_Register *registers[2]){
 
 
 void LT600_MasterRegisters(struct Measurement_Register *registers[2]){
-	return;
-}
 
-
-void LT600_SlaveRegisters(struct Measurement_Register *registers[2]){
-	return;
-}
-
-void LT600_FLX_MasterRegisters(struct Measurement_Register *registers[2]){
 
 	//Allocate all the memory
 	registers[0] = NULL; //Not used
@@ -88,6 +80,18 @@ void LT600_FLX_MasterRegisters(struct Measurement_Register *registers[2]){
 
 	registers[1][RegisterIndex].Index = 10;
 	registers[1][RegisterIndex++].RegType = PONDUS_FLOAT; //Secondary value
+
+
+	return;
+}
+
+
+void LT600_SlaveRegisters(struct Measurement_Register *registers[2]){
+	return;
+}
+
+void LT600_FLX_MasterRegisters(struct Measurement_Register *registers[2]){
+
 
 	return;
 }

@@ -24,11 +24,6 @@ void ModBusRTU_Class::ParseModBusRTUPacket(){
 		this->ParseMasterPacket();
 	}
 
-
-
-	//TODO Respond
-
-
 	return;
 }
 
@@ -134,6 +129,31 @@ void ModBusRTU_Class::HandleFC_3_4(){
 }
 
 void ModBusRTU_Class::HandleFC_6(){
+
+    //Dont like the hard coded nature of this but practically zero other sensors need a register write other than address change.
+    if(this->InputBuffer[3] != 3){ //Not the ModBus address register
+        BuildModBusException(MODBUS_EXCEPTION_ILLIGAL_DATA_ADDRESS);
+        return;
+    }
+
+    //Zero is an illigal address for ModBus.
+    if(this->InputBuffer[5] == 0){
+        BuildModBusException(MODBUS_EXCEPTION_ILLIGAL_DATA_VALUE);
+        return;
+    }
+
+    //"Build" the response with the old address and confirm the change. The compiler has issues with memcpy...
+    for(uint8_t i = 0; i < this->RequestSize; i++){
+    	this->OutputBuffer[i] = this->InputBuffer[i];
+    }
+
+    this->ResponseSize = this->RequestSize;
+
+    //Change the address
+    this->Address = this->InputBuffer[5];
+    this->Register[0][3] = this->InputBuffer[5];
+
+    //StoreSettingsToEEPROM((modbus_rtu->SettingsPtr));
 
 
 	return;

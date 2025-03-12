@@ -46,12 +46,19 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-uint16_t HoldingRegisters[10];
-uint16_t InputRegisters[10];
-uint8_t	RxBuffer[256];
-uint8_t	TxBuffer[32];
+uint16_t SlaveHoldingRegisters[10];
+uint16_t SlaveInputRegisters[10];
+uint8_t	SlaveRxBuffer[256];
+uint8_t	SlaveTxBuffer[32];
+
+
+uint16_t MasterHoldingRegisters[10];
+uint16_t MasterInputRegisters[10];
+uint8_t	MasterRxBuffer[256];
+uint8_t	MasterTxBuffer[32];
 
 class ModBusRTU_Class ModBusSlave;
+class ModBusRTU_Class ModBusMaster;
 
 extern DMA_HandleTypeDef hdma_usart1_rx;
 /* USER CODE END PV */
@@ -127,38 +134,60 @@ int main(void)
 
 
   //Setup the ModBus stack
-  /*
-  uint16_t 	HoldingRegisters[10];
-  uint16_t 	InputRegisters[10];
-  uint8_t	RxBuffer[256];
-  uint8_t	TxBuffer[32];
-
-  class ModBusRTU_Class ModBusSlave;
-*/
   ModBusSlave.Address = TYPE_LT600;
   ModBusSlave.isMaster = false;
 
-  ModBusSlave.Register[0] = HoldingRegisters;
-  ModBusSlave.Register[1] = InputRegisters;
+  ModBusSlave.Register[0] = SlaveHoldingRegisters;
+  ModBusSlave.Register[1] = SlaveInputRegisters;
 
   ModBusSlave.RegisterSize[0] = 10;
   ModBusSlave.RegisterSize[1] = 10;
 
-  ModBusSlave.OutputBuffer = TxBuffer;
-  ModBusSlave.InputBuffer = RxBuffer;
+  ModBusSlave.OutputBuffer = SlaveTxBuffer;
+  ModBusSlave.InputBuffer = SlaveRxBuffer;
 
   ModBusSlave.OutputBufferSize = 32;
   ModBusSlave.InputBufferSize = 256;
 
 
-  HoldingRegisters[0] = Settings.SerialNumber_H;
-  HoldingRegisters[1] = Settings.SerialNumber_L;
-  HoldingRegisters[2] = Settings.SoftwareVersion;
+  ModBusSlave.Register[0][0] = Settings.SerialNumber_H;
+  ModBusSlave.Register[0][1] = Settings.SerialNumber_L;
+  ModBusSlave.Register[0][2] = Settings.SoftwareVersion;
 
+  std::memset(ModBusSlave.Register[0], 0, ModBusSlave.RegisterSize[0]);
+
+//Modbus Master
+  ModBusMaster.Address = 10;
+  ModBusMaster.isMaster = true;
+
+  ModBusMaster.Register[0] = MasterHoldingRegisters;
+  ModBusMaster.Register[1] = MasterInputRegisters;
+
+  ModBusMaster.RegisterSize[0] = 10;
+  ModBusMaster.RegisterSize[1] = 10;
+
+  ModBusMaster.OutputBuffer = MasterTxBuffer;
+  ModBusMaster.InputBuffer = MasterRxBuffer;
+
+  ModBusMaster.OutputBufferSize = 32;
+  ModBusMaster.InputBufferSize = 256;
+
+  ModBusMaster.OutputBuffer[0] = 0x0A;
+  ModBusMaster.OutputBuffer[1] = 0x04;
+  ModBusMaster.OutputBuffer[2] = 0x03;
+  ModBusMaster.OutputBuffer[3] = 0xE8;
+  ModBusMaster.OutputBuffer[4] = 0x00;
+  ModBusMaster.OutputBuffer[5] = 0x07;
+  ModBusMaster.OutputBuffer[6] = 0x30;
+  ModBusMaster.OutputBuffer[7] = 0xC3;
+
+  ModBusMaster.ResponseSize = 8;
 
   HAL_UARTEx_ReceiveToIdle_IT(&huart1, ModBusSlave.InputBuffer, 20);
-  //__HAL_UART_ENABLE_IT(&huart3, UART_IT_IDLE);
   //HAL_TIM_Base_Start_IT(&htim3);
+
+
+  HAL_UART_Transmit_IT(&huart2, ModBusMaster.OutputBuffer, ModBusMaster.ResponseSize);
 
   /* USER CODE END 2 */
 
@@ -171,6 +200,8 @@ int main(void)
     /* USER CODE BEGIN 3 */
 
 
+
+	  HAL_Delay(1000);
 
 
   }
@@ -244,6 +275,16 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size){
 
 	}
 
+	if(huart->Instance == USART2){
+
+		ModBusMaster.RequestSize = Size;
+
+		ModBusMaster.ParseModBusRTUPacket();
+
+		std::memset(ModBusMaster.InputBuffer, 0, ModBusMaster.InputBufferSize);
+
+	}
+
 	return;
 }
 
@@ -256,9 +297,19 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart){
 
 		HAL_UARTEx_ReceiveToIdle_IT(&huart1, ModBusSlave.InputBuffer, 20);
 
+		ModBusSlave.Register[1][0]++;
+		ModBusSlave.Register[1][1] = ModBusSlave.Register[1][0] + 1;
 
 	}
+	if(huart->Instance == USART2){
 
+		HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
+		HAL_GPIO_WritePin(USART2_DIR_GPIO_Port, USART2_DIR_Pin, GPIO_PIN_RESET);
+
+		HAL_UARTEx_ReceiveToIdle_IT(&huart2, ModBusMaster.InputBuffer, 20);
+
+
+	}
 
 	return;
 }
