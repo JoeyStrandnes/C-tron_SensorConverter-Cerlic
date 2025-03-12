@@ -42,7 +42,7 @@ void ModBusRTU_Class::ParseMasterPacket(){
 		return;
 	}
 
-	uint16_t CalculatedCRC = this->ModBusCRC(InputBuffer, InputBufferSize);
+	uint16_t CalculatedCRC = this->ModBusCRC(InputBuffer, (this->RequestSize - 2));
 	uint16_t ReceivedCRC = ((uint16_t)(this->InputBuffer[this->RequestSize - 1]) << 8);
 	ReceivedCRC |= this->InputBuffer[this->RequestSize - 2];
 

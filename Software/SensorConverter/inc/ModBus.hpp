@@ -49,6 +49,7 @@ public:
 
     void ParseModBusRTUPacket();
 
+
 private:
 
     void ParseSlavePacket();

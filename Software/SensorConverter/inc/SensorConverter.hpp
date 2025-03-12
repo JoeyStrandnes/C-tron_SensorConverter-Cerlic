@@ -47,8 +47,8 @@ public:
 			);
 
 	//General system info.
-	uint16_t 	SerialNumber_H{0};
-	uint16_t 	SerialNumber_L{0};
+	uint16_t 	SerialNumber_H{435};
+	uint16_t 	SerialNumber_L{123};
 	uint16_t 	SoftwareVersion = {SOFTWARE_VERSION};
 	uint8_t 	SensorType{0};
 	char 		Tag[10];

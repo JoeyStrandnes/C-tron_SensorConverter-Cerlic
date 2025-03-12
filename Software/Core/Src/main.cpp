@@ -19,6 +19,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "i2c.h"
+#include "tim.h"
 #include "usart.h"
 #include "gpio.h"
 
@@ -45,7 +46,14 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
+uint16_t HoldingRegisters[10];
+uint16_t InputRegisters[10];
+uint8_t	RxBuffer[256];
+uint8_t	TxBuffer[32];
 
+class ModBusRTU_Class ModBusSlave;
+
+extern DMA_HandleTypeDef hdma_usart1_rx;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -90,6 +98,7 @@ int main(void)
   MX_I2C1_Init();
   MX_USART1_UART_Init();
   MX_USART2_UART_Init();
+  MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
   class SensorConverterSettings Settings(
 		  LED_GPIO_Port,
@@ -118,13 +127,14 @@ int main(void)
 
 
   //Setup the ModBus stack
+  /*
   uint16_t 	HoldingRegisters[10];
   uint16_t 	InputRegisters[10];
   uint8_t	RxBuffer[256];
   uint8_t	TxBuffer[32];
 
   class ModBusRTU_Class ModBusSlave;
-
+*/
   ModBusSlave.Address = TYPE_LT600;
   ModBusSlave.isMaster = false;
 
@@ -141,9 +151,14 @@ int main(void)
   ModBusSlave.InputBufferSize = 256;
 
 
-  for(uint8_t i = 0; i < 10; i++){
-	  InputRegisters[i] = i;
-  }
+  HoldingRegisters[0] = Settings.SerialNumber_H;
+  HoldingRegisters[1] = Settings.SerialNumber_L;
+  HoldingRegisters[2] = Settings.SoftwareVersion;
+
+
+  HAL_UARTEx_ReceiveToIdle_IT(&huart1, ModBusSlave.InputBuffer, 20);
+  //__HAL_UART_ENABLE_IT(&huart3, UART_IT_IDLE);
+  //HAL_TIM_Base_Start_IT(&htim3);
 
   /* USER CODE END 2 */
 
@@ -154,20 +169,10 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	HAL_UART_Receive(&huart1, ModBusSlave.InputBuffer, 8, 10000);
-
-	ModBusSlave.ParseModBusRTUPacket();
-
-	HAL_GPIO_WritePin(USART1_DIR_GPIO_Port, USART1_DIR_Pin, GPIO_PIN_SET);
-
-	HAL_UART_Transmit(&huart1, ModBusSlave.OutputBuffer, ModBusSlave.ResponseSize, 100);
-
-	HAL_GPIO_WritePin(USART1_DIR_GPIO_Port, USART1_DIR_Pin, GPIO_PIN_RESET);
-
+/*
 	Settings.HeartBeat();
-	  //Settings.FetchSensorData();
-	  //HAL_Delay(1000);
-
+	HAL_Delay(100);
+*/
 
   }
   /* USER CODE END 3 */
@@ -212,7 +217,70 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 
+	if(htim->Instance == TIM3){
+
+
+		return;
+	}
+
+
+}
+
+void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size){
+
+	if(huart->Instance == USART1){
+
+		ModBusSlave.RequestSize = Size;
+
+		ModBusSlave.ParseModBusRTUPacket();
+
+		std::memset(ModBusSlave.InputBuffer, 0, ModBusSlave.InputBufferSize);
+
+		HAL_GPIO_WritePin(USART1_DIR_GPIO_Port, USART1_DIR_Pin, GPIO_PIN_SET);
+		HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
+
+		HAL_UART_Transmit(&huart1, ModBusSlave.OutputBuffer, ModBusSlave.RequestSize, 100);
+
+		HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
+		HAL_GPIO_WritePin(USART1_DIR_GPIO_Port, USART1_DIR_Pin, GPIO_PIN_RESET);
+
+		HAL_UARTEx_ReceiveToIdle_IT(&huart1, ModBusSlave.InputBuffer, 20);
+
+
+	}
+
+	return;
+}
+
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
+
+	/*
+	if(huart->Instance == USART1){
+
+		ModBusSlave.RequestSize = 8;
+
+		ModBusSlave.ParseModBusRTUPacket();
+
+		std::memset(ModBusSlave.InputBuffer, 0, ModBusSlave.InputBufferSize);
+
+		HAL_GPIO_WritePin(USART1_DIR_GPIO_Port, USART1_DIR_Pin, GPIO_PIN_SET);
+		HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
+
+		HAL_UART_Transmit(&huart1, ModBusSlave.OutputBuffer, ModBusSlave.RequestSize, 100);
+
+		HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
+		HAL_GPIO_WritePin(USART1_DIR_GPIO_Port, USART1_DIR_Pin, GPIO_PIN_RESET);
+
+		HAL_UARTEx_ReceiveToIdle_IT(&huart1, ModBusSlave.InputBuffer, 8);
+
+
+	}
+*/
+
+	return;
+}
 /* USER CODE END 4 */
 
 /**
