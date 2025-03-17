@@ -52,8 +52,6 @@ public:
     void LinkRegisterMap(void (*map_registers)(struct Measurement_Register *registers[2], uint16_t *register_map_size)){this->MapRegisters = map_registers;};
     void LoadRegisterMap();
 
-    void ParseSlaveResponse();
-
     void BuildModBusException(uint8_t exeption);
     uint16_t ModBusCRC(uint8_t *input_buffer, uint16_t const size);
 
@@ -62,11 +60,11 @@ public:
 	struct Measurement_Register *RegisterMap[2] = {NULL,NULL};
 	uint16_t RegisterMapSize[2] = {0,0};
 
-private:
-
     //Registers visible through the ModBus interface. Holding registers and input registers.
     uint16_t *Register[2]; 			//Register zero is holding
     uint16_t RegisterSize[2];
+
+private:
 
 };
 
@@ -77,14 +75,24 @@ public:
 
 	ModBusRTU_MasterClass(){};
 
-    void ParseModBusRTUPacket();
-
-
-    float GetRegisterOutputData(uint16_t index, uint8_t register_type);
+	void ReadAllSensorData();
+	void ParseSlaveResponse();
 
 private:
 
-    void ParseMasterPacket();
+	void ParseSlaveData();
+
+};
+
+class ModBusRTU_SlaveClass : public ModBusRTU_BaseClass{
+
+public:
+
+	ModBusRTU_SlaveClass(){};
+
+	void ParseMasterRequest();
+
+private:
 
     //Functions for handling the specific function codes
     void HandleFC_3_4();
@@ -99,6 +107,43 @@ private:
 };
 
 
-
-
 #endif /* INC_MODBUS_HPP_ */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
