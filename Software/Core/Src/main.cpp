@@ -245,17 +245,39 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size){
 
 	if(huart->Instance == USART1){
 
-		ModBusSlave.RegisterMap[1][0].OutputData = ModBusMaster.RegisterMap[1][0].OutputData;
+		//FIXME Only for testing
+		if(ModBusSlave.Address == ModBusSlave.InputBuffer[0]){
 
-		ModBusSlave.RequestSize = Size;
-		ModBusSlave.ParseMasterRequest();
+			ModBusSlave.RegisterMap[0][0].InputData.UINT16 = 435;
+			ModBusSlave.RegisterMap[0][1].InputData.UINT16 = 123;
+			ModBusSlave.RegisterMap[0][2].InputData.UINT16 = SOFTWARE_VERSION;
+			ModBusSlave.RegisterMap[0][3].InputData.UINT16 = ModBusSlave.Address;
+
+			ModBusSlave.RegisterMap[0][4].InputData.UINT16 = 0;
+			ModBusSlave.RegisterMap[0][5].InputData.UINT16 = 0;
+			ModBusSlave.RegisterMap[0][6].InputData.UINT16 = 0;
+			ModBusSlave.RegisterMap[0][7].InputData.UINT16 = 0;
+
+
+
+			ModBusSlave.RegisterMap[1][0].OutputData = ModBusMaster.RegisterMap[1][0].OutputData;
+			ModBusSlave.RegisterMap[1][1].OutputData = 200;
+
+			ModBusSlave.RequestSize = Size;
+			ModBusSlave.ParseMasterRequest();
+
+			HAL_GPIO_WritePin(USART1_DIR_GPIO_Port, USART1_DIR_Pin, GPIO_PIN_SET);
+			HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
+
+			HAL_UART_Transmit_IT(&huart1, ModBusSlave.OutputBuffer, ModBusSlave.ResponseSize);
+
+		}
+		else{
+			ModBusSlave.RequestSize = 0;
+		}
 
 		std::memset(ModBusSlave.InputBuffer, 0, ModBusSlave.InputBufferSize);
-
-		HAL_GPIO_WritePin(USART1_DIR_GPIO_Port, USART1_DIR_Pin, GPIO_PIN_SET);
-		HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
-
-		HAL_UART_Transmit_IT(&huart1, ModBusSlave.OutputBuffer, ModBusSlave.ResponseSize);
+		HAL_UARTEx_ReceiveToIdle_IT(&huart1, ModBusSlave.InputBuffer, 20);
 
 	}
 

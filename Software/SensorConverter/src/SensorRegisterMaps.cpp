@@ -101,9 +101,15 @@ void LT600_SlaveRegisterMap(struct Measurement_Register *registers[2], uint16_t 
 	registers[1][RegisterIndex].Index = 0;
 	registers[1][RegisterIndex].ScaleFactor = 1;
 	registers[1][RegisterIndex].RegType = FLOAT; //Primary value
-	registers[1][RegisterIndex].OutputData = 0;
+	registers[1][RegisterIndex++].OutputData = 0;
+
+	registers[1][RegisterIndex].Index = 0;
+	registers[1][RegisterIndex].ScaleFactor = 1;
+	registers[1][RegisterIndex].RegType = UINT16; //Primary value
+	registers[1][RegisterIndex++].OutputData = 0;
 
 	//Holding registers
+	RegisterIndex = 0;
 
 	registers[0][RegisterIndex].Index = 0;
 	registers[0][RegisterIndex].ScaleFactor = 1;
@@ -119,7 +125,25 @@ void LT600_SlaveRegisterMap(struct Measurement_Register *registers[2], uint16_t 
 
 	registers[0][RegisterIndex].Index = 3;
 	registers[0][RegisterIndex].ScaleFactor = 1;
-	registers[0][RegisterIndex].RegType = UINT16; //ModBus address
+	registers[0][RegisterIndex++].RegType = UINT16; //ModBus address
+
+	registers[0][RegisterIndex].Index = 4;
+	registers[0][RegisterIndex].ScaleFactor = 1;
+	registers[0][RegisterIndex++].RegType = CHAR;
+
+	registers[0][RegisterIndex].Index = 5;
+	registers[0][RegisterIndex].ScaleFactor = 1;
+	registers[0][RegisterIndex++].RegType = CHAR;
+
+	registers[0][RegisterIndex].Index = 6;
+	registers[0][RegisterIndex].ScaleFactor = 1;
+	registers[0][RegisterIndex++].RegType = CHAR;
+
+	registers[0][RegisterIndex].Index = 7;
+	registers[0][RegisterIndex].ScaleFactor = 1;
+	registers[0][RegisterIndex++].RegType = CHAR;
+
+
 
 
 	return;
