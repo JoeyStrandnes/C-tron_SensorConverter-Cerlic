@@ -15,8 +15,11 @@
 
 
 //Defines for how many entries, not how many 16-bit wide ModBus registers are used
-#define LT600_HOLDING_MAP_SIZE 0
-#define LT600_INPUT_MAP_SIZE 4
+#define LT600_HOLDING_MASTER_MAP_SIZE 0
+#define LT600_INPUT_MASTER_MAP_SIZE 4
+
+#define LT600_HOLDING_SLAVE_MAP_SIZE 4
+#define LT600_INPUT_SLAVE_MAP_SIZE 1
 
 
 #include <cstdlib>

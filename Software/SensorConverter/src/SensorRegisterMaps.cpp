@@ -52,27 +52,15 @@ void LT600_MasterRegisterMap(struct Measurement_Register *registers[2], uint16_t
 
 
 	//Allocate all the memory
-	register_map_size[0] = LT600_HOLDING_MAP_SIZE;
-	register_map_size[1] = LT600_INPUT_MAP_SIZE;
+	register_map_size[0] = LT600_HOLDING_MASTER_MAP_SIZE;
+	register_map_size[1] = LT600_INPUT_MASTER_MAP_SIZE;
 
 	free(registers[1]);
-	registers[1] = (struct Measurement_Register *)malloc(LT600_INPUT_MAP_SIZE * sizeof(struct Measurement_Register));
+	registers[1] = (struct Measurement_Register *)malloc(register_map_size[1] * sizeof(struct Measurement_Register));
 
 
 	uint8_t RegisterIndex{0};
-/*
-	registers[1][RegisterIndex].Index = 1000;
-	registers[1][RegisterIndex].ScaleFactor = 1;
-	registers[1][RegisterIndex++].RegType = UINT16;
 
-	registers[1][RegisterIndex].Index = 1001;
-	registers[1][RegisterIndex].ScaleFactor = 1;
-	registers[1][RegisterIndex++].RegType = UINT16;
-
-	registers[1][RegisterIndex].Index = 1002;
-	registers[1][RegisterIndex].ScaleFactor = 1;
-	registers[1][RegisterIndex++].RegType = UINT32;
-*/
 	registers[1][RegisterIndex].Index = 1004;
 	registers[1][RegisterIndex].ScaleFactor = 1;
 	registers[1][RegisterIndex++].RegType = PONDUS_FLOAT; //Primary value
@@ -97,6 +85,9 @@ void LT600_MasterRegisterMap(struct Measurement_Register *registers[2], uint16_t
 void LT600_SlaveRegisterMap(struct Measurement_Register *registers[2], uint16_t *register_map_size){
 
 	//Allocate all the memory
+	register_map_size[0] = LT600_HOLDING_SLAVE_MAP_SIZE;
+	register_map_size[1] = LT600_INPUT_SLAVE_MAP_SIZE;
+
 	free(registers[0]);
 	registers[0] = (struct Measurement_Register *)malloc(register_map_size[0] * sizeof(struct Measurement_Register));
 
@@ -109,21 +100,26 @@ void LT600_SlaveRegisterMap(struct Measurement_Register *registers[2], uint16_t 
 
 	registers[1][RegisterIndex].Index = 0;
 	registers[1][RegisterIndex].ScaleFactor = 1;
-	registers[1][RegisterIndex++].RegType = FLOAT; //Primary value
+	registers[1][RegisterIndex].RegType = FLOAT; //Primary value
+	registers[1][RegisterIndex].OutputData = 0;
 
-	registers[1][RegisterIndex].Index = 2;
-	registers[1][RegisterIndex].ScaleFactor = 1;
-	registers[1][RegisterIndex++].RegType = FLOAT; //4-20mA value
+	//Holding registers
 
-	registers[1][RegisterIndex].Index = 4;
-	registers[1][RegisterIndex].ScaleFactor = 1;
-	registers[1][RegisterIndex++].RegType = FLOAT; //% of calibrated range
+	registers[0][RegisterIndex].Index = 0;
+	registers[0][RegisterIndex].ScaleFactor = 1;
+	registers[0][RegisterIndex++].RegType = UINT16; //Serial H
 
-	registers[1][RegisterIndex].Index = 6;
-	registers[1][RegisterIndex].ScaleFactor = 1;
-	registers[1][RegisterIndex++].RegType = FLOAT; //Secondary value
+	registers[0][RegisterIndex].Index = 1;
+	registers[0][RegisterIndex].ScaleFactor = 1;
+	registers[0][RegisterIndex++].RegType = UINT16; //Serial L
 
-	RegisterIndex = 0;
+	registers[0][RegisterIndex].Index = 2;
+	registers[0][RegisterIndex].ScaleFactor = 1;
+	registers[0][RegisterIndex++].RegType = UINT16; //Software version
+
+	registers[0][RegisterIndex].Index = 3;
+	registers[0][RegisterIndex].ScaleFactor = 1;
+	registers[0][RegisterIndex].RegType = UINT16; //ModBus address
 
 
 	return;

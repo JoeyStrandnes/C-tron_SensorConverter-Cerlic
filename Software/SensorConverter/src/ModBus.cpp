@@ -326,6 +326,68 @@ void ModBusRTU_SlaveClass::ParseMasterRequest(){
 	return;
 }
 
+void ModBusRTU_SlaveClass::SetRegisterValue(float data, uint16_t index){
+
+
+	this->RegisterMap[1][index].OutputData = data;
+
+
+	return;
+}
+
+
+void ModBusRTU_SlaveClass::FormatRegisterData(){
+//Loop over the holding and input registers and
+
+	uint16_t RegisterIndex = 0;
+
+	for(uint8_t i = 0; i < 2; i++){
+
+		RegisterIndex = 0;
+
+		for(uint16_t k = 0; k < this->RegisterMapSize[i]; k++){
+
+			switch(this->RegisterMap[i][k].RegType){
+
+
+				case(CHAR):
+				case(UINT8):
+				case(UINT16):
+					Register[i][RegisterIndex++] = this->RegisterMap[i][k].InputData.UINT16;
+					break;
+				case(INT16):
+					Register[i][RegisterIndex++] = this->RegisterMap[i][k].InputData.INT16;
+					break;
+				case(UINT32):
+					Register[i][RegisterIndex++] = (this->RegisterMap[i][k].InputData.UINT32 >> 16);
+					Register[i][RegisterIndex++] = this->RegisterMap[i][k].InputData.UINT32;
+					break;
+				case(FLOAT):
+				case(PONDUS_FLOAT):{
+					uint16_t *Float_ptr;
+					Float_ptr = (uint16_t *)&(this->RegisterMap[i][k].OutputData);
+					Register[i][RegisterIndex++] = *(Float_ptr + 1);
+					Register[i][RegisterIndex++] = *Float_ptr;
+					break;
+				}
+
+
+
+			}
+
+
+
+		}
+
+
+
+	}
+
+
+
+
+	return;
+}
 
 
 void ModBusRTU_SlaveClass::HandleFC_3_4(){
@@ -340,6 +402,10 @@ void ModBusRTU_SlaveClass::HandleFC_3_4(){
 
 
     //Everything is fine!
+    //Start of with parsing all the data and place it in the 16-bit ModBus registers.
+    this->FormatRegisterData();
+
+
     this->OutputBuffer[0] = this->Address;
     this->OutputBuffer[1] = this->InputBuffer[1];
     this->OutputBuffer[2] = (uint8_t)(RequestedRegisters * 2);

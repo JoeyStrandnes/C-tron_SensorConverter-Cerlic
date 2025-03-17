@@ -46,8 +46,8 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-uint8_t	SlaveRxBuffer[256];
-uint8_t	SlaveTxBuffer[32];
+uint8_t	SlaveRxBuffer[32];
+uint8_t	SlaveTxBuffer[256];
 
 uint8_t	MasterRxBuffer[256];
 uint8_t	MasterTxBuffer[32];
@@ -135,10 +135,11 @@ int main(void)
   ModBusSlave.OutputBuffer = SlaveTxBuffer;
   ModBusSlave.InputBuffer = SlaveRxBuffer;
 
-  ModBusSlave.OutputBufferSize = 32;
-  ModBusSlave.InputBufferSize = 256;
+  ModBusSlave.OutputBufferSize = 256;
+  ModBusSlave.InputBufferSize = 32;
 
-
+  ModBusSlave.LinkRegisterMap(&LT600_SlaveRegisterMap);
+  ModBusSlave.LoadRegisterMap();
 
 
 //ModBus Master
@@ -156,7 +157,10 @@ int main(void)
   ModBusMaster.ReadAllSensorData();
 
 
-  //HAL_UARTEx_ReceiveToIdle_IT(&huart1, ModBusSlave.InputBuffer, 20);
+  //Create a direct link between the registers
+
+
+  HAL_UARTEx_ReceiveToIdle_IT(&huart1, ModBusSlave.InputBuffer, 20);
 
   HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
   HAL_GPIO_WritePin(USART2_DIR_GPIO_Port, USART2_DIR_Pin, GPIO_PIN_SET);
@@ -241,17 +245,10 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size){
 
 	if(huart->Instance == USART1){
 
-		//FIXME Only for testing
-/*
-		//ModBusSlave.Register[1][0] = (ModBusMaster.GetRegisterOutputData(3, 1) * 10000);
-		ModBusSlave.Register[1][1] = (ModBusMaster.GetRegisterOutputData(4, 1));
-		ModBusSlave.Register[1][2] = (ModBusMaster.GetRegisterOutputData(5, 1));
-		ModBusSlave.Register[1][3] = (ModBusMaster.GetRegisterOutputData(6, 1));
-
+		ModBusSlave.RegisterMap[1][0].OutputData = ModBusMaster.RegisterMap[1][0].OutputData;
 
 		ModBusSlave.RequestSize = Size;
-
-		ModBusSlave.ParseModBusRTUPacket();
+		ModBusSlave.ParseMasterRequest();
 
 		std::memset(ModBusSlave.InputBuffer, 0, ModBusSlave.InputBufferSize);
 
@@ -259,7 +256,7 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size){
 		HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
 
 		HAL_UART_Transmit_IT(&huart1, ModBusSlave.OutputBuffer, ModBusSlave.ResponseSize);
-*/
+
 	}
 
 	if(huart->Instance == USART2){
@@ -279,14 +276,9 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart){
 
 		HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
 		HAL_GPIO_WritePin(USART1_DIR_GPIO_Port, USART1_DIR_Pin, GPIO_PIN_RESET);
-/*
+
 		HAL_UARTEx_ReceiveToIdle_IT(&huart1, ModBusSlave.InputBuffer, 20);
 
-		ModBusSlave.Register[1][0] = HAL_GPIO_ReadPin(JP1_GPIO_Port, JP1_Pin);
-		ModBusSlave.Register[1][1] = HAL_GPIO_ReadPin(JP2_GPIO_Port, JP2_Pin);
-		ModBusSlave.Register[1][2] = HAL_GPIO_ReadPin(JP3_GPIO_Port, JP3_Pin);
-		ModBusSlave.Register[1][3] = HAL_GPIO_ReadPin(JP4_GPIO_Port, JP4_Pin);
-*/
 	}
 	if(huart->Instance == USART2){
 

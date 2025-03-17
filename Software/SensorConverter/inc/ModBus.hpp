@@ -47,8 +47,6 @@ public:
     uint16_t ResponseSize;          //How many bytes to transmit
     uint16_t RequestSize;           //How many bytes were received
 
-    //void BuildFC_3_4();
-
     void LinkRegisterMap(void (*map_registers)(struct Measurement_Register *registers[2], uint16_t *register_map_size)){this->MapRegisters = map_registers;};
     void LoadRegisterMap();
 
@@ -91,8 +89,11 @@ public:
 	ModBusRTU_SlaveClass(){};
 
 	void ParseMasterRequest();
+	void SetRegisterValue(float data, uint16_t index);
 
 private:
+
+	void FormatRegisterData();
 
     //Functions for handling the specific function codes
     void HandleFC_3_4();
