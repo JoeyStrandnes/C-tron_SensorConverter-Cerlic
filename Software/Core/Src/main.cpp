@@ -57,8 +57,8 @@ uint16_t MasterInputRegisters[10];
 uint8_t	MasterRxBuffer[256];
 uint8_t	MasterTxBuffer[32];
 
-class ModBusRTU_Class ModBusSlave;
-class ModBusRTU_Class ModBusMaster;
+//class ModBusRTU_SlaveClass ModBusSlave;
+class ModBusRTU_MasterClass ModBusMaster;
 
 extern DMA_HandleTypeDef hdma_usart1_rx;
 /* USER CODE END PV */
@@ -133,9 +133,13 @@ int main(void)
   );
 
 
+  //Modbus Master
+  ModBusMaster.LinkRegisterMap(&LT600_MasterRegisterMap);
+  ModBusMaster.LoadRegisterMap();
+
+/*
   //Setup the ModBus stack
   ModBusSlave.Address = TYPE_LT600;
-  ModBusSlave.isMaster = false;
 
   ModBusSlave.Register[0] = SlaveHoldingRegisters;
   ModBusSlave.Register[1] = SlaveInputRegisters;
@@ -157,6 +161,7 @@ int main(void)
   std::memset(ModBusSlave.Register[0], 0, ModBusSlave.RegisterSize[0]);
 
 //Modbus Master
+
   ModBusMaster.Address = 10;
   ModBusMaster.isMaster = true;
 
@@ -191,7 +196,7 @@ int main(void)
   HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
   HAL_GPIO_WritePin(USART2_DIR_GPIO_Port, USART2_DIR_Pin, GPIO_PIN_SET);
   HAL_UART_Transmit_IT(&huart2, ModBusMaster.OutputBuffer, ModBusMaster.ResponseSize);
-
+*/
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -256,7 +261,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 
 		HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
 		HAL_GPIO_WritePin(USART2_DIR_GPIO_Port, USART2_DIR_Pin, GPIO_PIN_SET);
-		HAL_UART_Transmit_IT(&huart2, ModBusMaster.OutputBuffer, ModBusMaster.ResponseSize);
+		//HAL_UART_Transmit_IT(&huart2, ModBusMaster.OutputBuffer, ModBusMaster.ResponseSize);
 
 
 		HAL_TIM_Base_Stop_IT(&htim3);
@@ -272,11 +277,11 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size){
 	if(huart->Instance == USART1){
 
 		//FIXME Only for testing
-
-		ModBusSlave.Register[1][0] = (ModBusMaster.GetRegisterOutputData(3, 1) * 100);
-		ModBusSlave.Register[1][1] = (ModBusMaster.GetRegisterOutputData(4, 1) * 100);
-		ModBusSlave.Register[1][2] = (ModBusMaster.GetRegisterOutputData(5, 1) * 100);
-		ModBusSlave.Register[1][3] = (ModBusMaster.GetRegisterOutputData(6, 1) * 100);
+/*
+		//ModBusSlave.Register[1][0] = (ModBusMaster.GetRegisterOutputData(3, 1) * 10000);
+		ModBusSlave.Register[1][1] = (ModBusMaster.GetRegisterOutputData(4, 1));
+		ModBusSlave.Register[1][2] = (ModBusMaster.GetRegisterOutputData(5, 1));
+		ModBusSlave.Register[1][3] = (ModBusMaster.GetRegisterOutputData(6, 1));
 
 
 		ModBusSlave.RequestSize = Size;
@@ -289,16 +294,16 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size){
 		HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
 
 		HAL_UART_Transmit_IT(&huart1, ModBusSlave.OutputBuffer, ModBusSlave.ResponseSize);
-
+*/
 	}
 
 	if(huart->Instance == USART2){
 
-		ModBusMaster.RequestSize = Size;
+		//ModBusMaster.RequestSize = Size;
 
-		ModBusMaster.ParseModBusRTUPacket();
+		//ModBusMaster.ParseModBusRTUPacket();
 
-		std::memset(ModBusMaster.InputBuffer, 0, ModBusMaster.InputBufferSize);
+		//std::memset(ModBusMaster.InputBuffer, 0, ModBusMaster.InputBufferSize);
 
 	}
 
@@ -311,21 +316,21 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart){
 
 		HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
 		HAL_GPIO_WritePin(USART1_DIR_GPIO_Port, USART1_DIR_Pin, GPIO_PIN_RESET);
-
+/*
 		HAL_UARTEx_ReceiveToIdle_IT(&huart1, ModBusSlave.InputBuffer, 20);
 
 		ModBusSlave.Register[1][0] = HAL_GPIO_ReadPin(JP1_GPIO_Port, JP1_Pin);
 		ModBusSlave.Register[1][1] = HAL_GPIO_ReadPin(JP2_GPIO_Port, JP2_Pin);
 		ModBusSlave.Register[1][2] = HAL_GPIO_ReadPin(JP3_GPIO_Port, JP3_Pin);
 		ModBusSlave.Register[1][3] = HAL_GPIO_ReadPin(JP4_GPIO_Port, JP4_Pin);
-
+*/
 	}
 	if(huart->Instance == USART2){
 
 		HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
 		HAL_GPIO_WritePin(USART2_DIR_GPIO_Port, USART2_DIR_Pin, GPIO_PIN_RESET);
 
-		HAL_UARTEx_ReceiveToIdle_IT(&huart2, ModBusMaster.InputBuffer, 20);
+		//HAL_UARTEx_ReceiveToIdle_IT(&huart2, ModBusMaster.InputBuffer, 20);
 
 		HAL_TIM_Base_Start_IT(&htim3); //Overflows after 250 ms. Used to indicate "loss of sensors"
 

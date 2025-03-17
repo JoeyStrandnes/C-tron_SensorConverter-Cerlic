@@ -122,9 +122,6 @@ void SensorConverterSettings::GetSensorType(){
 
 	//TODO Setup what sensor is connected to the device.
 	//this->SensorType = TYPE_LT600;
-	this->MasterRegisterCount[0] = 0;
-	this->MasterRegisterCount[1] = 7;
-
 	//LinkSensorConfig(this);
 
 	//this->ReloadMasterRegisters(this->MasterRegisters);

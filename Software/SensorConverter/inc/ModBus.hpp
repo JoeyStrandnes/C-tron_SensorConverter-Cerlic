@@ -27,18 +27,16 @@
 #define MODBUS_EXCEPTION_MEMORY_ERROR           8
 
 
-class ModBusRTU_Class{
+
+class ModBusRTU_BaseClass{
+//This base class is used as a pure parser of the data.
+//The ModBus Master/Slave classes reformat all the data for the specific sensor.
 
 public:
 
-	ModBusRTU_Class(){};
+	ModBusRTU_BaseClass(){};
 
-    uint8_t Address;
-    bool	isMaster{false};
-
-    //Registers visible through the ModBus interface. Holding registers and input registers.
-    uint16_t *Register[2]; //Register zero is holding
-    uint16_t RegisterSize[2];
+	uint8_t Address{0};
 
     uint8_t *OutputBuffer;          //The TX buffer
     uint16_t OutputBufferSize;      //Size of TX buffer
@@ -49,21 +47,44 @@ public:
     uint16_t ResponseSize;          //How many bytes to transmit
     uint16_t RequestSize;           //How many bytes were received
 
+    //void BuildFC_3_4();
+
+    void LinkRegisterMap(void (*map_registers)(struct Measurement_Register *registers[2], uint16_t *register_map_size)){this->MapRegisters = map_registers;};
+    void LoadRegisterMap();
+
+    void ParseSlaveResponse();
+
+    void BuildModBusException(uint8_t exeption);
+    uint16_t ModBusCRC(uint8_t *input_buffer, uint16_t const size);
+
+    //This is for the data format translation database, not actual ModBus register data.
+    void (*MapRegisters)(struct Measurement_Register *registers[2], uint16_t *register_map_size) = NULL;
+	struct Measurement_Register *RegisterMap[2] = {NULL,NULL};
+	uint16_t RegisterMapSize[2] = {0,0};
+
+private:
+
+    //Registers visible through the ModBus interface. Holding registers and input registers.
+    uint16_t *Register[2]; 			//Register zero is holding
+    uint16_t RegisterSize[2];
+
+};
+
+
+class ModBusRTU_MasterClass : public ModBusRTU_BaseClass{
+
+public:
+
+	ModBusRTU_MasterClass(){};
 
     void ParseModBusRTUPacket();
-    void LinkRegisterMap(void (*map_registers)(struct Measurement_Register *registers[2])){this->MapRegisters = map_registers;};
-    void ReloadRegisterMap(){this->MapRegisters(this->RegisterMap);};
+
 
     float GetRegisterOutputData(uint16_t index, uint8_t register_type);
 
 private:
 
-    void ParseSlavePacket();
     void ParseMasterPacket();
-
-    uint16_t ModBusCRC(uint8_t *input_buffer, uint16_t const size);
-    void BuildModBusException(uint8_t exeption);
-
 
     //Functions for handling the specific function codes
     void HandleFC_3_4();
@@ -74,9 +95,6 @@ private:
     uint8_t ModBusFactoryDefaults();
     uint8_t ModBusSensorTag();
     uint8_t ModBusStoreToNVM();
-
-    void (*MapRegisters)(struct Measurement_Register *registers[2]) = NULL;
-	struct Measurement_Register *RegisterMap[2] = {NULL,NULL};
 
 };
 

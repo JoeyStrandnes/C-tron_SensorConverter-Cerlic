@@ -48,37 +48,45 @@ void CMC_SlaveRegisters(struct Measurement_Register *registers[2]){
 }
 
 
-void LT600_MasterRegisters(struct Measurement_Register *registers[2]){
+void LT600_MasterRegisterMap(struct Measurement_Register *registers[2], uint16_t *register_map_size){
 
 
 	//Allocate all the memory
-	registers[0] = NULL; //Not used
+	register_map_size[0] = LT600_HOLDING_MAP_SIZE;
+	register_map_size[1] = LT600_INPUT_MAP_SIZE;
 
-	if(registers[1] == NULL){
-		registers[1] = (struct Measurement_Register *)malloc(7 * sizeof(struct Measurement_Register));
-	}
+	free(registers[1]);
+	registers[1] = (struct Measurement_Register *)malloc(LT600_INPUT_MAP_SIZE * sizeof(struct Measurement_Register));
+
 
 	uint8_t RegisterIndex{0};
-
-	registers[1][RegisterIndex].Index = 0;
+/*
+	registers[1][RegisterIndex].Index = 1000;
+	registers[1][RegisterIndex].ScaleFactor = 1;
 	registers[1][RegisterIndex++].RegType = UINT16;
 
-	registers[1][RegisterIndex].Index = 1;
+	registers[1][RegisterIndex].Index = 1001;
+	registers[1][RegisterIndex].ScaleFactor = 1;
 	registers[1][RegisterIndex++].RegType = UINT16;
 
-	registers[1][RegisterIndex].Index = 2;
+	registers[1][RegisterIndex].Index = 1002;
+	registers[1][RegisterIndex].ScaleFactor = 1;
 	registers[1][RegisterIndex++].RegType = UINT32;
-
-	registers[1][RegisterIndex].Index = 4;
+*/
+	registers[1][RegisterIndex].Index = 1004;
+	registers[1][RegisterIndex].ScaleFactor = 1;
 	registers[1][RegisterIndex++].RegType = PONDUS_FLOAT; //Primary value
 
-	registers[1][RegisterIndex].Index = 6;
+	registers[1][RegisterIndex].Index = 1006;
+	registers[1][RegisterIndex].ScaleFactor = 1;
 	registers[1][RegisterIndex++].RegType = PONDUS_FLOAT; //4-20mA value
 
-	registers[1][RegisterIndex].Index = 8;
+	registers[1][RegisterIndex].Index = 1008;
+	registers[1][RegisterIndex].ScaleFactor = 1;
 	registers[1][RegisterIndex++].RegType = PONDUS_FLOAT; //% of calibrated range
 
-	registers[1][RegisterIndex].Index = 10;
+	registers[1][RegisterIndex].Index = 1010;
+	registers[1][RegisterIndex].ScaleFactor = 1;
 	registers[1][RegisterIndex++].RegType = PONDUS_FLOAT; //Secondary value
 
 
@@ -86,7 +94,38 @@ void LT600_MasterRegisters(struct Measurement_Register *registers[2]){
 }
 
 
-void LT600_SlaveRegisters(struct Measurement_Register *registers[2]){
+void LT600_SlaveRegisterMap(struct Measurement_Register *registers[2], uint16_t *register_map_size){
+
+	//Allocate all the memory
+	free(registers[0]);
+	registers[0] = (struct Measurement_Register *)malloc(register_map_size[0] * sizeof(struct Measurement_Register));
+
+	free(registers[1]);
+	registers[1] = (struct Measurement_Register *)malloc(register_map_size[1] * sizeof(struct Measurement_Register));
+
+	register_map_size[0] = 10;
+
+	uint8_t RegisterIndex{0};
+
+	registers[1][RegisterIndex].Index = 0;
+	registers[1][RegisterIndex].ScaleFactor = 1;
+	registers[1][RegisterIndex++].RegType = FLOAT; //Primary value
+
+	registers[1][RegisterIndex].Index = 2;
+	registers[1][RegisterIndex].ScaleFactor = 1;
+	registers[1][RegisterIndex++].RegType = FLOAT; //4-20mA value
+
+	registers[1][RegisterIndex].Index = 4;
+	registers[1][RegisterIndex].ScaleFactor = 1;
+	registers[1][RegisterIndex++].RegType = FLOAT; //% of calibrated range
+
+	registers[1][RegisterIndex].Index = 6;
+	registers[1][RegisterIndex].ScaleFactor = 1;
+	registers[1][RegisterIndex++].RegType = FLOAT; //Secondary value
+
+	RegisterIndex = 0;
+
+
 	return;
 }
 
