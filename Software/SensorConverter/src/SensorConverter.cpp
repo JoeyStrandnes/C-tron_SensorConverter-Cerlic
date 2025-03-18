@@ -7,6 +7,8 @@
 
 #include <SensorConverter.hpp>
 
+//FIXME
+extern CRC_HandleTypeDef hcrc;
 
 
 SensorConverterSettings::SensorConverterSettings(
@@ -14,14 +16,6 @@ SensorConverterSettings::SensorConverterSettings(
 	uint16_t heart_beat_pin,
 
 	I2C_HandleTypeDef *i2c,
-
-	UART_HandleTypeDef *ctron_uart,
-	GPIO_TypeDef *ctron_uart_dir_port,
-	uint16_t ctron_uart_dir_pin,
-
-	UART_HandleTypeDef *sensor_uart,
-	GPIO_TypeDef *sensor_uart_dir_port,
-	uint16_t sensor_uart_dir_pin,
 
 	GPIO_TypeDef *jp1_Port,
 	uint16_t jp1_pin,
@@ -45,14 +39,6 @@ SensorConverterSettings::SensorConverterSettings(
 
 	this->I2C = i2c;
 
-	this->CtronUART = ctron_uart;
-	this->CtronUART_DIR_Port = ctron_uart_dir_port;
-	this->CtronUART_DIR_Pin = ctron_uart_dir_pin;
-
-	this->SensorUART = sensor_uart;
-	this->SensorUART_DIR_Port = sensor_uart_dir_port;
-	this->SensorUART_DIR_Pin = sensor_uart_dir_pin;
-
 	this->JP1Port = jp1_Port;
 	this->JP1Pin = jp1_pin;
 
@@ -65,49 +51,12 @@ SensorConverterSettings::SensorConverterSettings(
 	this->JP4Port = jp4_Port;
 	this->JP4Pin = jp4_pin;
 
-
-
-	//HAL_UART_RegisterCallback(this->CtronUART, HAL_UART_RX_COMPLETE_CB_ID, this->CtronUART_RX_Callback);
-
 	this->GetSensorType();
 
-	this->GetSettingsFromEEPROM();
+	//this->GetSettingsFromEEPROM();
 
 	return;
 
-}
-
-static uint8_t TestRxBuffer[50];
-
-void SensorConverterSettings::FetchSensorData(){
-//FIXME For testing, assume a LT600 is connected.
-
-	uint8_t TestBuffer[10];
-
-	TestBuffer[0] = 0x0A;
-	TestBuffer[1] = 0x04;
-	TestBuffer[2] = 0x03;
-	TestBuffer[3] = 0xE8;
-	TestBuffer[4] = 0x00;
-	TestBuffer[5] = 0x07;
-	TestBuffer[6] = 0x30;
-	TestBuffer[7] = 0xC3;
-
-
-	HAL_GPIO_WritePin(this->SensorUART_DIR_Port, this->SensorUART_DIR_Pin, GPIO_PIN_SET);
-	HAL_GPIO_WritePin(this->HeartBeatPort, this->HeartBeatPin, GPIO_PIN_SET);
-
-	HAL_UART_Transmit(this->SensorUART, TestBuffer, 8, 10);
-
-	HAL_GPIO_WritePin(this->SensorUART_DIR_Port, this->SensorUART_DIR_Pin, GPIO_PIN_RESET);
-	HAL_GPIO_WritePin(this->HeartBeatPort, this->HeartBeatPin, GPIO_PIN_RESET);
-
-	HAL_UART_Receive(this->SensorUART, TestRxBuffer, 19, 1000);
-
-	//HAL_Delay(250);
-
-
-	return;
 }
 
 void SensorConverterSettings::GetSensorType(){
@@ -120,11 +69,19 @@ void SensorConverterSettings::GetSensorType(){
 	UnitType |= HAL_GPIO_ReadPin(JP4Port, JP4Pin) << 3;
 
 
-	//TODO Setup what sensor is connected to the device.
-	//this->SensorType = TYPE_LT600;
-	//LinkSensorConfig(this);
+	return;
+}
 
-	//this->ReloadMasterRegisters(this->MasterRegisters);
+void SensorConverterSettings::FactoryReset(){
+
+	this->SerialNumber_H = 0;
+	this->SerialNumber_L = 0;
+	this->SoftwareVersion = SOFTWARE_VERSION;
+	std::memset(this->Tag, 0, 8);
+
+	this->SensorType = TYPE_LT600;
+	this->SlaveAddress = TYPE_LT600;
+	this->MasterAddress = 10;
 
 	return;
 }
@@ -132,25 +89,77 @@ void SensorConverterSettings::GetSensorType(){
 
 void SensorConverterSettings::GetSettingsFromEEPROM(){
 //Fetch settings from EEPROM
-//Default EEPROM address is 0xA0
-/*
-	uint8_t TestBuffer[15];
+//Default EEPROM address is 0xA1
 
-	TestBuffer[0] = 0;
-	TestBuffer[1] = 0;
+	uint8_t MemoryAddress[2];
+	MemoryAddress[0] = 0;
+	MemoryAddress[1] = 0;
 
-	for(uint8_t i = 2; i < 15; i++){
-		TestBuffer[i] = 0xAA;
+	uint16_t SettingsSize = sizeof(*this);
+
+	//Step 1: Calculate the checksum of the first 12 bytes of the Settings.
+	uint8_t TempBuffer[12];
+	std::memcpy(TempBuffer, (uint8_t *)(this), sizeof(TempBuffer));
+	uint32_t TempCRC = HAL_CRC_Calculate(&hcrc, (uint32_t *)TempBuffer, sizeof(TempBuffer)/4);
+
+
+	//Step 2: Read the data from the EEPROM.
+	HAL_I2C_Master_Seq_Receive_IT(I2C, 0xA1, MemoryAddress, 2, I2C_FIRST_AND_NEXT_FRAME);
+	while(HAL_I2C_GetState(I2C) != HAL_I2C_STATE_READY);
+	HAL_I2C_Master_Seq_Receive_IT(I2C, 0xA1, (uint8_t *)this, SettingsSize, I2C_LAST_FRAME);
+	while(HAL_I2C_GetState(I2C) != HAL_I2C_STATE_READY);
+
+	//Step 3: Verify the data integrity. Keep if good, reset if not!
+	if(TempCRC != this->NVM_CRC){
+
+		//Factory reset the device.
+		this->FactoryReset();
+		this->WriteSettingsToEEPROM();
 	}
 
-	HAL_I2C_Master_Transmit(I2C, 0xA0, TestBuffer, 15, 50);
-
-	HAL_Delay(100);
-
-	std::memset((void *)TestBuffer, 0, 15);
-
-	HAL_I2C_Master_Receive(I2C, (0xA0 | 1), TestBuffer, 15, 50);
-*/
 	return;
 }
+
+
+void SensorConverterSettings::WriteSettingsToEEPROM(){
+
+	uint16_t SettingsSize = sizeof(*this);
+
+	uint8_t MemoryAddress[2];
+	MemoryAddress[0] = 0;
+	MemoryAddress[1] = 0;
+
+	HAL_I2C_Master_Seq_Transmit_IT(I2C, 0xA1, MemoryAddress, 2, I2C_FIRST_AND_NEXT_FRAME);
+
+	//Yes this is very stupid, it is important that this happens before the rest of the system is initiated.
+	//ST HAL does not offer a "sequenced" transmit in blocking mode...
+	while(HAL_I2C_GetState(I2C) != HAL_I2C_STATE_READY);
+
+	HAL_I2C_Master_Seq_Transmit_IT(I2C, 0xA1, (uint8_t *)this, SettingsSize, I2C_LAST_FRAME);
+
+
+	return;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

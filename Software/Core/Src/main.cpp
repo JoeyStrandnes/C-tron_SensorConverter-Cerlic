@@ -18,6 +18,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "crc.h"
 #include "i2c.h"
 #include "tim.h"
 #include "usart.h"
@@ -102,17 +103,12 @@ int main(void)
   MX_USART2_UART_Init();
   MX_TIM3_Init();
   MX_TIM4_Init();
+  MX_CRC_Init();
   /* USER CODE BEGIN 2 */
   class SensorConverterSettings Settings(
 		  LED_GPIO_Port,
 		  LED_Pin,
 		  &hi2c1,
-		  &huart1,
-		  USART1_DIR_GPIO_Port,
-		  USART1_DIR_Pin,
-		  &huart2,
-		  USART2_DIR_GPIO_Port,
-		  USART2_DIR_Pin,
 
 		  JP1_GPIO_Port,
 		  JP1_Pin,
@@ -129,9 +125,8 @@ int main(void)
   );
 
 
-
 //ModBus Slave
-  ModBusSlave.Address = TYPE_LT600;
+  ModBusSlave.Address = Settings.SlaveAddress;
 
   ModBusSlave.OutputBuffer = (uint8_t *)SlaveTxBuffer;
   ModBusSlave.InputBuffer = (uint8_t *)SlaveRxBuffer;
@@ -144,7 +139,7 @@ int main(void)
 
 
 //ModBus Master
-  ModBusMaster.Address = 10;
+  ModBusMaster.Address = Settings.MasterAddress;
 
   ModBusMaster.OutputBuffer = (uint8_t *)MasterTxBuffer;
   ModBusMaster.InputBuffer = (uint8_t *)MasterRxBuffer;
@@ -171,22 +166,8 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-/*
-	  HAL_UART_StateTypeDef UART_State = HAL_UART_GetState(&huart1);
 
-	  if(UART_State == HAL_UART_STATE_ERROR || UART_State == HAL_UART_STATE_TIMEOUT){
 
-		  HAL_UART_Abort(&huart1);
-		  HAL_Delay(1);
-
-		  HAL_UARTEx_ReceiveToIdle_IT(&huart1, (uint8_t *)SlaveRxBuffer, 20);
-		  HAL_UART_AbortReceive_IT(&huart1);
-		  HAL_UART_AbortTransmit_IT(&huart1);
-
-	  }
-
-	  HAL_Delay(100);
-*/
     /* USER CODE BEGIN 3 */
 
   }
