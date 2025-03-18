@@ -101,6 +101,7 @@ int main(void)
   MX_USART1_UART_Init();
   MX_USART2_UART_Init();
   MX_TIM3_Init();
+  MX_TIM4_Init();
   /* USER CODE BEGIN 2 */
   class SensorConverterSettings Settings(
 		  LED_GPIO_Port,
@@ -162,7 +163,7 @@ int main(void)
 
   HAL_UARTEx_ReceiveToIdle_IT(&huart1, ModBusSlave.InputBuffer, 20);
 
-  HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
+  //HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
   HAL_GPIO_WritePin(USART2_DIR_GPIO_Port, USART2_DIR_Pin, GPIO_PIN_SET);
   HAL_UART_Transmit_IT(&huart2, ModBusMaster.OutputBuffer, ModBusMaster.ResponseSize);
 
@@ -175,11 +176,6 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-
-
-
-	  HAL_Delay(1000);
-
 
   }
   /* USER CODE END 3 */
@@ -228,7 +224,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 
 	if(htim->Instance == TIM3){
 
-		HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
+		//HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
 		HAL_GPIO_WritePin(USART2_DIR_GPIO_Port, USART2_DIR_Pin, GPIO_PIN_SET);
 		HAL_UART_Transmit_IT(&huart2, ModBusMaster.OutputBuffer, ModBusMaster.ResponseSize);
 
@@ -236,6 +232,18 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 		HAL_TIM_Base_Stop_IT(&htim3);
 
 		return;
+	}
+
+	//Delay for the response to C-tron
+	if(htim->Instance == TIM4){
+
+		HAL_GPIO_WritePin(USART1_DIR_GPIO_Port, USART1_DIR_Pin, GPIO_PIN_SET);
+		HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
+
+		HAL_UART_Transmit_IT(&huart1, ModBusSlave.OutputBuffer, ModBusSlave.ResponseSize);
+
+		HAL_TIM_Base_Stop_IT(&htim4);
+
 	}
 
 
@@ -266,10 +274,14 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size){
 			ModBusSlave.RequestSize = Size;
 			ModBusSlave.ParseMasterRequest();
 
+			HAL_TIM_Base_Start_IT(&htim4); //Triggers after 10 ms to give some delay
+
+			/*
 			HAL_GPIO_WritePin(USART1_DIR_GPIO_Port, USART1_DIR_Pin, GPIO_PIN_SET);
 			HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
 
 			HAL_UART_Transmit_IT(&huart1, ModBusSlave.OutputBuffer, ModBusSlave.ResponseSize);
+			*/
 
 		}
 		else{
