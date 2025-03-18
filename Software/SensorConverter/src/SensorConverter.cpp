@@ -97,17 +97,16 @@ void SensorConverterSettings::GetSettingsFromEEPROM(){
 
 	uint16_t SettingsSize = sizeof(*this);
 
-	//Step 1: Calculate the checksum of the first 12 bytes of the Settings.
+	//Step 1: Read the data from the EEPROM.
+	HAL_I2C_Master_Transmit(I2C, 0xA0, MemoryAddress, 2, 100);
+	HAL_I2C_Master_Receive(I2C, 0xA0, (uint8_t *)this, SettingsSize, 100);
+
+	//Step 2: Calculate the checksum of the first 12 bytes of the Settings.
 	uint8_t TempBuffer[12];
 	std::memcpy(TempBuffer, (uint8_t *)(this), sizeof(TempBuffer));
-	uint32_t TempCRC = HAL_CRC_Calculate(&hcrc, (uint32_t *)TempBuffer, sizeof(TempBuffer)/4);
+	uint32_t TempCRC = this->NVM_CRC;
+	this->NVM_CRC = HAL_CRC_Calculate(&hcrc, (uint32_t *)TempBuffer, sizeof(TempBuffer)/4);
 
-
-	//Step 2: Read the data from the EEPROM.
-	HAL_I2C_Master_Seq_Receive_IT(I2C, 0xA1, MemoryAddress, 2, I2C_FIRST_AND_NEXT_FRAME);
-	while(HAL_I2C_GetState(I2C) != HAL_I2C_STATE_READY);
-	HAL_I2C_Master_Seq_Receive_IT(I2C, 0xA1, (uint8_t *)this, SettingsSize, I2C_LAST_FRAME);
-	while(HAL_I2C_GetState(I2C) != HAL_I2C_STATE_READY);
 
 	//Step 3: Verify the data integrity. Keep if good, reset if not!
 	if(TempCRC != this->NVM_CRC){
@@ -129,11 +128,14 @@ void SensorConverterSettings::WriteSettingsToEEPROM(){
 	MemoryAddress[0] = 0;
 	MemoryAddress[1] = 0;
 
+	HAL_I2C_Master_Abort_IT(I2C, 0xA0);
+	while(HAL_I2C_GetState(I2C) != HAL_I2C_STATE_READY && HAL_I2C_GetState(I2C) != HAL_I2C_STATE_RESET);
+
 	HAL_I2C_Master_Seq_Transmit_IT(I2C, 0xA1, MemoryAddress, 2, I2C_FIRST_AND_NEXT_FRAME);
 
 	//Yes this is very stupid, it is important that this happens before the rest of the system is initiated.
 	//ST HAL does not offer a "sequenced" transmit in blocking mode...
-	while(HAL_I2C_GetState(I2C) != HAL_I2C_STATE_READY);
+	while(HAL_I2C_GetState(I2C) != HAL_I2C_STATE_READY && HAL_I2C_GetState(I2C) != HAL_I2C_STATE_RESET);
 
 	HAL_I2C_Master_Seq_Transmit_IT(I2C, 0xA1, (uint8_t *)this, SettingsSize, I2C_LAST_FRAME);
 

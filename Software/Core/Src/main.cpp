@@ -251,9 +251,9 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size){
 		//FIXME Only for testing
 		if(ModBusSlave.Address == ModBusSlave.InputBuffer[0]){
 
-			ModBusSlave.RegisterMap[0][0].InputData.UINT16 = 435;
-			ModBusSlave.RegisterMap[0][1].InputData.UINT16 = 123;
-			ModBusSlave.RegisterMap[0][2].InputData.UINT16 = SOFTWARE_VERSION;
+			ModBusSlave.RegisterMap[0][0].InputData.UINT16 = ModBusSlave.SettingsPtr->SerialNumber_H;
+			ModBusSlave.RegisterMap[0][1].InputData.UINT16 = ModBusSlave.SettingsPtr->SerialNumber_L;
+			ModBusSlave.RegisterMap[0][2].InputData.UINT16 = ModBusSlave.SettingsPtr->SoftwareVersion;
 			ModBusSlave.RegisterMap[0][3].InputData.UINT16 = ModBusSlave.Address;
 
 			ModBusSlave.RegisterMap[0][4].InputData.UINT16 = 0;
