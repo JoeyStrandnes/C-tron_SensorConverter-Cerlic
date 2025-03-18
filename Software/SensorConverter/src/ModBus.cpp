@@ -189,70 +189,64 @@ void ModBusRTU_MasterClass::ParseSlaveData(){
 		switch(this->RegisterMap[RegisterType][i].RegType){
 
 			case(CHAR): // 16-bit wide but easier to keep track of.
-				//(this->RegisterMap[RegisterType][i].Index * 2) + MODBUS_REG_OFFSET; // 2x is to convert the transmitted bytes to the 16-bit wide registers.
 				this->RegisterMap[RegisterType][i].InputData.UINT16 = (((int16_t)InputBuffer[BufferIndex++]) << 8);
-				this->RegisterMap[RegisterType][i].InputData.UINT16 |= InputBuffer[BufferIndex];
+				this->RegisterMap[RegisterType][i].InputData.UINT16 |= InputBuffer[BufferIndex++];
 
-				BufferIndex += 2;
+				//BufferIndex += 2; // 2x is to convert the transmitted bytes to the 16-bit wide registers.
 
 				break;
 			case(INT16):
-				//BufferIndex = (this->RegisterMap[RegisterType][i].Index * 2) + MODBUS_REG_OFFSET; // 2x is to convert the transmitted bytes to the 16-bit wide registers.
 				this->RegisterMap[RegisterType][i].InputData.INT16 = (((int16_t)InputBuffer[BufferIndex++]) << 8);
-				this->RegisterMap[RegisterType][i].InputData.INT16 |= InputBuffer[BufferIndex];
+				this->RegisterMap[RegisterType][i].InputData.INT16 |= InputBuffer[BufferIndex++];
 				this->RegisterMap[RegisterType][i].OutputData = (((float)(this->RegisterMap[RegisterType][i].InputData.INT16)) / this->RegisterMap[RegisterType][i].ScaleFactor);
 
-				BufferIndex += 2;
+				//BufferIndex += 2;
 
 				break;
 			case(UINT16):
-				//BufferIndex = (this->RegisterMap[RegisterType][i].Index * 2) + MODBUS_REG_OFFSET;
 				this->RegisterMap[RegisterType][i].InputData.UINT16 = (((uint16_t)InputBuffer[BufferIndex++]) << 8);
-				this->RegisterMap[RegisterType][i].InputData.UINT16 |= InputBuffer[BufferIndex];
+				this->RegisterMap[RegisterType][i].InputData.UINT16 |= InputBuffer[BufferIndex++];
 				this->RegisterMap[RegisterType][i].OutputData = (((float)(this->RegisterMap[RegisterType][i].InputData.UINT16)) / this->RegisterMap[RegisterType][i].ScaleFactor);
 
-				BufferIndex += 2;
+				//BufferIndex += 2;
 				break;
 			case(UINT32):
-				//BufferIndex = (this->RegisterMap[RegisterType][i].Index * 2) + MODBUS_REG_OFFSET;
 				this->RegisterMap[RegisterType][i].InputData.UINT32 = (((uint32_t)InputBuffer[BufferIndex++]) << 24);
 				this->RegisterMap[RegisterType][i].InputData.UINT32 |= (((uint32_t)InputBuffer[BufferIndex++]) << 16);
 				this->RegisterMap[RegisterType][i].InputData.UINT32 |= (((uint32_t)InputBuffer[BufferIndex++]) << 8);
-				this->RegisterMap[RegisterType][i].InputData.UINT32 |= InputBuffer[BufferIndex];
+				this->RegisterMap[RegisterType][i].InputData.UINT32 |= InputBuffer[BufferIndex++];
 				this->RegisterMap[RegisterType][i].OutputData = (((float)(this->RegisterMap[RegisterType][i].InputData.UINT32)) / this->RegisterMap[RegisterType][i].ScaleFactor);
 
-				BufferIndex += 4;
+				//BufferIndex += 4;
 
 				break;
 			case(FLOAT): {
 				uint8_t TmpBuffer[4];
 				float TmpFloat = 0;
-				//BufferIndex = (this->RegisterMap[RegisterType][i].Index * 2) + MODBUS_REG_OFFSET;
 				TmpBuffer[3] = InputBuffer[BufferIndex++];
 				TmpBuffer[2] = InputBuffer[BufferIndex++];
 				TmpBuffer[1] = InputBuffer[BufferIndex++];
-				TmpBuffer[0] = InputBuffer[BufferIndex];
+				TmpBuffer[0] = InputBuffer[BufferIndex++];
 				memcpy(&TmpFloat, &TmpBuffer, 4);
 				this->RegisterMap[RegisterType][i].InputData.FLOAT = TmpFloat;
 				this->RegisterMap[RegisterType][i].OutputData = TmpFloat;
 
-				BufferIndex += 4;
+				//BufferIndex += 4;
 
 				break;
 			}
 			case(PONDUS_FLOAT): {
 				uint8_t TmpBuffer[4];
 				float TmpFloat = 0;
-				//BufferIndex = (this->RegisterMap[RegisterType][i].Index * 2) + MODBUS_REG_OFFSET;
 				TmpBuffer[1] = InputBuffer[BufferIndex++];
 				TmpBuffer[0] = InputBuffer[BufferIndex++];
 				TmpBuffer[3] = InputBuffer[BufferIndex++];
-				TmpBuffer[2] = InputBuffer[BufferIndex];
+				TmpBuffer[2] = InputBuffer[BufferIndex++];
 				memcpy(&TmpFloat, &TmpBuffer, 4);
 				this->RegisterMap[RegisterType][i].InputData.FLOAT = TmpFloat;
 				this->RegisterMap[RegisterType][i].OutputData = TmpFloat;
 
-				BufferIndex += 4;
+				//BufferIndex += 4;
 				break;
 			}
 			default:
