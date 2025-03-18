@@ -101,11 +101,11 @@ void LT600_SlaveRegisterMap(struct Measurement_Register *registers[2], uint16_t 
 	registers[1][RegisterIndex].Index = 0;
 	registers[1][RegisterIndex].ScaleFactor = 1;
 	registers[1][RegisterIndex++].RegType = FLOAT; //Primary value
-
+/*
 	registers[1][RegisterIndex].Index = 1;
 	registers[1][RegisterIndex].ScaleFactor = 10;
 	registers[1][RegisterIndex++].RegType = UINT16; //4-20mA value
-
+*/
 	registers[1][RegisterIndex].Index = 2;
 	registers[1][RegisterIndex].ScaleFactor = 10;
 	registers[1][RegisterIndex++].RegType = UINT16; //% of calibrated range

@@ -279,11 +279,9 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size){
 			ModBusSlave.RegisterMap[0][7].InputData.UINT16 = 0;
 
 
-
 			ModBusSlave.RegisterMap[1][0].OutputData = ModBusMaster.RegisterMap[1][0].OutputData;
-			ModBusSlave.RegisterMap[1][1].InputData.UINT16 = (uint16_t)(ModBusMaster.RegisterMap[1][1].OutputData * ModBusSlave.RegisterMap[1][1].ScaleFactor);
-			ModBusSlave.RegisterMap[1][2].InputData.UINT16 = (uint16_t)(ModBusMaster.RegisterMap[1][2].OutputData * ModBusSlave.RegisterMap[1][2].ScaleFactor);
-			ModBusSlave.RegisterMap[1][3].InputData.UINT16 = (uint16_t)(ModBusMaster.RegisterMap[1][3].OutputData * ModBusSlave.RegisterMap[1][3].ScaleFactor);
+			ModBusSlave.RegisterMap[1][1].InputData.UINT16 = (uint16_t)(ModBusMaster.RegisterMap[1][2].OutputData * ModBusSlave.RegisterMap[1][1].ScaleFactor);
+			ModBusSlave.RegisterMap[1][2].InputData.UINT16 = (uint16_t)(ModBusMaster.RegisterMap[1][3].OutputData * ModBusSlave.RegisterMap[1][2].ScaleFactor);
 
 			ModBusSlave.RequestSize = (huart->RxXferSize - huart->RxXferCount);
 			ModBusSlave.ParseMasterRequest();
