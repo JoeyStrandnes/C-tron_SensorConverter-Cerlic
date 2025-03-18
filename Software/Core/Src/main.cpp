@@ -158,7 +158,7 @@ int main(void)
   ModBusMaster.ReadAllSensorData();
 
 
-  HAL_UARTEx_ReceiveToIdle_IT(&huart1, (uint8_t *)SlaveRxBuffer, 20);
+  HAL_UARTEx_ReceiveToIdle_IT(&huart1, (uint8_t *)SlaveRxBuffer, 8);
 
   //HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
   HAL_GPIO_WritePin(USART2_DIR_GPIO_Port, USART2_DIR_Pin, GPIO_PIN_SET);
@@ -300,7 +300,7 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size){
 			//Packet was not for us. Re enable the reception.
 			HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
 			HAL_GPIO_WritePin(USART1_DIR_GPIO_Port, USART1_DIR_Pin, GPIO_PIN_RESET);
-			HAL_UARTEx_ReceiveToIdle_IT(&huart1, (uint8_t *)SlaveRxBuffer, 20);
+			HAL_UARTEx_ReceiveToIdle_IT(&huart1, (uint8_t *)SlaveRxBuffer, 8);
 		}
 
 		ModBusSlave.RequestSize = 0;
@@ -332,7 +332,7 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart){
 		HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
 		HAL_GPIO_WritePin(USART1_DIR_GPIO_Port, USART1_DIR_Pin, GPIO_PIN_RESET);
 
-		HAL_UARTEx_ReceiveToIdle_IT(&huart1, (uint8_t *)SlaveRxBuffer, 20);
+		HAL_UARTEx_ReceiveToIdle_IT(&huart1, (uint8_t *)SlaveRxBuffer, 8);
 
 	}
 	if(huart->Instance == USART2){
