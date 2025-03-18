@@ -26,7 +26,7 @@
 #define MODBUS_EXCEPTION_SLAVE_DEVICE_BUSY      6
 #define MODBUS_EXCEPTION_MEMORY_ERROR           8
 
-
+enum SerialNumberCommands{SER_High, SER_Low, SER_StoreToNVM, SER_Size}; //Enum for Serial-number
 
 class ModBusRTU_BaseClass{
 //This base class is used as a pure parser of the data.
@@ -35,6 +35,8 @@ class ModBusRTU_BaseClass{
 public:
 
 	ModBusRTU_BaseClass(){};
+
+	class SensorConverterSettings *SettingsPtr{NULL};
 
 	uint8_t Address{0};
 

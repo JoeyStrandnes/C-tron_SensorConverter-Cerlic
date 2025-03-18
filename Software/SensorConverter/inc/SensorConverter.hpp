@@ -14,6 +14,7 @@
 #include <cstring>
 
 #define SOFTWARE_VERSION 101
+#define SENSOR_TAG_SIZE 8				//Number of bytes for the sensor tag.
 
 class SensorConverterSettings{
 
@@ -39,16 +40,18 @@ public:
 			);
 
 	//General system info.
-	uint16_t 	SerialNumber_H{435};
-	uint16_t 	SerialNumber_L{123};
+	uint16_t 	SerialNumber_H{0};
+	uint16_t 	SerialNumber_L{0};
 	uint16_t 	SoftwareVersion = {SOFTWARE_VERSION};
-	char 		Tag[10];
+	char 		Tag[SENSOR_TAG_SIZE];
 
 	uint8_t 	SensorType{TYPE_LT600}; 	//What type of sensor we are emulating.
 	uint8_t		SlaveAddress{TYPE_LT600};	//Address that we use as slaves
 	uint8_t		MasterAddress{10};			//Address we use as masters
 
 	void HeartBeat(){HAL_GPIO_TogglePin(HeartBeatPort, HeartBeatPin);};
+
+	void WriteSettingsToEEPROM();
 
 private:
 
@@ -74,7 +77,6 @@ private:
 	void FactoryReset();
 
 	void GetSettingsFromEEPROM();
-	void WriteSettingsToEEPROM();
 
 	uint32_t NVM_CRC{0}; //This is used to verify the valididity of the NVM.
 

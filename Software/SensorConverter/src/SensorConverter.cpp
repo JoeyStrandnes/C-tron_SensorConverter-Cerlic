@@ -53,7 +53,7 @@ SensorConverterSettings::SensorConverterSettings(
 
 	this->GetSensorType();
 
-	//this->GetSettingsFromEEPROM();
+	this->GetSettingsFromEEPROM();
 
 	return;
 

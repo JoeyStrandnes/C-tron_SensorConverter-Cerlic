@@ -126,6 +126,7 @@ int main(void)
 
 
 //ModBus Slave
+  ModBusSlave.SettingsPtr = &Settings;
   ModBusSlave.Address = Settings.SlaveAddress;
 
   ModBusSlave.OutputBuffer = (uint8_t *)SlaveTxBuffer;
@@ -139,6 +140,7 @@ int main(void)
 
 
 //ModBus Master
+  ModBusMaster.SettingsPtr = &Settings;
   ModBusMaster.Address = Settings.MasterAddress;
 
   ModBusMaster.OutputBuffer = (uint8_t *)MasterTxBuffer;

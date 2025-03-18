@@ -454,8 +454,46 @@ void ModBusRTU_SlaveClass::HandleFC_6(){
 
 
 uint8_t ModBusRTU_SlaveClass::ModBusSerialNumber(){
+//It is assumed that the packet is sanity checked when entering the function.
 
-	return MODBUS_EXCEPTION_OK;
+	uint16_t Command = (uint16_t)((this->InputBuffer[4]) << 8) | (this->InputBuffer[5]);
+	uint16_t Data =	(uint16_t)((this->InputBuffer[6]) << 8) | (this->InputBuffer[7]);
+
+	//I have no idea why a switch case doesnt work here...
+	//Copied the same code from all other sensors...
+	if(Command == SER_High){
+
+		if(this->SettingsPtr->SerialNumber_H == 0){ //Check if the device has a serial number.
+			this->Register[0][0] = Data;
+			return MODBUS_EXCEPTION_OK;
+		}
+		else{
+			return MODBUS_EXCEPTION_ILLIGAL_DATA_VALUE;
+		}
+
+	}
+	else if(Command == SER_Low){
+		if(this->SettingsPtr->SerialNumber_L == 0){ //Check if the device has a serial number.
+			this->Register[0][1] = Data;
+			return MODBUS_EXCEPTION_OK;
+		}
+		else{
+			return MODBUS_EXCEPTION_ILLIGAL_DATA_VALUE;
+		}
+	}
+	else if(Command == SER_StoreToNVM){
+		//Values internal values will only change once this function is called.
+		//Allows the end user to see the changed values but will not actually get saved.
+		this->SettingsPtr->SerialNumber_H = this->Register[0][0];
+		this->SettingsPtr->SerialNumber_L = this->Register[0][1];
+
+		this->SettingsPtr->WriteSettingsToEEPROM();
+		return MODBUS_EXCEPTION_OK;
+	}
+
+
+	return MODBUS_EXCEPTION_SLAVE_DEVICE_FAILURE;
+
 }
 
 uint8_t ModBusRTU_SlaveClass::ModBusCalibration(){
@@ -469,6 +507,15 @@ uint8_t ModBusRTU_SlaveClass::ModBusFactoryDefaults(){
 }
 
 uint8_t ModBusRTU_SlaveClass::ModBusSensorTag(){
+
+    if(this->RequestSize != 12){
+        return MODBUS_EXCEPTION_ILLIGAL_DATA_VALUE;
+    }
+
+    std::memcpy(this->SettingsPtr->Tag, &(this->InputBuffer[2]), SENSOR_TAG_SIZE); //Copy the bytes to the internal array.
+
+    this->SettingsPtr->WriteSettingsToEEPROM();
+    //LoadHoldingRegisters(modbus_rtu->SettingsPtr, modbus_rtu->Register[0]);
 
 	return MODBUS_EXCEPTION_OK;
 }
