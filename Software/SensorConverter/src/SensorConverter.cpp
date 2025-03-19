@@ -162,6 +162,3 @@ void SensorConverterSettings::WriteSettingsToEEPROM(){
 
 
 
-
-
-

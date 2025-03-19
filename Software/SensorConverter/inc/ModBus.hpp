@@ -92,6 +92,7 @@ public:
 
 	void ParseMasterRequest();
 	void SetRegisterValue(float data, uint16_t index);
+	void LoadRegisters(); //FIXME only for testing
 
 private:
 
