@@ -62,7 +62,7 @@ extern DMA_HandleTypeDef hdma_usart1_rx;
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
-
+extern "C"{void ModBusSlaveRxHandler();}
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -125,6 +125,9 @@ int main(void)
   );
 
 
+  Settings.SerialNumber_H = 435;
+  Settings.SerialNumber_L = 128;
+
 //ModBus Slave
   ModBusSlave.SettingsPtr = &Settings;
   ModBusSlave.Address = Settings.SlaveAddress;
@@ -155,7 +158,10 @@ int main(void)
   ModBusMaster.ReadAllSensorData();
 
 
-  HAL_UARTEx_ReceiveToIdle_IT(&huart1, (uint8_t *)SlaveRxBuffer, 8);
+  LL_USART_EnableIT_RXNE(USART1);
+
+  //HAL_UARTEx_ReceiveToIdle_IT(&huart1, (uint8_t *)SlaveRxBuffer, ModBusSlave.InputBufferSize);
+  //HAL_UARTEx_ReceiveToIdle_IT(&huart1, (uint8_t *)SlaveRxBuffer, 8);
 
   //HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
   HAL_GPIO_WritePin(USART2_DIR_GPIO_Port, USART2_DIR_Pin, GPIO_PIN_SET);
@@ -215,6 +221,21 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
+void ModBusSlaveRxHandler(){
+
+
+	if(ModBusSlave.RequestSize >= 8/*ModBusSlave.InputBufferSize*/){
+		LL_USART_DisableIT_RXNE(USART1);
+		return;
+	}
+
+	ModBusSlave.InputBuffer[ModBusSlave.RequestSize++] = LL_USART_ReceiveData8(USART1); //Also clears flag
+
+
+	return;
+}
+
+
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 
 	if(htim->Instance == TIM3){
@@ -234,7 +255,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 		HAL_GPIO_WritePin(USART1_DIR_GPIO_Port, USART1_DIR_Pin, GPIO_PIN_SET);
 		HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
 
-		HAL_UART_Transmit_IT(&huart1, (uint8_t *)ModBusSlave.OutputBuffer, ModBusSlave.ResponseSize);
+		//HAL_UART_Transmit_IT(&huart1, (uint8_t *)ModBusSlave.OutputBuffer, ModBusSlave.ResponseSize);
 		HAL_TIM_Base_Stop_IT(&htim4);
 
 	}
@@ -250,7 +271,12 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size){
 
 		//FIXME Only for testing
 		if(ModBusSlave.Address == ModBusSlave.InputBuffer[0]){
-
+/*
+			if(ModBusSlave.InputBuffer[0] >= 60){
+				HAL_UARTEx_ReceiveToIdle_IT(&huart1, (uint8_t *)(SlaveRxBuffer + 8), 8);
+				return;
+			}
+*/
 			ModBusSlave.RegisterMap[0][0].InputData.UINT16 = ModBusSlave.SettingsPtr->SerialNumber_H;
 			ModBusSlave.RegisterMap[0][1].InputData.UINT16 = ModBusSlave.SettingsPtr->SerialNumber_L;
 			ModBusSlave.RegisterMap[0][2].InputData.UINT16 = ModBusSlave.SettingsPtr->SoftwareVersion;
@@ -266,22 +292,26 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size){
 			ModBusSlave.RegisterMap[1][1].InputData.UINT16 = (uint16_t)(ModBusMaster.RegisterMap[1][2].OutputData * ModBusSlave.RegisterMap[1][1].ScaleFactor);
 			ModBusSlave.RegisterMap[1][2].InputData.UINT16 = (uint16_t)(ModBusMaster.RegisterMap[1][3].OutputData * ModBusSlave.RegisterMap[1][2].ScaleFactor);
 
-			ModBusSlave.RequestSize = (huart->RxXferSize - huart->RxXferCount);
+			//ModBusSlave.RequestSize = (huart->RxXferSize - huart->RxXferCount);
+			ModBusSlave.RequestSize = Size;
 			ModBusSlave.ParseMasterRequest();
 
-			HAL_UART_Abort(&huart1);
+			//HAL_UART_Abort(&huart1);
 
 			HAL_TIM_Base_Start_IT(&htim4); //Triggers after 5 ms to give some delay before transmitting new data
 
 		}
 		else{
 
-			HAL_UART_Abort(&huart1);
+			//HAL_UART_Abort(&huart1);
 
 			//Packet was not for us. Re enable the reception.
 			HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
 			HAL_GPIO_WritePin(USART1_DIR_GPIO_Port, USART1_DIR_Pin, GPIO_PIN_RESET);
-			HAL_UARTEx_ReceiveToIdle_IT(&huart1, (uint8_t *)SlaveRxBuffer, 8);
+
+			//HAL_UARTEx_ReceiveToIdle_IT(&huart1, (uint8_t *)SlaveRxBuffer, ModBusSlave.InputBufferSize);
+			//HAL_UARTEx_ReceiveToIdle_IT(&huart1, (uint8_t *)SlaveRxBuffer, 8);
+
 		}
 
 		ModBusSlave.RequestSize = 0;
@@ -303,6 +333,8 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size){
 
 	}
 
+	UNUSED(Error);
+
 	return;
 }
 
@@ -313,7 +345,7 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart){
 		HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
 		HAL_GPIO_WritePin(USART1_DIR_GPIO_Port, USART1_DIR_Pin, GPIO_PIN_RESET);
 
-		HAL_UARTEx_ReceiveToIdle_IT(&huart1, (uint8_t *)SlaveRxBuffer, 8);
+		//HAL_UARTEx_ReceiveToIdle_IT(&huart1, (uint8_t *)SlaveRxBuffer, ModBusSlave.InputBufferSize);
 
 	}
 	if(huart->Instance == USART2){
@@ -341,7 +373,8 @@ void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart){
 		Error = huart->Instance->SR;
 		Error = huart->Instance->DR;
 
-		HAL_UARTEx_ReceiveToIdle_IT(&huart1, (uint8_t *)SlaveRxBuffer, 20);
+		//HAL_UARTEx_ReceiveToIdle_IT(&huart1, (uint8_t *)SlaveRxBuffer, ModBusSlave.InputBufferSize);
+		//HAL_UARTEx_ReceiveToIdle_IT(&huart1, (uint8_t *)SlaveRxBuffer, 8);
 
 	}
 
@@ -352,6 +385,8 @@ void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart){
 		Error = huart->Instance->DR;
 
 	}
+
+	UNUSED(Error);
 
 	return;
 }
