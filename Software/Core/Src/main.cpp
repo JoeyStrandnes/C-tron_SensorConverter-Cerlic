@@ -70,7 +70,7 @@ extern "C"{
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-void LoadRegisters();
+
 /* USER CODE END 0 */
 
 /**
@@ -152,7 +152,7 @@ int main(void)
   ModBusMaster.OutputBufferSize = sizeof(MasterTxBuffer)/sizeof(MasterTxBuffer[0]);
   ModBusMaster.InputBufferSize = sizeof(MasterRxBuffer)/sizeof(MasterRxBuffer[0]);
 
-  LinkSensorConfig(&ModBusMaster, &ModBusSlave, TYPE_LT600);
+  LinkSensorConfig(&ModBusMaster, &ModBusSlave, ModBusSlave.SettingsPtr->SensorType);
 
   ModBusMaster.ReadAllSensorData();
 
@@ -277,7 +277,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 
 		HAL_TIM_Base_Stop_IT(htim);
 
-		LoadRegisters();
+		LoadModBusRegisters(&ModBusMaster, &ModBusSlave, ModBusSlave.SettingsPtr->SensorType);
+
 		ModBusSlave.ParseMasterRequest();
 
 		LL_USART_DisableIT_RXNE(USART1);
@@ -388,26 +389,6 @@ void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart){
 	return;
 }
 
-
-void LoadRegisters(){
-
-	ModBusSlave.RegisterMap[0][0].InputData.UINT16 = ModBusSlave.SettingsPtr->SerialNumber_H;
-	ModBusSlave.RegisterMap[0][1].InputData.UINT16 = ModBusSlave.SettingsPtr->SerialNumber_L;
-	ModBusSlave.RegisterMap[0][2].InputData.UINT16 = ModBusSlave.SettingsPtr->SoftwareVersion;
-	ModBusSlave.RegisterMap[0][3].InputData.UINT16 = ModBusSlave.Address;
-
-	ModBusSlave.RegisterMap[0][4].InputData.UINT16 = 0;
-	ModBusSlave.RegisterMap[0][5].InputData.UINT16 = 0;
-	ModBusSlave.RegisterMap[0][6].InputData.UINT16 = 0;
-	ModBusSlave.RegisterMap[0][7].InputData.UINT16 = 0;
-
-
-	ModBusSlave.RegisterMap[1][0].OutputData = ModBusMaster.RegisterMap[1][0].OutputData;
-	ModBusSlave.RegisterMap[1][1].InputData.UINT16 = (uint16_t)(ModBusMaster.RegisterMap[1][2].OutputData * ModBusSlave.RegisterMap[1][1].ScaleFactor);
-	ModBusSlave.RegisterMap[1][2].InputData.UINT16 = (uint16_t)(ModBusMaster.RegisterMap[1][3].OutputData * ModBusSlave.RegisterMap[1][2].ScaleFactor);
-
-	return;
-}
 
 /* USER CODE END 4 */
 

@@ -22,20 +22,58 @@ void LinkSensorConfig(class ModBusRTU_BaseClass *modbus_master, class ModBusRTU_
 	case(TYPE_LT600):
 		modbus_master->LinkRegisterMap(&LT600_MasterRegisterMap);
 		modbus_slave->LinkRegisterMap(&LT600_SlaveRegisterMap);
-
-		modbus_master->LoadRegisterMap();
-		modbus_slave->LoadRegisterMap();
 		break;
 	case(TYPE_LT600_FLX):
-			/*
-		settings->SlaveAddress = 10;
-		settings->ReloadMasterRegisters = &LT600_FLX_MasterRegisters;
-		settings->ReloadSlaveRegisters = &LT600_FLX_SlaveRegisters;
-		*/
+		modbus_master->LinkRegisterMap(&LT600_MasterRegisterMap); //Still uses LT600 as a base but performs other calculations to approximate flow.
+		modbus_slave->LinkRegisterMap(&LT600_FLX_SlaveRegisters);
 		break;
 
 
 	}
+
+
+	modbus_master->LoadRegisterMap();
+	modbus_slave->LoadRegisterMap();
+
+	return;
+}
+
+void LoadModBusRegisters(class ModBusRTU_BaseClass *modbus_master, class ModBusRTU_BaseClass *modbus_slave, uint8_t sensor_type){
+
+	switch(sensor_type){
+
+	case(TYPE_CMC):
+
+		break;
+	case(TYPE_LT600):
+
+		modbus_slave->RegisterMap[1][0].OutputData = modbus_master->RegisterMap[1][0].OutputData;
+		modbus_slave->RegisterMap[1][1].InputData.UINT16 = (uint16_t)(modbus_master->RegisterMap[1][2].OutputData * modbus_slave->RegisterMap[1][1].ScaleFactor);
+		modbus_slave->RegisterMap[1][2].InputData.UINT16 = (uint16_t)(modbus_master->RegisterMap[1][3].OutputData * modbus_slave->RegisterMap[1][2].ScaleFactor);
+
+		break;
+	case(TYPE_LT600_FLX):
+
+		break;
+
+	default:
+		return;
+
+	}
+
+
+	modbus_slave->RegisterMap[0][0].InputData.UINT16 = modbus_slave->SettingsPtr->SerialNumber_H;
+	modbus_slave->RegisterMap[0][1].InputData.UINT16 = modbus_slave->SettingsPtr->SerialNumber_L;
+	modbus_slave->RegisterMap[0][2].InputData.UINT16 = modbus_slave->SettingsPtr->SoftwareVersion;
+	modbus_slave->RegisterMap[0][3].InputData.UINT16 = modbus_slave->Address;
+
+	//Tag TBD
+	modbus_slave->RegisterMap[0][4].InputData.UINT16 = 0;
+	modbus_slave->RegisterMap[0][5].InputData.UINT16 = 0;
+	modbus_slave->RegisterMap[0][6].InputData.UINT16 = 0;
+	modbus_slave->RegisterMap[0][7].InputData.UINT16 = 0;
+
+
 	return;
 }
 
@@ -97,8 +135,6 @@ void LT600_SlaveRegisterMap(struct Measurement_Register *registers[2], uint16_t 
 	free(registers[1]);
 	registers[1] = (struct Measurement_Register *)malloc(register_map_size[1] * sizeof(struct Measurement_Register));
 
-	register_map_size[0] = 10;
-
 	uint8_t RegisterIndex{0};
 
 	registers[1][RegisterIndex].Index = 0;
@@ -153,18 +189,88 @@ void LT600_SlaveRegisterMap(struct Measurement_Register *registers[2], uint16_t 
 	registers[0][RegisterIndex++].RegType = CHAR;
 
 
+	return;
+}
+
+
+void LT600_FLX_SlaveRegisters(struct Measurement_Register *registers[2], uint16_t *register_map_size){
+
+
+	//Allocate all the memory
+	register_map_size[0] = LT600_HOLDING_SLAVE_MAP_SIZE;
+	register_map_size[1] = LT600_INPUT_SLAVE_MAP_SIZE;
+
+	free(registers[0]);
+	registers[0] = (struct Measurement_Register *)malloc(register_map_size[0] * sizeof(struct Measurement_Register));
+
+	free(registers[1]);
+	registers[1] = (struct Measurement_Register *)malloc(register_map_size[1] * sizeof(struct Measurement_Register));
+
+
+	uint8_t RegisterIndex{0};
+
+	registers[1][RegisterIndex].Index = 0;
+	registers[1][RegisterIndex].ScaleFactor = 1;
+	registers[1][RegisterIndex++].RegType = FLOAT; //Primary value
+
+	registers[1][RegisterIndex].Index = 2;
+	registers[1][RegisterIndex].ScaleFactor = 10;
+	registers[1][RegisterIndex++].RegType = UINT16; //% of calibrated range
+
+	registers[1][RegisterIndex].Index = 3;
+	registers[1][RegisterIndex].ScaleFactor = 10;
+	registers[1][RegisterIndex++].RegType = UINT16; //Temperature
+
+	//Holding registers
+	RegisterIndex = 0;
+
+	registers[0][RegisterIndex].Index = 0;
+	registers[0][RegisterIndex].ScaleFactor = 1;
+	registers[0][RegisterIndex++].RegType = UINT16; //Serial H
+
+	registers[0][RegisterIndex].Index = 1;
+	registers[0][RegisterIndex].ScaleFactor = 1;
+	registers[0][RegisterIndex++].RegType = UINT16; //Serial L
+
+	registers[0][RegisterIndex].Index = 2;
+	registers[0][RegisterIndex].ScaleFactor = 1;
+	registers[0][RegisterIndex++].RegType = UINT16; //Software version
+
+	registers[0][RegisterIndex].Index = 3;
+	registers[0][RegisterIndex].ScaleFactor = 1;
+	registers[0][RegisterIndex++].RegType = UINT16; //ModBus address
+
+	registers[0][RegisterIndex].Index = 4;
+	registers[0][RegisterIndex].ScaleFactor = 1;
+	registers[0][RegisterIndex++].RegType = CHAR;
+
+	registers[0][RegisterIndex].Index = 5;
+	registers[0][RegisterIndex].ScaleFactor = 1;
+	registers[0][RegisterIndex++].RegType = CHAR;
+
+	registers[0][RegisterIndex].Index = 6;
+	registers[0][RegisterIndex].ScaleFactor = 1;
+	registers[0][RegisterIndex++].RegType = CHAR;
+
+	registers[0][RegisterIndex].Index = 7;
+	registers[0][RegisterIndex].ScaleFactor = 1;
+	registers[0][RegisterIndex++].RegType = CHAR;
+
 
 
 	return;
 }
 
-void LT600_FLX_MasterRegisters(struct Measurement_Register *registers[2]){
 
 
-	return;
-}
 
 
-void LT600_FLX_SlaveRegisters(struct Measurement_Register *registers[2]){
-	return;
-}
+
+
+
+
+
+
+
+
+
