@@ -245,11 +245,8 @@ void UART1_IRQ(){
 
 		if(ModBusSlave.ResponseSize != 0){
 
-			//HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
-
-			LL_USART_TransmitData8(USART1, ModBusSlave.OutputBuffer[ModBusSlave.TransmittedBytes++]);
-
-			if(ModBusSlave.TransmittedBytes < ModBusSlave.ResponseSize){
+			if(ModBusSlave.TransmittedBytes <= ModBusSlave.ResponseSize){ //Last byte isnt really transmitted since the direction is set to RX.
+				LL_USART_TransmitData8(USART1, ModBusSlave.OutputBuffer[ModBusSlave.TransmittedBytes++]);
 				return;
 			}
 
