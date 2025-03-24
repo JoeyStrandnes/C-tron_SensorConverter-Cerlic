@@ -345,14 +345,7 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size){
 
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart){
 
-	if(huart->Instance == USART1){
 
-		HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
-		HAL_GPIO_WritePin(USART1_DIR_GPIO_Port, USART1_DIR_Pin, GPIO_PIN_RESET);
-
-		return;
-
-	}
 	if(huart->Instance == USART2){
 
 		HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
