@@ -45,19 +45,50 @@ void LoadModBusRegisters(class ModBusRTU_BaseClass *modbus_master, class ModBusR
 	case(TYPE_CMC):
 
 		break;
-	case(TYPE_LT600):
+	case(TYPE_LT600):{
 
-		modbus_slave->RegisterMap[1][0].OutputData = modbus_master->RegisterMap[1][0].OutputData;
-		modbus_slave->RegisterMap[1][1].InputData.UINT16 = (uint16_t)(modbus_master->RegisterMap[1][2].OutputData * modbus_slave->RegisterMap[1][1].ScaleFactor);
-		modbus_slave->RegisterMap[1][2].InputData.UINT16 = (uint16_t)(modbus_master->RegisterMap[1][3].OutputData * modbus_slave->RegisterMap[1][2].ScaleFactor);
+		modbus_slave->RegisterMap[1][0].OutputData = modbus_master->RegisterMap[1][0].OutputData; //mH20
+		modbus_slave->RegisterMap[1][1].InputData.UINT16 = (uint16_t)(modbus_master->RegisterMap[1][2].OutputData * modbus_slave->RegisterMap[1][1].ScaleFactor); //Scale 0-100%
+		modbus_slave->RegisterMap[1][2].InputData.UINT16 = (uint16_t)(modbus_master->RegisterMap[1][3].OutputData * modbus_slave->RegisterMap[1][2].ScaleFactor); // Temperature C
+
+		//Sensor TAG
+		uint16_t *Tag_ptr = (uint16_t*)(modbus_slave->SettingsPtr->Tag);
+		modbus_slave->RegisterMap[0][4].InputData.UINT16 = Tag_ptr[0];
+		modbus_slave->RegisterMap[0][5].InputData.UINT16 = Tag_ptr[1];
+		modbus_slave->RegisterMap[0][6].InputData.UINT16 = Tag_ptr[2];
+		modbus_slave->RegisterMap[0][7].InputData.UINT16 = Tag_ptr[3];
 
 		break;
-	case(TYPE_LT600_FLX):
+	}
+	case(TYPE_LT600_FLX):{
+
+		modbus_slave->RegisterMap[1][0].OutputData = FLX_CalculateFlow(modbus_master->RegisterMap[1][0].OutputData, 0); //FIXME Parshalls gutter for testing
+		modbus_slave->RegisterMap[1][2].InputData.UINT16 = (uint16_t)(modbus_master->RegisterMap[1][3].OutputData * modbus_slave->RegisterMap[1][2].ScaleFactor); // Temperature C
+
+		modbus_slave->RegisterMap[1][3].InputData.UINT16 = 0;
+		modbus_slave->RegisterMap[1][4].InputData.UINT16 = 0;
+
+		char TmpBuffer[12];
+		FLX_GetGutterName(0, TmpBuffer, 12);
+		modbus_slave->RegisterMap[0][10].InputData.UINT16 = TmpBuffer[0];
+		modbus_slave->RegisterMap[0][11].InputData.UINT16 = TmpBuffer[1];
+		modbus_slave->RegisterMap[0][12].InputData.UINT16 = TmpBuffer[2];
+		modbus_slave->RegisterMap[0][13].InputData.UINT16 = TmpBuffer[3];
+		modbus_slave->RegisterMap[0][14].InputData.UINT16 = TmpBuffer[4];
+		modbus_slave->RegisterMap[0][15].InputData.UINT16 = TmpBuffer[5];
+
+
+		uint16_t *Tag_ptr = (uint16_t*)(modbus_slave->SettingsPtr->Tag);
+		modbus_slave->RegisterMap[0][16].InputData.UINT16 = Tag_ptr[0];
+		modbus_slave->RegisterMap[0][17].InputData.UINT16 = Tag_ptr[1];
+		modbus_slave->RegisterMap[0][18].InputData.UINT16 = Tag_ptr[2];
+		modbus_slave->RegisterMap[0][19].InputData.UINT16 = Tag_ptr[3];
 
 		break;
-
+	}
 	default:
 		return;
+
 
 	}
 
@@ -66,12 +97,6 @@ void LoadModBusRegisters(class ModBusRTU_BaseClass *modbus_master, class ModBusR
 	modbus_slave->RegisterMap[0][1].InputData.UINT16 = modbus_slave->SettingsPtr->SerialNumber_L;
 	modbus_slave->RegisterMap[0][2].InputData.UINT16 = modbus_slave->SettingsPtr->SoftwareVersion;
 	modbus_slave->RegisterMap[0][3].InputData.UINT16 = modbus_slave->Address;
-
-	//Tag TBD
-	modbus_slave->RegisterMap[0][4].InputData.UINT16 = 0;
-	modbus_slave->RegisterMap[0][5].InputData.UINT16 = 0;
-	modbus_slave->RegisterMap[0][6].InputData.UINT16 = 0;
-	modbus_slave->RegisterMap[0][7].InputData.UINT16 = 0;
 
 
 	return;
@@ -140,11 +165,7 @@ void LT600_SlaveRegisterMap(struct Measurement_Register *registers[2], uint16_t 
 	registers[1][RegisterIndex].Index = 0;
 	registers[1][RegisterIndex].ScaleFactor = 1;
 	registers[1][RegisterIndex++].RegType = FLOAT; //Primary value
-/*
-	registers[1][RegisterIndex].Index = 1;
-	registers[1][RegisterIndex].ScaleFactor = 10;
-	registers[1][RegisterIndex++].RegType = UINT16; //4-20mA value
-*/
+
 	registers[1][RegisterIndex].Index = 2;
 	registers[1][RegisterIndex].ScaleFactor = 10;
 	registers[1][RegisterIndex++].RegType = UINT16; //% of calibrated range
@@ -211,15 +232,20 @@ void LT600_FLX_SlaveRegisters(struct Measurement_Register *registers[2], uint16_
 
 	registers[1][RegisterIndex].Index = 0;
 	registers[1][RegisterIndex].ScaleFactor = 1;
-	registers[1][RegisterIndex++].RegType = FLOAT; //Primary value
+	registers[1][RegisterIndex++].RegType = FLOAT; //Flow of water default m^3/h
 
 	registers[1][RegisterIndex].Index = 2;
 	registers[1][RegisterIndex].ScaleFactor = 10;
-	registers[1][RegisterIndex++].RegType = UINT16; //% of calibrated range
+	registers[1][RegisterIndex++].RegType = UINT16; //Temperature
 
 	registers[1][RegisterIndex].Index = 3;
-	registers[1][RegisterIndex].ScaleFactor = 10;
-	registers[1][RegisterIndex++].RegType = UINT16; //Temperature
+	registers[1][RegisterIndex].ScaleFactor = 1;
+	registers[1][RegisterIndex++].RegType = FLOAT; //Total flow
+
+	registers[1][RegisterIndex].Index = 5;
+	registers[1][RegisterIndex].ScaleFactor = 1;
+	registers[1][RegisterIndex++].RegType = UINT16; //Antal bräddningar
+
 
 	//Holding registers
 	RegisterIndex = 0;
@@ -240,6 +266,56 @@ void LT600_FLX_SlaveRegisters(struct Measurement_Register *registers[2], uint16_
 	registers[0][RegisterIndex].ScaleFactor = 1;
 	registers[0][RegisterIndex++].RegType = UINT16; //ModBus address
 
+	registers[0][RegisterIndex].Index = 4;
+	registers[0][RegisterIndex].ScaleFactor = 1;
+	registers[0][RegisterIndex++].RegType = UINT16; //Bräddningsläge 0 = Av, 1 = På
+
+	registers[0][RegisterIndex].Index = 5;
+	registers[0][RegisterIndex].ScaleFactor = 1;
+	registers[0][RegisterIndex++].RegType = UINT16; //Reset totalizer. Write 0 to register
+
+	registers[0][RegisterIndex].Index = 6;
+	registers[0][RegisterIndex].ScaleFactor = 1;
+	registers[0][RegisterIndex++].RegType = FLOAT; //Offset adjust
+
+	registers[0][RegisterIndex].Index = 8;
+	registers[0][RegisterIndex].ScaleFactor = 1;
+	registers[0][RegisterIndex++].RegType = UINT32; //Time of offset cal
+
+	registers[0][RegisterIndex].Index = 10;
+	registers[0][RegisterIndex].ScaleFactor = 1;
+	registers[0][RegisterIndex++].RegType = UINT16; //Level cal
+
+	registers[0][RegisterIndex].Index = 11;
+	registers[0][RegisterIndex].ScaleFactor = 1;
+	registers[0][RegisterIndex++].RegType = UINT32; //Time of level cal
+
+	//Typ av mätränna formaterad som sträng, 12-Bytes.
+	registers[0][RegisterIndex].Index = 12;
+	registers[0][RegisterIndex].ScaleFactor = 1;
+	registers[0][RegisterIndex++].RegType = CHAR;
+
+	registers[0][RegisterIndex].Index = 13;
+	registers[0][RegisterIndex].ScaleFactor = 1;
+	registers[0][RegisterIndex++].RegType = CHAR;
+
+	registers[0][RegisterIndex].Index = 14;
+	registers[0][RegisterIndex].ScaleFactor = 1;
+	registers[0][RegisterIndex++].RegType = CHAR;
+
+	registers[0][RegisterIndex].Index = 15;
+	registers[0][RegisterIndex].ScaleFactor = 1;
+	registers[0][RegisterIndex++].RegType = CHAR;
+
+	registers[0][RegisterIndex].Index = 16;
+	registers[0][RegisterIndex].ScaleFactor = 1;
+	registers[0][RegisterIndex++].RegType = CHAR;
+
+	registers[0][RegisterIndex].Index = 17;
+	registers[0][RegisterIndex].ScaleFactor = 1;
+	registers[0][RegisterIndex++].RegType = CHAR;
+
+	//TAG
 	registers[0][RegisterIndex].Index = 4;
 	registers[0][RegisterIndex].ScaleFactor = 1;
 	registers[0][RegisterIndex++].RegType = CHAR;

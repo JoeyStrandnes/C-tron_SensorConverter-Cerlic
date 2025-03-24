@@ -21,12 +21,13 @@
 #define LT600_HOLDING_SLAVE_MAP_SIZE 8
 #define LT600_INPUT_SLAVE_MAP_SIZE 3
 
-#define LT600_FLX_HOLDING_SLAVE_MAP_SIZE 8
-#define LT600_FLX_INPUT_SLAVE_MAP_SIZE 3
+#define LT600_FLX_HOLDING_SLAVE_MAP_SIZE 20
+#define LT600_FLX_INPUT_SLAVE_MAP_SIZE 4
 
 
 #include <cstdlib>
 #include <SensorConverter.hpp>
+#include <FLX_Calculations.hpp>
 
 
 enum ModBusRegisterType{CHAR, UINT8, INT16, UINT16, UINT32, FLOAT, PONDUS_FLOAT};
