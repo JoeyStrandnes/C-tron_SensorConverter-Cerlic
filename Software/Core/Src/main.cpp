@@ -139,12 +139,8 @@ int main(void)
   ModBusSlave.OutputBuffer = (uint8_t *)SlaveTxBuffer;
   ModBusSlave.InputBuffer = (uint8_t *)SlaveRxBuffer;
 
-  ModBusSlave.OutputBufferSize = 256;
-  ModBusSlave.InputBufferSize = 32;
-
-  ModBusSlave.LinkRegisterMap(&LT600_SlaveRegisterMap);
-  ModBusSlave.LoadRegisterMap();
-
+  ModBusSlave.OutputBufferSize = sizeof(SlaveTxBuffer)/sizeof(SlaveTxBuffer[0]);
+  ModBusSlave.InputBufferSize = sizeof(SlaveRxBuffer)/sizeof(SlaveRxBuffer[0]);
 
 //ModBus Master
   ModBusMaster.SettingsPtr = &Settings;
@@ -153,14 +149,12 @@ int main(void)
   ModBusMaster.OutputBuffer = (uint8_t *)MasterTxBuffer;
   ModBusMaster.InputBuffer = (uint8_t *)MasterRxBuffer;
 
-  ModBusMaster.OutputBufferSize = 32;
-  ModBusMaster.InputBufferSize = 256;
+  ModBusMaster.OutputBufferSize = sizeof(MasterTxBuffer)/sizeof(MasterTxBuffer[0]);
+  ModBusMaster.InputBufferSize = sizeof(MasterRxBuffer)/sizeof(MasterRxBuffer[0]);
 
-  ModBusMaster.LinkRegisterMap(&LT600_MasterRegisterMap);
-  ModBusMaster.LoadRegisterMap();
+  LinkSensorConfig(&ModBusMaster, &ModBusSlave, TYPE_LT600);
 
   ModBusMaster.ReadAllSensorData();
-
 
   HAL_GPIO_WritePin(USART1_DIR_GPIO_Port, USART1_DIR_Pin, GPIO_PIN_RESET);
   LL_USART_EnableIT_RXNE(USART1);

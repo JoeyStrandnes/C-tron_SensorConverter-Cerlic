@@ -51,7 +51,8 @@ struct Measurement_Register{
 
 };
 
-void LinkSensorConfig(class SensorConverterSettings *settings);
+void LinkSensorConfig(class ModBusRTU_BaseClass *modbus_master, class ModBusRTU_BaseClass *modbus_slave, uint8_t sensor_type);
+//void LinkSensorConfig(uint8_t sensor_type);
 
 void CMC_MasterRegisters(struct Measurement_Register *registers[2]);
 void CMC_SlaveRegisters(struct Measurement_Register *registers[2]);

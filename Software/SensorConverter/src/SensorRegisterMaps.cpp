@@ -8,31 +8,34 @@
 
 #include <SensorRegisterMaps.hpp>
 
-void LinkSensorConfig(class SensorConverterSettings *settings){
+//void LinkSensorConfig(class SensorConverterSettings *settings){
+void LinkSensorConfig(class ModBusRTU_BaseClass *modbus_master, class ModBusRTU_BaseClass *modbus_slave, uint8_t sensor_type){
 
-/*
-	switch(settings->SensorType){
+	switch(sensor_type){
 
 	case(TYPE_CMC):
-		settings->ReloadMasterRegisters = &CMC_MasterRegisters;
+			/*
+		modbus->ReloadMasterRegisters = &CMC_MasterRegisters;
 		settings->ReloadSlaveRegisters = &CMC_SlaveRegisters;
+		*/
 		break;
 	case(TYPE_LT600):
-		settings->SlaveAddress = 10;
-		settings->ReloadMasterRegisters = &LT600_MasterRegisters;
-		settings->ReloadSlaveRegisters = &LT600_SlaveRegisters;
+		modbus_master->LinkRegisterMap(&LT600_MasterRegisterMap);
+		modbus_slave->LinkRegisterMap(&LT600_SlaveRegisterMap);
+
+		modbus_master->LoadRegisterMap();
+		modbus_slave->LoadRegisterMap();
 		break;
 	case(TYPE_LT600_FLX):
+			/*
 		settings->SlaveAddress = 10;
 		settings->ReloadMasterRegisters = &LT600_FLX_MasterRegisters;
 		settings->ReloadSlaveRegisters = &LT600_FLX_SlaveRegisters;
+		*/
 		break;
 
 
 	}
-*/
-	//settings->MasterAddress = settings->SensorType;
-
 	return;
 }
 
