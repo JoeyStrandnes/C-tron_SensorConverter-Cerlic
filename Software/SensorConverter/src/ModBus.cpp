@@ -269,7 +269,7 @@ void ModBusRTU_SlaveClass::ParseMasterRequest(){
 
 
 	if(this->Address != this->InputBuffer[0]){ //Address was not our address. Do not respond.
-		this->OutputBufferSize = 0;
+		this->ResponseSize = 0;
 		std::memset(this->InputBuffer, 0, this->InputBufferSize);
 		return;
 	}

@@ -63,7 +63,7 @@ extern DMA_HandleTypeDef hdma_usart1_rx;
 void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
 extern "C"{
-	void ModBusSlaveRxHandler();
+	void UART1_IRQ();
 
 }
 /* USER CODE END PFP */
@@ -162,12 +162,9 @@ int main(void)
   ModBusMaster.ReadAllSensorData();
 
 
+  HAL_GPIO_WritePin(USART1_DIR_GPIO_Port, USART1_DIR_Pin, GPIO_PIN_RESET);
   LL_USART_EnableIT_RXNE(USART1);
 
-  //HAL_UARTEx_ReceiveToIdle_IT(&huart1, (uint8_t *)SlaveRxBuffer, ModBusSlave.InputBufferSize);
-  //HAL_UARTEx_ReceiveToIdle_IT(&huart1, (uint8_t *)SlaveRxBuffer, 8);
-
-  //HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
   HAL_GPIO_WritePin(USART2_DIR_GPIO_Port, USART2_DIR_Pin, GPIO_PIN_SET);
   HAL_UART_Transmit_IT(&huart2, (uint8_t *)ModBusMaster.OutputBuffer, ModBusMaster.ResponseSize);
 
@@ -226,17 +223,55 @@ void SystemClock_Config(void)
 
 /* USER CODE BEGIN 4 */
 
-void ModBusSlaveRxHandler(){
-//This gets called for every byte received on the UART.
+void UART1_IRQ(){
+//This gets called for every byte transmitted or received on the UART.
 
-	if(ModBusSlave.RequestSize >= ModBusSlave.InputBufferSize){ //ERROR
-		HAL_TIM_Base_Stop_IT(&htim2);
+	if(LL_USART_IsActiveFlag_RXNE(USART1)){
+
+		if(ModBusSlave.RequestSize >= ModBusSlave.InputBufferSize){ //ERROR
+			ModBusSlave.RequestSize = 0;
+		}
+
+		HAL_TIM_Base_Start_IT(&htim2);
+
+		ModBusSlave.InputBuffer[ModBusSlave.RequestSize++] = LL_USART_ReceiveData8(USART1);//USART1->DR; //Also clears flag
+
 		return;
 	}
 
-	HAL_TIM_Base_Start_IT(&htim2);
+	if(LL_USART_IsActiveFlag_TXE(USART1)){ //We are sending data
 
-	ModBusSlave.InputBuffer[ModBusSlave.RequestSize++] = LL_USART_ReceiveData8(USART1);//USART1->DR; //Also clears flag
+		HAL_TIM_Base_Stop_IT(&htim2);
+
+		if(ModBusSlave.ResponseSize != 0){
+
+			//HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
+
+			LL_USART_TransmitData8(USART1, ModBusSlave.OutputBuffer[ModBusSlave.TransmittedBytes++]);
+
+			if(ModBusSlave.TransmittedBytes < ModBusSlave.ResponseSize){
+				return;
+			}
+
+			std::memset(ModBusSlave.OutputBuffer, 0, ModBusSlave.OutputBufferSize);
+
+		}
+
+		LL_USART_DisableIT_TXE(USART1);
+		LL_USART_EnableIT_RXNE(USART1);
+
+		LL_USART_ClearFlag_TC(USART1);
+
+		ModBusSlave.RequestSize = 0;
+		ModBusSlave.TransmittedBytes = 0;
+
+		HAL_GPIO_WritePin(USART1_DIR_GPIO_Port, USART1_DIR_Pin, GPIO_PIN_RESET);
+		HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
+
+		return;
+	}
+
+
 
 
 	return;
@@ -249,19 +284,28 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 	if(htim->Instance == TIM2){
 		//We get here when a transmission on UART 1 is IDLE. Basically a crude IDLE detection.
 
+		HAL_TIM_Base_Stop_IT(htim);
+
+		LoadRegisters();
+		ModBusSlave.ParseMasterRequest();
+
 		LL_USART_DisableIT_RXNE(USART1);
+		LL_USART_ClearFlag_RXNE(USART1);
+
 		ModBusSlave.RequestSize = 0;
+		ModBusSlave.TransmittedBytes = 0;
+
+		HAL_TIM_Base_Start_IT(&htim4);
 
 		return;
 	}
 
 	if(htim->Instance == TIM3){
 
-		//HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
 		HAL_GPIO_WritePin(USART2_DIR_GPIO_Port, USART2_DIR_Pin, GPIO_PIN_SET);
 
 		HAL_UART_Transmit_IT(&huart2, (uint8_t *)ModBusMaster.OutputBuffer, ModBusMaster.ResponseSize);
-		HAL_TIM_Base_Stop_IT(&htim3);
+		HAL_TIM_Base_Stop_IT(htim);
 
 		return;
 	}
@@ -269,55 +313,24 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 	//Delay for the response to C-tron
 	if(htim->Instance == TIM4){
 
+		HAL_TIM_Base_Stop_IT(htim);
+
 		HAL_GPIO_WritePin(USART1_DIR_GPIO_Port, USART1_DIR_Pin, GPIO_PIN_SET);
 		HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
 
-		//HAL_UART_Transmit_IT(&huart1, (uint8_t *)ModBusSlave.OutputBuffer, ModBusSlave.ResponseSize);
-		HAL_TIM_Base_Stop_IT(&htim4);
+		//LL_USART_ClearFlag_TC(USART1);
+		LL_USART_EnableIT_TXE(USART1);
 
+		return;
 	}
 
 }
 
 void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size){
 
-	volatile uint16_t Error;
-
-	if(huart->Instance == USART1){
-
-		//FIXME Only for testing
-		if(ModBusSlave.Address == ModBusSlave.InputBuffer[0]){
-
-			LoadRegisters();
-
-			ModBusSlave.RequestSize = Size;
-			ModBusSlave.ParseMasterRequest();
-
-			HAL_TIM_Base_Start_IT(&htim4); //Triggers after 5 ms to give some delay before transmitting new data
-
-		}
-		else{
-
-			//HAL_UART_Abort(&huart1);
-
-			//Packet was not for us. Re enable the reception.
-			HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
-			HAL_GPIO_WritePin(USART1_DIR_GPIO_Port, USART1_DIR_Pin, GPIO_PIN_RESET);
-
-			//HAL_UARTEx_ReceiveToIdle_IT(&huart1, (uint8_t *)SlaveRxBuffer, ModBusSlave.InputBufferSize);
-			//HAL_UARTEx_ReceiveToIdle_IT(&huart1, (uint8_t *)SlaveRxBuffer, 8);
-
-		}
-
-		ModBusSlave.RequestSize = 0;
-		std::memset((uint8_t *)SlaveRxBuffer, 0, ModBusSlave.InputBufferSize);
-
-		Error = huart->Instance->SR;
-		Error = huart->Instance->DR;
-
-	}
-
 	if(huart->Instance == USART2){
+
+		volatile uint16_t Error;
 
 		ModBusMaster.RequestSize = Size;
 		ModBusMaster.ParseSlaveResponse();
@@ -326,9 +339,9 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size){
 		Error = huart->Instance->SR;
 		Error = huart->Instance->DR;
 
-	}
+		UNUSED(Error);
 
-	UNUSED(Error);
+	}
 
 	return;
 }
@@ -340,7 +353,7 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart){
 		HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
 		HAL_GPIO_WritePin(USART1_DIR_GPIO_Port, USART1_DIR_Pin, GPIO_PIN_RESET);
 
-		//HAL_UARTEx_ReceiveToIdle_IT(&huart1, (uint8_t *)SlaveRxBuffer, ModBusSlave.InputBufferSize);
+		return;
 
 	}
 	if(huart->Instance == USART2){
@@ -368,8 +381,13 @@ void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart){
 		Error = huart->Instance->SR;
 		Error = huart->Instance->DR;
 
-		//HAL_UARTEx_ReceiveToIdle_IT(&huart1, (uint8_t *)SlaveRxBuffer, ModBusSlave.InputBufferSize);
-		//HAL_UARTEx_ReceiveToIdle_IT(&huart1, (uint8_t *)SlaveRxBuffer, 8);
+		LL_USART_DisableIT_TXE(USART1);
+		LL_USART_EnableIT_RXNE(USART1);
+
+		ModBusSlave.RequestSize = 0;
+		ModBusSlave.TransmittedBytes = 0;
+
+		HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
 
 	}
 

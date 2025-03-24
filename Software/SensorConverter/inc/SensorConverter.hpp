@@ -50,7 +50,6 @@ public:
 	uint8_t		MasterAddress{10};			//Address we use as masters
 
 	void HeartBeat(){HAL_GPIO_TogglePin(HeartBeatPort, HeartBeatPin);};
-
 	void WriteSettingsToEEPROM();
 
 private:

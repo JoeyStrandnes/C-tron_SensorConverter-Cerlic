@@ -48,6 +48,7 @@ public:
 
     uint16_t ResponseSize;          //How many bytes to transmit
     uint16_t RequestSize;           //How many bytes were received
+    uint16_t TransmittedBytes;		//How many bytes we have sent so far. Used when sending a packet.
 
     void LinkRegisterMap(void (*map_registers)(struct Measurement_Register *registers[2], uint16_t *register_map_size)){this->MapRegisters = map_registers;};
     void LoadRegisterMap();
