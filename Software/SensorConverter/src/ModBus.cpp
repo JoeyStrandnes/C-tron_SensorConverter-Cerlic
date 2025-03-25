@@ -275,6 +275,7 @@ void ModBusRTU_SlaveClass::ParseMasterRequest(){
 
 	if(this->RequestSize < 2){
 		this->RequestSize = 0;
+		this->ResponseSize = 0;
 		return;
 	}
 
@@ -311,7 +312,8 @@ void ModBusRTU_SlaveClass::ParseMasterRequest(){
 			BuildModBusException(ModBusSensorTag());
 			return;
 		case(69):
-			return BuildModBusException(ModBusStoreToNVM());
+			BuildModBusException(ModBusStoreToNVM());
+			return;
 		default:
 			BuildModBusException(MODBUS_EXCEPTION_ILLIGAL_FUNCTION);
 			return;

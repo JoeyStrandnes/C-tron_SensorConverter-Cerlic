@@ -24,8 +24,6 @@ public:
 			GPIO_TypeDef *heart_beat_port,
 			uint16_t heart_beat_pin,
 
-			I2C_HandleTypeDef *i2c,
-
 			GPIO_TypeDef *jp1_Port,
 			uint16_t jp1_pin,
 
@@ -54,8 +52,6 @@ public:
 	void FactoryReset();
 
 private:
-
-	I2C_HandleTypeDef *I2C{NULL};
 
 	GPIO_TypeDef *HeartBeatPort{NULL};
 	uint16_t HeartBeatPin{0};

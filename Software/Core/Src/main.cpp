@@ -112,7 +112,6 @@ int main(void)
   class SensorConverterSettings Settings(
 		  LED_GPIO_Port,
 		  LED_Pin,
-		  &hi2c1,
 
 		  JP1_GPIO_Port,
 		  JP1_Pin,

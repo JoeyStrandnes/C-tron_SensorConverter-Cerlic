@@ -9,14 +9,11 @@
 
 //FIXME
 extern CRC_HandleTypeDef hcrc;
-extern I2C_HandleTypeDef hi2c1;
 
 
 SensorConverterSettings::SensorConverterSettings(
 	GPIO_TypeDef *heart_beat_port,
 	uint16_t heart_beat_pin,
-
-	I2C_HandleTypeDef *i2c,
 
 	GPIO_TypeDef *jp1_Port,
 	uint16_t jp1_pin,
@@ -38,8 +35,6 @@ SensorConverterSettings::SensorConverterSettings(
 	this->HeartBeatPort = heart_beat_port;
 	this->HeartBeatPin = heart_beat_pin;
 
-	this->I2C = i2c;
-
 	this->JP1Port = jp1_Port;
 	this->JP1Pin = jp1_pin;
 
@@ -54,8 +49,7 @@ SensorConverterSettings::SensorConverterSettings(
 
 	this->GetSensorType();
 
-	//this->GetSettingsFromEEPROM();
-	this->FactoryReset();
+	this->GetSettingsFromEEPROM();
 
 	return;
 
@@ -93,25 +87,64 @@ void SensorConverterSettings::GetSettingsFromEEPROM(){
 //Fetch settings from EEPROM
 //Default EEPROM address is 0xA1
 
+	this->FactoryReset();
+	return;
+
 	uint8_t MemoryAddress[2];
 	MemoryAddress[0] = 0;
 	MemoryAddress[1] = 0;
 
+	uint8_t *Settings_ptr = (uint8_t *)this;
 	uint16_t SettingsSize = sizeof(*this);
 
 	//Step 1: Read the data from the EEPROM.
-	HAL_NVIC_EnableIRQ(I2C1_EV_IRQn);
+	I2C1->CR1 |= I2C_CR1_START;
+	while(!(I2C1->SR1 & I2C_SR1_SB)); //Wait for start-bit to be sent
 
+	I2C1->DR = 0xA0;
+	while(!(I2C1->SR1 & I2C_SR1_ADDR)); //Wait for device address to be sent
+
+    (void)I2C1->SR1;
+    (void)I2C1->SR2;
+
+	//Set the memory address pointer to 0
+	I2C1->DR = 0;
+	while(!(I2C1->SR1 & I2C_SR1_TXE));
+	I2C1->DR = 0;
+	while(!(I2C1->SR1 & I2C_SR1_TXE));
+
+	//Send the device address again in read mode to read all the data.
+	I2C1->CR1 |= I2C_CR1_START;
+	while(!(I2C1->SR1 & I2C_SR1_SB)); //Wait for start-bit to be sent
+
+	I2C1->DR = 0xA1;
+	while(!(I2C1->SR1 & I2C_SR1_ADDR));
+
+    (void)I2C1->SR1;
+    (void)I2C1->SR2;
+
+	for(uint16_t i = 0; i < SettingsSize; i++){
+
+		while(!(I2C1->SR1 & I2C_SR1_RXNE));
+		Settings_ptr[i] = (uint8_t)(I2C1->DR);
+
+	}
+
+
+
+	/*
 	HAL_I2C_Master_Seq_Transmit_IT(&hi2c1, 0xA0, MemoryAddress, 2, I2C_FIRST_AND_NEXT_FRAME);
 
-	HAL_Delay(1); //HAL_I2C_GetState(I2C) != HAL_I2C_STATE_BUSY_TX
+	//HAL_I2C_GetState(I2C) != HAL_I2C_STATE_BUSY_TX
+	while(!(hi2c1.Instance->SR1 & I2C_SR1_TXE));
+	while(!(hi2c1.Instance->SR1 & I2C_SR1_BTF));
 
 	HAL_I2C_Master_Seq_Receive_IT(&hi2c1, 0xA0, (uint8_t *)this, SettingsSize, I2C_LAST_FRAME);
 
-	HAL_Delay(100); //while(HAL_I2C_GetState(I2C) == HAL_I2C_STATE_BUSY_RX);
-
-
-
+	while(!(hi2c1.Instance->SR1 & I2C_SR1_RXNE));
+	//while(!(hi2c1.Instance->SR1 & I2C_SR1_STOPF));
+	//while(!(hi2c1.Instance->SR1 & I2C_SR1_STOPF));
+*/
 	//Step 2: Calculate the checksum of the first 12 bytes of the Settings.
 	uint8_t TempBuffer[12];
 	std::memcpy(TempBuffer, (uint8_t *)(this), sizeof(TempBuffer));
@@ -132,18 +165,20 @@ void SensorConverterSettings::GetSettingsFromEEPROM(){
 
 
 void SensorConverterSettings::WriteSettingsToEEPROM(){
-
-	return;
-
+/*
 	uint16_t SettingsSize = sizeof(*this);
 
 	uint8_t MemoryAddress[2];
 	MemoryAddress[0] = 0;
 	MemoryAddress[1] = 0;
 
+	HAL_NVIC_SetPriority(I2C1_EV_IRQn, 0, 0);
+	HAL_NVIC_EnableIRQ(I2C1_EV_IRQn);
 	HAL_I2C_Master_Seq_Transmit_IT(&hi2c1, 0xA0, MemoryAddress, 2, I2C_FIRST_AND_NEXT_FRAME);
 
-	HAL_Delay(1);
+	//HAL_Delay(1);
+	//while(!(hi2c1.Instance->SR1 & I2C_SR1_TXE));
+	while(!(hi2c1.Instance->SR1 & I2C_SR1_BTF));
 
 	//Yes this is very stupid, it is important that this happens before the rest of the system is initiated.
 	//ST HAL does not offer a "sequenced" transmit in blocking mode...
@@ -151,7 +186,9 @@ void SensorConverterSettings::WriteSettingsToEEPROM(){
 
 	HAL_I2C_Master_Seq_Transmit_IT(&hi2c1, 0xA0, (uint8_t *)this, SettingsSize, I2C_LAST_FRAME);
 
-	HAL_Delay(100);
+	while(!(hi2c1.Instance->SR1 & I2C_SR1_BTF));
+*/
+	//HAL_Delay(100);
 
 	return;
 }
