@@ -249,9 +249,10 @@ void UART1_IRQ(){
 		}
 
 		LL_USART_DisableIT_TXE(USART1);
-		LL_USART_EnableIT_RXNE(USART1);
-
 		LL_USART_ClearFlag_TC(USART1);
+
+		LL_USART_ReceiveData8(USART1); //Clear the register before enabling the interrupt flag.
+		LL_USART_EnableIT_RXNE(USART1);
 
 		ModBusSlave.RequestSize = 0;
 		ModBusSlave.TransmittedBytes = 0;
