@@ -127,10 +127,10 @@ int main(void)
 
   );
 
-/*
+
   Settings.SerialNumber_H = 435;
   Settings.SerialNumber_L = 128;
-*/
+
 
 //ModBus Slave
   ModBusSlave.SettingsPtr = &Settings;

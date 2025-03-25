@@ -57,7 +57,7 @@ void FLX_GetGutterName(uint8_t gutter_type, char *buffer, uint8_t buffer_size){
 
 
 
-float FLX_CalculateFlow(float mh20, uint8_t gutter_type){
+float FLX_CalculateFlow(float mh2o, uint8_t gutter_type){
 
 
 	//Perform temperature compensation?
@@ -65,35 +65,59 @@ float FLX_CalculateFlow(float mh20, uint8_t gutter_type){
 	//Colder water = higher density so should be temperature dependent?
 
 
-	float Flow, C,n;
+	float Flow;
+
+	//Below should be set during calibration/ setting gutter type
+	float X1, X2, X3;
+	uint16_t Alpha = 45; //Angle set to 45 for testing
+	uint16_t Width = 1;
+	uint16_t Sill = 500;
 
 	//All calculations are based on mH20
 	switch(gutter_type){
 
 	case(Gutter_Parshall): //Q= (sqrt(g) * C * W * Ha**n
 		//This is copied from BB2 who seems to use a pre calculated table for the values.
-		//C & n are table values
-
-		FLX_ParshallValues(1, &C, &n); //Width set to 1 for testing
-		Flow = C * std::pow(mh20, n) * 3600;
+		//Width in inches
+		FLX_ParshallValues(Width, &X1, &X2); //Only do when setting the type.
+		Flow = X1 * std::pow(mh2o, X2) * 3600; //X1 = C, X2 = n
 		break;
-	case(Gutter_Thompson):
-		Flow = FLX_ThomsonValue(45) * std::pow(mh20, 2.5);
+	case(Gutter_Thompson): // Thompson   Q= Ce * 8/15 * tan(alfa/2) * sqrt(2g) *He**2.5
+		//Angle in degrees
+		X1 = FLX_ThomsonValue(Alpha); //Only do when setting the type.
+		Flow =  X1 * std::pow(mh2o, 2.5);
 		break;
-	case(Gutter_Rekt):
-
+	case(Gutter_Rekt): // Rect Wier  Q= Ce * sqrt(2g) * b * ((h+0.0012)**1.5)
+		//Width in mm
+		//Sill in mm
+		X1 = FLX_RectWeirValue(Width); //Only do when setting the type.
+		Flow = X1 * (0.602 + 0.083 * (mh2o/Sill)) * std::pow(mh2o + 0.0012, 1.5);
 		break;
 	case(Gutter_RSK):
-
+		//TBD
 		break;
-	case(Gutter_PB):
+	case(Gutter_PB): //Q= ((h / hmax)**1.868) * maxflow
 
+		X1 = (2 * Width / 100);
+		X2 = std::pow(Width/10, 2.5) * 136.244; //Taken from BB2, no idea what the magic numbers are for.
+		Flow = std::pow(mh2o/X1, 1.868) * X2;
 		break;
 	case(Gutter_Cipoletti):
-
+		X1 = (2.0/3) * 0.63 * sqrt(2 * 9.81) * Width * 3600;
+		Flow = X1 * std::pow(mh2o + 0.0012, 1.5);
 		break;
 	case(Gutter_Sutro):
 
+		X1 = (2.0/3) * 0.611 * sqrt(2 * 9.81) * Width * std::pow(Sill, 1.5);
+		X2 = X1/Sill;
+		X3 = 0.611 * sqrt(2 * 9.81) * Width * std::sqrt(Sill);
+
+		if(mh2o > Sill){
+			Flow = ((X1 + X3 * (mh2o - Sill)) * 3600);
+		}
+		else{
+			Flow = X2 * mh2o * 3600;
+		}
 		break;
 	case(Gutter_Venturi):
 
@@ -198,6 +222,14 @@ float FLX_ThomsonValue(uint16_t angle){
 
 	//return Kb * (8.0/15) * std::tan(((angle * M_PI)/180) / 2) * sqrt(2 * 9.81) * 3600;
 	return Kb * 8499.6 * std::tan((angle * M_PI) / 360); //Approximation of the above.
+
+}
+
+float FLX_RectWeirValue(uint16_t width){
+//Only used when changing to this gutter type.
+//Calculates the BB2 X1 value.
+
+	return (2.0/3) * sqrt(2 * 9.81) * width * 3600;
 
 }
 

@@ -90,6 +90,7 @@ void SensorConverterSettings::GetSettingsFromEEPROM(){
 	this->FactoryReset();
 	return;
 
+	/*
 	uint8_t MemoryAddress[2];
 	MemoryAddress[0] = 0;
 	MemoryAddress[1] = 0;
@@ -130,7 +131,7 @@ void SensorConverterSettings::GetSettingsFromEEPROM(){
 
 	}
 
-
+*/
 
 	/*
 	HAL_I2C_Master_Seq_Transmit_IT(&hi2c1, 0xA0, MemoryAddress, 2, I2C_FIRST_AND_NEXT_FRAME);

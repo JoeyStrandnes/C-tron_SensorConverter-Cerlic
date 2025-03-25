@@ -268,67 +268,78 @@ void LT600_FLX_SlaveRegisters(struct Measurement_Register *registers[2], uint16_
 
 	registers[0][RegisterIndex].Index = 4;
 	registers[0][RegisterIndex].ScaleFactor = 1;
-	registers[0][RegisterIndex++].RegType = UINT16; //Bräddningsläge 0 = Av, 1 = På
+	registers[0][RegisterIndex++].RegType = UINT16; // Height/sill or angle depending on gutter type
 
 	registers[0][RegisterIndex].Index = 5;
 	registers[0][RegisterIndex].ScaleFactor = 1;
-	registers[0][RegisterIndex++].RegType = UINT16; //Reset totalizer. Write 0 to register
+	registers[0][RegisterIndex++].RegType = UINT16; //Width inner
 
 	registers[0][RegisterIndex].Index = 6;
 	registers[0][RegisterIndex].ScaleFactor = 1;
-	registers[0][RegisterIndex++].RegType = FLOAT; //Offset adjust
+	registers[0][RegisterIndex++].RegType = UINT16; //Width outer
+
+	registers[0][RegisterIndex].Index = 7;
+	registers[0][RegisterIndex].ScaleFactor = 1;
+	registers[0][RegisterIndex++].RegType = UINT16; //Throat
 
 	registers[0][RegisterIndex].Index = 8;
 	registers[0][RegisterIndex].ScaleFactor = 1;
-	registers[0][RegisterIndex++].RegType = UINT32; //Time of offset cal
+	registers[0][RegisterIndex++].RegType = FLOAT; //Calibration X1
 
 	registers[0][RegisterIndex].Index = 10;
 	registers[0][RegisterIndex].ScaleFactor = 1;
-	registers[0][RegisterIndex++].RegType = UINT16; //Level cal
+	registers[0][RegisterIndex++].RegType = FLOAT; //Calibration X2
 
-	registers[0][RegisterIndex].Index = 11;
-	registers[0][RegisterIndex].ScaleFactor = 1;
-	registers[0][RegisterIndex++].RegType = UINT32; //Time of level cal
-
-	//Typ av mätränna formaterad som sträng, 12-Bytes.
 	registers[0][RegisterIndex].Index = 12;
 	registers[0][RegisterIndex].ScaleFactor = 1;
-	registers[0][RegisterIndex++].RegType = CHAR;
-
-	registers[0][RegisterIndex].Index = 13;
-	registers[0][RegisterIndex].ScaleFactor = 1;
-	registers[0][RegisterIndex++].RegType = CHAR;
+	registers[0][RegisterIndex++].RegType = FLOAT; //Calibration X3
 
 	registers[0][RegisterIndex].Index = 14;
 	registers[0][RegisterIndex].ScaleFactor = 1;
-	registers[0][RegisterIndex++].RegType = CHAR;
-
-	registers[0][RegisterIndex].Index = 15;
-	registers[0][RegisterIndex].ScaleFactor = 1;
-	registers[0][RegisterIndex++].RegType = CHAR;
+	registers[0][RegisterIndex++].RegType = FLOAT; //Calibration offset
 
 	registers[0][RegisterIndex].Index = 16;
 	registers[0][RegisterIndex].ScaleFactor = 1;
-	registers[0][RegisterIndex++].RegType = CHAR;
+	registers[0][RegisterIndex++].RegType = UINT32; //Calibration offset date
 
-	registers[0][RegisterIndex].Index = 17;
+	registers[0][RegisterIndex].Index = 18;
+	registers[0][RegisterIndex].ScaleFactor = 1;
+	registers[0][RegisterIndex++].RegType = FLOAT; //Calibration level
+
+	registers[0][RegisterIndex].Index = 20;
+	registers[0][RegisterIndex].ScaleFactor = 1;
+	registers[0][RegisterIndex++].RegType = UINT32; //Calibration level date
+
+
+	//Type of gutter that is used, uses two bytes to represent it.
+	//Parshall 		= PA
+	//Thomson 		= TH
+	//Rektangular 	= RE
+	//RSK 			= RS
+	//Palmer-Bowlus = PB
+	//Cipoletti 	= CI
+	//Sutro 		= SU
+	//Venturi 		= VE
+	//Venturi U		= VU
+	registers[0][RegisterIndex].Index = 22;
 	registers[0][RegisterIndex].ScaleFactor = 1;
 	registers[0][RegisterIndex++].RegType = CHAR;
+
 
 	//TAG
-	registers[0][RegisterIndex].Index = 4;
+	registers[0][RegisterIndex].Index = 23;
 	registers[0][RegisterIndex].ScaleFactor = 1;
 	registers[0][RegisterIndex++].RegType = CHAR;
 
-	registers[0][RegisterIndex].Index = 5;
+	registers[0][RegisterIndex].Index = 24;
 	registers[0][RegisterIndex].ScaleFactor = 1;
 	registers[0][RegisterIndex++].RegType = CHAR;
 
-	registers[0][RegisterIndex].Index = 6;
+	registers[0][RegisterIndex].Index = 25;
 	registers[0][RegisterIndex].ScaleFactor = 1;
 	registers[0][RegisterIndex++].RegType = CHAR;
 
-	registers[0][RegisterIndex].Index = 7;
+	registers[0][RegisterIndex].Index = 26;
 	registers[0][RegisterIndex].ScaleFactor = 1;
 	registers[0][RegisterIndex++].RegType = CHAR;
 
