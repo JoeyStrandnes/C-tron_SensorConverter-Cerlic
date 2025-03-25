@@ -267,10 +267,18 @@ void ModBusRTU_MasterClass::ParseSlaveData(){
 void ModBusRTU_SlaveClass::ParseMasterRequest(){
 //Use this parser when we are slaves and want to parse a request from a master.
 
+	if(this->InputBuffer[1] > 60){
+		uint8_t Test = 0;
+	}
 
 	if(this->Address != this->InputBuffer[0]){ //Address was not our address. Do not respond.
 		this->ResponseSize = 0;
 		std::memset(this->InputBuffer, 0, this->InputBufferSize);
+		return;
+	}
+
+	if(this->RequestSize < 2){
+		this->RequestSize = 0;
 		return;
 	}
 
@@ -503,6 +511,9 @@ uint8_t ModBusRTU_SlaveClass::ModBusCalibration(){
 
 uint8_t ModBusRTU_SlaveClass::ModBusFactoryDefaults(){
 
+	this->SettingsPtr->FactoryReset();
+	this->SettingsPtr->WriteSettingsToEEPROM();
+
 	return MODBUS_EXCEPTION_OK;
 }
 
@@ -514,8 +525,7 @@ uint8_t ModBusRTU_SlaveClass::ModBusSensorTag(){
 
     std::memcpy(this->SettingsPtr->Tag, &(this->InputBuffer[2]), SENSOR_TAG_SIZE); //Copy the bytes to the internal array.
 
-    this->SettingsPtr->WriteSettingsToEEPROM();
-    //LoadHoldingRegisters(modbus_rtu->SettingsPtr, modbus_rtu->Register[0]);
+    //this->SettingsPtr->WriteSettingsToEEPROM();
 
 	return MODBUS_EXCEPTION_OK;
 }

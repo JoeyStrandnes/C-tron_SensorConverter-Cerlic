@@ -51,6 +51,7 @@ public:
 
 	void HeartBeat(){HAL_GPIO_TogglePin(HeartBeatPort, HeartBeatPin);};
 	void WriteSettingsToEEPROM();
+	void FactoryReset();
 
 private:
 
@@ -73,7 +74,6 @@ private:
 
 	//NVM management
 	void GetSensorType();
-	void FactoryReset();
 
 	void GetSettingsFromEEPROM();
 

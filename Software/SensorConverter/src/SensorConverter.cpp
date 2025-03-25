@@ -55,6 +55,7 @@ SensorConverterSettings::SensorConverterSettings(
 	this->GetSensorType();
 
 	//this->GetSettingsFromEEPROM();
+	this->FactoryReset();
 
 	return;
 
@@ -131,6 +132,8 @@ void SensorConverterSettings::GetSettingsFromEEPROM(){
 
 
 void SensorConverterSettings::WriteSettingsToEEPROM(){
+
+	return;
 
 	uint16_t SettingsSize = sizeof(*this);
 
