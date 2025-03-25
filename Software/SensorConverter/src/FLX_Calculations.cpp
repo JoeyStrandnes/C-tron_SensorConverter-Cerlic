@@ -10,6 +10,26 @@
 #include <FLX_Calculations.hpp>
 
 
+uint8_t SensorFLX::Calibrate(class ModBusRTU_BaseClass *modbus){
+//Assumed to be sanity checked when entering the function.
+
+
+	uint16_t Command = (((uint16_t)modbus->InputBuffer[4] << 8) | (uint16_t)modbus->InputBuffer[5]);
+
+	uint16_t Arg1 = (((uint16_t)modbus->InputBuffer[6] << 8) | (uint16_t)modbus->InputBuffer[7]);
+	uint16_t Arg2 = (((uint16_t)modbus->InputBuffer[8] << 8) | (uint16_t)modbus->InputBuffer[9]);
+	uint16_t Arg2 = (((uint16_t)modbus->InputBuffer[10] << 8) | (uint16_t)modbus->InputBuffer[11]);
+
+
+
+
+
+
+
+
+	return MODBUS_EXCEPTION_OK;
+}
+
 
 void FLX_GetGutterName(uint8_t gutter_type, char *buffer, uint8_t buffer_size){
 //Simply copy the name of the gutter to the output buffer.

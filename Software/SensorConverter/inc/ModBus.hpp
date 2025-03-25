@@ -8,10 +8,6 @@
 #ifndef INC_MODBUS_HPP_
 #define INC_MODBUS_HPP_
 
-#include "main.h"
-#include <SensorRegisterMaps.hpp>
-#include <SensorConverter.hpp>
-
 #define MODBUS_REG_OFFSET 3
 #define MODBUS_SETTINGS_REG 0
 #define MODBUS_DATA_REG 1
@@ -25,6 +21,11 @@
 #define MODBUS_EXCEPTION_ACK                    5
 #define MODBUS_EXCEPTION_SLAVE_DEVICE_BUSY      6
 #define MODBUS_EXCEPTION_MEMORY_ERROR           8
+
+
+#include "main.h"
+#include <SensorRegisterMaps.hpp>
+#include <SensorConverter.hpp>
 
 enum SerialNumberCommands{SER_High, SER_Low, SER_StoreToNVM, SER_Size}; //Enum for Serial-number
 

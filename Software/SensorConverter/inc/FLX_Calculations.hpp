@@ -15,6 +15,7 @@
 enum FLX_GutterTypes{Gutter_Parshall, Gutter_Thompson, Gutter_Rekt, Gutter_RSK, Gutter_PB, Gutter_Cipoletti, Gutter_Sutro, Gutter_Venturi, Gutter_VenturiU};
 
 
+
 void FLX_GetGutterName(uint8_t gutter_type, char *buffer, uint8_t buffer_size);
 float FLX_CalculateFlow(float mh2o, uint8_t gutter_type);
 

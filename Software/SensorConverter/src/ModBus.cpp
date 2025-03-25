@@ -504,6 +504,8 @@ uint8_t ModBusRTU_SlaveClass::ModBusSerialNumber(){
 
 uint8_t ModBusRTU_SlaveClass::ModBusCalibration(){
 
+	this->SettingsPtr->Sensor->Calibrate(this);
+
 	return MODBUS_EXCEPTION_OK;
 }
 

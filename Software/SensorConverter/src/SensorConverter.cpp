@@ -58,12 +58,24 @@ SensorConverterSettings::SensorConverterSettings(
 void SensorConverterSettings::GetSensorType(){
 //Not the most elegant way to check pins...
 
+	/*
 	uint8_t UnitType = HAL_GPIO_ReadPin(JP1Port, JP1Pin);
 
 	UnitType |= HAL_GPIO_ReadPin(JP2Port, JP2Pin) << 1;
 	UnitType |= HAL_GPIO_ReadPin(JP3Port, JP3Pin) << 2;
 	UnitType |= HAL_GPIO_ReadPin(JP4Port, JP4Pin) << 3;
 
+
+	switch(UnitType){
+
+	case(0): //TBD
+		this->Sensor = new(SensorFLX);
+		break;
+
+	}
+*/
+
+	this->Sensor = new(SensorFLX);
 
 	return;
 }

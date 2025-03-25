@@ -16,6 +16,8 @@
 #define SOFTWARE_VERSION 101
 #define SENSOR_TAG_SIZE 8				//Number of bytes for the sensor tag.
 
+class SensorClass;
+
 class SensorConverterSettings{
 
 public:
@@ -46,6 +48,8 @@ public:
 	uint8_t 	SensorType{TYPE_LT600}; 	//What type of sensor we are emulating.
 	uint8_t		SlaveAddress{TYPE_LT600};	//Address that we use as slaves
 	uint8_t		MasterAddress{10};			//Address we use as masters
+
+	class SensorClass *Sensor;
 
 	void HeartBeat(){HAL_GPIO_TogglePin(HeartBeatPort, HeartBeatPin);};
 	void WriteSettingsToEEPROM();
@@ -81,12 +85,36 @@ private:
 
 
 
+class SensorClass{
+//Base class mostly used for handling the different calibrations.
+
+public:
+
+	SensorClass(){};
+
+	virtual uint8_t Calibrate(class ModBusRTU_BaseClass *modbus){return MODBUS_EXCEPTION_SLAVE_DEVICE_FAILURE;};
+
+
+private:
 
 
 
 
+};
 
 
+class SensorFLX : public SensorClass{
+
+public:
+
+	SensorFLX(){};
+	uint8_t Calibrate(class ModBusRTU_BaseClass *modbus);
+
+private:
+
+
+
+};
 
 
 
