@@ -62,7 +62,9 @@ void LoadModBusRegisters(class ModBusRTU_BaseClass *modbus_master, class ModBusR
 	}
 	case(TYPE_LT600_FLX):{
 
-		modbus_slave->RegisterMap[1][0].OutputData = FLX_CalculateFlow(modbus_master->RegisterMap[1][0].OutputData, 0); //FIXME Parshalls gutter for testing
+		modbus_slave->SettingsPtr->Sensor->RawData = modbus_master->RegisterMap[1][0].OutputData;
+
+		modbus_slave->RegisterMap[1][0].OutputData = modbus_slave->SettingsPtr->Sensor->CalculateMeasurement();
 		modbus_slave->RegisterMap[1][2].InputData.UINT16 = (uint16_t)(modbus_master->RegisterMap[1][3].OutputData * modbus_slave->RegisterMap[1][2].ScaleFactor); // Temperature C
 
 		modbus_slave->RegisterMap[1][3].InputData.UINT16 = 0;

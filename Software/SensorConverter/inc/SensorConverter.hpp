@@ -93,11 +93,12 @@ public:
 	SensorClass(){};
 
 	virtual uint8_t Calibrate(class ModBusRTU_BaseClass *modbus){return MODBUS_EXCEPTION_SLAVE_DEVICE_FAILURE;};
+	virtual float CalculateMeasurement(){return 0;};
+
+	float RawData{0}; //Input value, can be seen as "ADC raw".
 
 
 private:
-
-
 
 
 };
@@ -109,10 +110,27 @@ public:
 
 	SensorFLX(){};
 	uint8_t Calibrate(class ModBusRTU_BaseClass *modbus);
+	float CalculateMeasurement();
 
 private:
 
+	float mH2O; //Meter vattenpelare
 
+	//Arguments used for calibration. Same as FLX X1.. in BB2.
+	uint8_t GutterType{0};
+
+	float X1{0};
+	float X2{0};
+	float X3{0};
+
+	uint16_t Width{0};
+	uint16_t Sill{0};
+
+	float OffsetCal{0};
+	uint32_t OffsetCalDate{0};
+
+	float LevelCal{0};
+	uint32_t LevelCalDate{0};
 
 };
 

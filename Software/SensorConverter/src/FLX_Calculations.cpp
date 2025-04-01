@@ -16,10 +16,75 @@ uint8_t SensorFLX::Calibrate(class ModBusRTU_BaseClass *modbus){
 
 	uint16_t Command = (((uint16_t)modbus->InputBuffer[4] << 8) | (uint16_t)modbus->InputBuffer[5]);
 
-	uint16_t Arg1 = (((uint16_t)modbus->InputBuffer[6] << 8) | (uint16_t)modbus->InputBuffer[7]);
-	uint16_t Arg2 = (((uint16_t)modbus->InputBuffer[8] << 8) | (uint16_t)modbus->InputBuffer[9]);
-	uint16_t Arg2 = (((uint16_t)modbus->InputBuffer[10] << 8) | (uint16_t)modbus->InputBuffer[11]);
+	uint8_t GutterType = modbus->InputBuffer[6];
+	uint16_t Arg1 = (((uint16_t)modbus->InputBuffer[7] << 8) | (uint16_t)modbus->InputBuffer[8]);
+	uint16_t Arg2 = (((uint16_t)modbus->InputBuffer[9] << 8) | (uint16_t)modbus->InputBuffer[10]);
+	uint16_t Arg3 = (((uint16_t)modbus->InputBuffer[11] << 8) | (uint16_t)modbus->InputBuffer[12]);
 
+	if(Command == 0){ //Perform the computations for the gutter type.
+
+		switch(GutterType){
+
+
+
+			case(Gutter_Parshall):
+			this->Width = Arg1;
+			FLX_ParshallValues(Arg1, &(this->X1), &(this->X2));
+			break;
+
+			case(Gutter_Thompson):
+			this->Width = Arg1;
+			this->X1 = FLX_ThomsonValue(Arg1);
+			break;
+
+			case(Gutter_Rekt):
+			this->Width = Arg1;
+			this->Sill = Arg2;
+
+			this->X1 = FLX_RectWeirValue(Arg1);
+			break;
+
+			case(Gutter_RSK):
+			break;
+
+			case(Gutter_PB):
+			this->Width = Arg1;
+			this->X1 = (2 * Arg1 / 100);
+			this->X2 = std::pow(Arg1/10, 2.5) * 136.244; //Taken from BB2, no idea what the magic numbers are for.
+			break;
+
+			case(Gutter_Cipoletti):
+			this->Width = Arg1;
+			this->X1 = (2.0/3) * 0.63 * sqrt(2 * 9.81) * Arg1 * 3600;
+			break;
+
+			case(Gutter_Sutro):
+			this->Width = Arg1;
+			this->Sill = Arg2;
+
+			this->X1 = (2.0/3) * 0.611 * sqrt(2 * 9.81) * Arg1 * std::pow(Arg2, 1.5);
+			this->X2 = X1/Arg2;
+			this->X3 = 0.611 * sqrt(2 * 9.81) * Arg1 * std::sqrt(Arg2);
+			break;
+
+			case(Gutter_Venturi):
+			break;
+
+			case(Gutter_VenturiU):
+			break;
+
+
+		}
+
+
+
+
+	}
+	else if(Command == 1){ //Store to NVM
+
+
+
+	}
 
 
 
@@ -28,6 +93,75 @@ uint8_t SensorFLX::Calibrate(class ModBusRTU_BaseClass *modbus){
 
 
 	return MODBUS_EXCEPTION_OK;
+}
+
+
+
+float SensorFLX::CalculateMeasurement(){
+//Virtual function that calculates the FLX flow
+
+	//Perform temperature compensation?
+	//BB2 does this but im not sure if it is for the electronics or for the water.
+	//Colder water = higher density so should be temperature dependent?
+
+	float Flow;
+
+	//All calculations are based on mH20
+	switch(this->GutterType){
+
+	case(Gutter_Parshall): //Q= (sqrt(g) * C * W * Ha**n
+		//This is copied from BB2 who seems to use a pre calculated table for the values.
+		//Width in inches
+		Flow = this->X1 * std::pow(this->mH2O, this->X2) * 3600; //X1 = C, X2 = n
+		break;
+	case(Gutter_Thompson): // Thompson   Q= Ce * 8/15 * tan(alfa/2) * sqrt(2g) *He**2.5
+		//Angle in degrees
+		//X1 = FLX_ThomsonValue(Alpha); //Only do when setting the type.
+		Flow =  this->X1 * std::pow(this->mH2O, 2.5);
+		break;
+	case(Gutter_Rekt): // Rect Wier  Q= Ce * sqrt(2g) * b * ((h+0.0012)**1.5)
+		//Width in mm
+		//Sill in mm
+		//X1 = FLX_RectWeirValue(Width); //Only do when setting the type.
+		Flow = this->X1 * (0.602 + 0.083 * (this->mH2O/this->Sill)) * std::pow(this->mH2O + 0.0012, 1.5);
+		break;
+	case(Gutter_RSK):
+		//TBD
+		break;
+	case(Gutter_PB): //Q= ((h / hmax)**1.868) * maxflow
+
+		//X1 = (2 * Width / 100);
+		Flow = std::pow(this->mH2O/this->X1, 1.868) * this->X2;
+		break;
+	case(Gutter_Cipoletti):
+		Flow = this->X1 * std::pow(this->mH2O + 0.0012, 1.5);
+		break;
+	case(Gutter_Sutro):
+		if(this->mH2O > this->Sill){
+			Flow = ((this->X1 + this->X3 * (this->mH2O - this->Sill)) * 3600);
+		}
+		else{
+			Flow = this->X2 * this->mH2O * 3600;
+		}
+		break;
+	case(Gutter_Venturi):
+
+		break;
+	case(Gutter_VenturiU):
+
+		break;
+
+	default:
+		Flow = 0;
+		break;
+
+	}
+
+
+
+
+
+	return Flow;
 }
 
 
@@ -74,92 +208,6 @@ void FLX_GetGutterName(uint8_t gutter_type, char *buffer, uint8_t buffer_size){
 
 	return;
 }
-
-
-
-float FLX_CalculateFlow(float mh2o, uint8_t gutter_type){
-
-
-	//Perform temperature compensation?
-	//BB2 does this but im not sure if it is for the electronics or for the water.
-	//Colder water = higher density so should be temperature dependent?
-
-
-	float Flow;
-
-	//Below should be set during calibration/ setting gutter type
-	float X1, X2, X3;
-	uint16_t Alpha = 45; //Angle set to 45 for testing
-	uint16_t Width = 1;
-	uint16_t Sill = 500;
-
-	//All calculations are based on mH20
-	switch(gutter_type){
-
-	case(Gutter_Parshall): //Q= (sqrt(g) * C * W * Ha**n
-		//This is copied from BB2 who seems to use a pre calculated table for the values.
-		//Width in inches
-		FLX_ParshallValues(Width, &X1, &X2); //Only do when setting the type.
-		Flow = X1 * std::pow(mh2o, X2) * 3600; //X1 = C, X2 = n
-		break;
-	case(Gutter_Thompson): // Thompson   Q= Ce * 8/15 * tan(alfa/2) * sqrt(2g) *He**2.5
-		//Angle in degrees
-		X1 = FLX_ThomsonValue(Alpha); //Only do when setting the type.
-		Flow =  X1 * std::pow(mh2o, 2.5);
-		break;
-	case(Gutter_Rekt): // Rect Wier  Q= Ce * sqrt(2g) * b * ((h+0.0012)**1.5)
-		//Width in mm
-		//Sill in mm
-		X1 = FLX_RectWeirValue(Width); //Only do when setting the type.
-		Flow = X1 * (0.602 + 0.083 * (mh2o/Sill)) * std::pow(mh2o + 0.0012, 1.5);
-		break;
-	case(Gutter_RSK):
-		//TBD
-		break;
-	case(Gutter_PB): //Q= ((h / hmax)**1.868) * maxflow
-
-		X1 = (2 * Width / 100);
-		X2 = std::pow(Width/10, 2.5) * 136.244; //Taken from BB2, no idea what the magic numbers are for.
-		Flow = std::pow(mh2o/X1, 1.868) * X2;
-		break;
-	case(Gutter_Cipoletti):
-		X1 = (2.0/3) * 0.63 * sqrt(2 * 9.81) * Width * 3600;
-		Flow = X1 * std::pow(mh2o + 0.0012, 1.5);
-		break;
-	case(Gutter_Sutro):
-
-		X1 = (2.0/3) * 0.611 * sqrt(2 * 9.81) * Width * std::pow(Sill, 1.5);
-		X2 = X1/Sill;
-		X3 = 0.611 * sqrt(2 * 9.81) * Width * std::sqrt(Sill);
-
-		if(mh2o > Sill){
-			Flow = ((X1 + X3 * (mh2o - Sill)) * 3600);
-		}
-		else{
-			Flow = X2 * mh2o * 3600;
-		}
-		break;
-	case(Gutter_Venturi):
-
-		break;
-	case(Gutter_VenturiU):
-
-		break;
-
-	default:
-		Flow = 0;
-		break;
-
-	}
-
-
-
-
-
-	return Flow;
-}
-
-
 
 
 
