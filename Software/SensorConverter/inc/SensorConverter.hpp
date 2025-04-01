@@ -45,8 +45,8 @@ public:
 	uint16_t 	SoftwareVersion = {SOFTWARE_VERSION};
 	char 		Tag[SENSOR_TAG_SIZE];
 
-	uint8_t 	SensorType{TYPE_LT600}; 	//What type of sensor we are emulating.
-	uint8_t		SlaveAddress{TYPE_LT600};	//Address that we use as slaves
+	uint8_t 	SensorType{TYPE_LT600_FLX}; 	//What type of sensor we are emulating.
+	uint8_t		SlaveAddress{TYPE_LT600_FLX};	//Address that we use as slaves
 	uint8_t		MasterAddress{10};			//Address we use as masters
 
 	class SensorClass *Sensor;
@@ -112,6 +112,8 @@ public:
 	uint8_t Calibrate(class ModBusRTU_BaseClass *modbus);
 	float CalculateMeasurement();
 
+	void GetGutterName(char *buffer, uint8_t buffer_size);
+
 private:
 
 	float mH2O; //Meter vattenpelare
@@ -119,11 +121,11 @@ private:
 	//Arguments used for calibration. Same as FLX X1.. in BB2.
 	uint8_t GutterType{0};
 
-	float X1{0};
-	float X2{0};
+	float X1{0.3812};
+	float X2{1.580};
 	float X3{0};
 
-	uint16_t Width{0};
+	uint16_t Width{6};
 	uint16_t Sill{0};
 
 	float OffsetCal{0};

@@ -111,6 +111,8 @@ float SensorFLX::CalculateMeasurement(){
 
 	float Flow;
 
+	this->mH2O = this->RawData;
+
 	//All calculations are based on mH20
 	switch(this->GutterType){
 
@@ -166,10 +168,10 @@ float SensorFLX::CalculateMeasurement(){
 }
 
 
-void FLX_GetGutterName(uint8_t gutter_type, char *buffer, uint8_t buffer_size){
+void SensorFLX::GetGutterName(char *buffer, uint8_t buffer_size){
 //Simply copy the name of the gutter to the output buffer.
 
-	switch(gutter_type){
+	switch(this->GutterType){
 
 	case(Gutter_Parshall):
 		std::snprintf(buffer, buffer_size, "Parshall");

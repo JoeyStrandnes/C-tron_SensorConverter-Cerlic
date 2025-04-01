@@ -16,7 +16,7 @@ enum FLX_GutterTypes{Gutter_Parshall, Gutter_Thompson, Gutter_Rekt, Gutter_RSK, 
 
 
 
-void FLX_GetGutterName(uint8_t gutter_type, char *buffer, uint8_t buffer_size);
+//void FLX_GetGutterName(uint8_t gutter_type, char *buffer, uint8_t buffer_size);
 float FLX_CalculateFlow(float mh2o, class SensorFLX *sensor);
 
 void FLX_ParshallValues(uint16_t throat_width, float *c, float *n);

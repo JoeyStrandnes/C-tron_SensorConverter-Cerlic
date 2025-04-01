@@ -74,7 +74,6 @@ void SensorConverterSettings::GetSensorType(){
 
 	}
 */
-
 	this->Sensor = new(SensorFLX);
 
 	return;
@@ -82,13 +81,13 @@ void SensorConverterSettings::GetSensorType(){
 
 void SensorConverterSettings::FactoryReset(){
 
-	this->SerialNumber_H = 0;
-	this->SerialNumber_L = 0;
+	this->SerialNumber_H = 535;
+	this->SerialNumber_L = 128;
 	this->SoftwareVersion = SOFTWARE_VERSION;
 	std::memset(this->Tag, 0, 8);
 
-	this->SensorType = TYPE_LT600;
-	this->SlaveAddress = TYPE_LT600;
+	this->SensorType = TYPE_LT600_FLX;
+	this->SlaveAddress = TYPE_LT600_FLX;
 	this->MasterAddress = 10;
 
 	return;

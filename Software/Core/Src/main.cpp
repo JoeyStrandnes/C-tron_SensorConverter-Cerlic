@@ -127,11 +127,6 @@ int main(void)
 
   );
 
-
-  Settings.SerialNumber_H = 435;
-  Settings.SerialNumber_L = 128;
-
-
 //ModBus Slave
   ModBusSlave.SettingsPtr = &Settings;
   ModBusSlave.Address = Settings.SlaveAddress;
@@ -156,11 +151,16 @@ int main(void)
 
   ModBusMaster.ReadAllSensorData();
 
+  HAL_GPIO_WritePin(USART2_DIR_GPIO_Port, USART2_DIR_Pin, GPIO_PIN_SET);
+  HAL_UART_Transmit_IT(&huart2, (uint8_t *)ModBusMaster.OutputBuffer, ModBusMaster.ResponseSize);
+
+  //Give it some time so startup in peace.
+  HAL_Delay(500);
+
+  //Enable C-tron communication
   HAL_GPIO_WritePin(USART1_DIR_GPIO_Port, USART1_DIR_Pin, GPIO_PIN_RESET);
   LL_USART_EnableIT_RXNE(USART1);
 
-  HAL_GPIO_WritePin(USART2_DIR_GPIO_Port, USART2_DIR_Pin, GPIO_PIN_SET);
-  HAL_UART_Transmit_IT(&huart2, (uint8_t *)ModBusMaster.OutputBuffer, ModBusMaster.ResponseSize);
 
   /* USER CODE END 2 */
 
