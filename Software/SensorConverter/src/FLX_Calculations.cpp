@@ -74,6 +74,11 @@ uint8_t SensorFLX::Calibrate(class ModBusRTU_BaseClass *modbus){
 			break;
 
 
+			default:
+			return MODBUS_EXCEPTION_ILLIGAL_FUNCTION;
+			break;
+
+
 		}
 
 
@@ -100,9 +105,9 @@ uint8_t SensorFLX::Calibrate(class ModBusRTU_BaseClass *modbus){
 float SensorFLX::CalculateMeasurement(){
 //Virtual function that calculates the FLX flow
 
-	//Perform temperature compensation?
-	//BB2 does this but im not sure if it is for the electronics or for the water.
-	//Colder water = higher density so should be temperature dependent?
+//Perform temperature compensation?
+//BB2 does this but im not sure if it is for the electronics or for the water.
+//Colder water = higher density so should be temperature dependent?
 
 	float Flow;
 
@@ -116,21 +121,17 @@ float SensorFLX::CalculateMeasurement(){
 		break;
 	case(Gutter_Thompson): // Thompson   Q= Ce * 8/15 * tan(alfa/2) * sqrt(2g) *He**2.5
 		//Angle in degrees
-		//X1 = FLX_ThomsonValue(Alpha); //Only do when setting the type.
 		Flow =  this->X1 * std::pow(this->mH2O, 2.5);
 		break;
 	case(Gutter_Rekt): // Rect Wier  Q= Ce * sqrt(2g) * b * ((h+0.0012)**1.5)
 		//Width in mm
 		//Sill in mm
-		//X1 = FLX_RectWeirValue(Width); //Only do when setting the type.
 		Flow = this->X1 * (0.602 + 0.083 * (this->mH2O/this->Sill)) * std::pow(this->mH2O + 0.0012, 1.5);
 		break;
 	case(Gutter_RSK):
 		//TBD
 		break;
 	case(Gutter_PB): //Q= ((h / hmax)**1.868) * maxflow
-
-		//X1 = (2 * Width / 100);
 		Flow = std::pow(this->mH2O/this->X1, 1.868) * this->X2;
 		break;
 	case(Gutter_Cipoletti):
