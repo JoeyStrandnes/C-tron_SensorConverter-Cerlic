@@ -85,6 +85,8 @@ void LoadModBusRegisters(class ModBusRTU_BaseClass *modbus_master, class ModBusR
 		modbus_slave->RegisterMap[MODBUS_SETTINGS_REG][13].OutputData = Sensor->LevelCal;
 		modbus_slave->RegisterMap[MODBUS_SETTINGS_REG][14].InputData.UINT32 = Sensor->LevelCalDate;
 
+		modbus_slave->RegisterMap[MODBUS_SETTINGS_REG][15].InputData.UINT16 = Sensor->GutterType;
+
 
 		uint16_t *Char_ptr = (uint16_t*)(modbus_slave->SettingsPtr->Tag);
 		modbus_slave->RegisterMap[MODBUS_SETTINGS_REG][16].InputData.UINT16 = Char_ptr[0];
@@ -291,60 +293,51 @@ void LT600_FLX_SlaveRegisters(struct Measurement_Register *registers[2], uint16_
 	registers[0][RegisterIndex].ScaleFactor = 1;
 	registers[0][RegisterIndex++].RegType = FLOAT; //Calibration X1
 
-	registers[0][RegisterIndex].Index = 9;
+	registers[0][RegisterIndex].Index = 10;
 	registers[0][RegisterIndex].ScaleFactor = 1;
 	registers[0][RegisterIndex++].RegType = FLOAT; //Calibration X2
 
-	registers[0][RegisterIndex].Index = 10;
+	registers[0][RegisterIndex].Index = 12;
 	registers[0][RegisterIndex].ScaleFactor = 1;
 	registers[0][RegisterIndex++].RegType = FLOAT; //Calibration X3
 
-	registers[0][RegisterIndex].Index = 11;
+	registers[0][RegisterIndex].Index = 13;
 	registers[0][RegisterIndex].ScaleFactor = 1;
 	registers[0][RegisterIndex++].RegType = FLOAT; //Calibration offset
 
-	registers[0][RegisterIndex].Index = 13;
+	registers[0][RegisterIndex].Index = 15;
 	registers[0][RegisterIndex].ScaleFactor = 1;
 	registers[0][RegisterIndex++].RegType = UINT32; //Calibration offset date
 
-	registers[0][RegisterIndex].Index = 15;
+	registers[0][RegisterIndex].Index = 17;
 	registers[0][RegisterIndex].ScaleFactor = 1;
 	registers[0][RegisterIndex++].RegType = FLOAT; //Calibration level
 
-	registers[0][RegisterIndex].Index = 17;
+	registers[0][RegisterIndex].Index = 19;
 	registers[0][RegisterIndex].ScaleFactor = 1;
 	registers[0][RegisterIndex++].RegType = UINT32; //Calibration level date
 
 
-	//Type of gutter that is used, uses two bytes to represent it.
-	//Parshall 		= PA
-	//Thomson 		= TH
-	//Rektangular 	= RE
-	//RSK 			= RS
-	//Palmer-Bowlus = PB
-	//Cipoletti 	= CI
-	//Sutro 		= SU
-	//Venturi 		= VE
-	//Venturi U		= VU
-	registers[0][RegisterIndex].Index = 19;
+	//Type of gutter that is used, uses the index of the table.
+	registers[0][RegisterIndex].Index = 21;
 	registers[0][RegisterIndex].ScaleFactor = 1;
-	registers[0][RegisterIndex++].RegType = CHAR;
+	registers[0][RegisterIndex++].RegType = UINT16;
 
 
 	//TAG
-	registers[0][RegisterIndex].Index = 20;
-	registers[0][RegisterIndex].ScaleFactor = 1;
-	registers[0][RegisterIndex++].RegType = CHAR;
-
-	registers[0][RegisterIndex].Index = 21;
-	registers[0][RegisterIndex].ScaleFactor = 1;
-	registers[0][RegisterIndex++].RegType = CHAR;
-
 	registers[0][RegisterIndex].Index = 22;
 	registers[0][RegisterIndex].ScaleFactor = 1;
 	registers[0][RegisterIndex++].RegType = CHAR;
 
 	registers[0][RegisterIndex].Index = 23;
+	registers[0][RegisterIndex].ScaleFactor = 1;
+	registers[0][RegisterIndex++].RegType = CHAR;
+
+	registers[0][RegisterIndex].Index = 24;
+	registers[0][RegisterIndex].ScaleFactor = 1;
+	registers[0][RegisterIndex++].RegType = CHAR;
+
+	registers[0][RegisterIndex].Index = 25;
 	registers[0][RegisterIndex].ScaleFactor = 1;
 	registers[0][RegisterIndex++].RegType = CHAR;
 

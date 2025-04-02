@@ -279,6 +279,28 @@ void ModBusRTU_SlaveClass::ParseMasterRequest(){
 		return;
 	}
 
+	//FIXME Im running out of time and the UART is not behaving as it should!!!!
+	switch(InputBuffer[1]){
+
+	case(3):
+	case(4):
+	this->RequestSize = 8;
+	break;
+
+	case(66):
+		if(InputBuffer[5] == 1){
+			this->RequestSize = 9;
+		}
+		else if(InputBuffer[5] == 2){
+			this->RequestSize = 14;
+		}
+	break;
+
+
+	}
+
+
+
 	uint16_t CalculatedCRC = this->ModBusCRC(InputBuffer, (this->RequestSize - 2));
 	uint16_t ReceivedCRC = ((uint16_t)(this->InputBuffer[this->RequestSize - 1]) << 8);
 	ReceivedCRC |= this->InputBuffer[this->RequestSize - 2];
@@ -504,9 +526,7 @@ uint8_t ModBusRTU_SlaveClass::ModBusSerialNumber(){
 
 uint8_t ModBusRTU_SlaveClass::ModBusCalibration(){
 
-	this->SettingsPtr->Sensor->Calibrate(this);
-
-	return MODBUS_EXCEPTION_OK;
+	return this->SettingsPtr->Sensor->Calibrate(this);
 }
 
 uint8_t ModBusRTU_SlaveClass::ModBusFactoryDefaults(){

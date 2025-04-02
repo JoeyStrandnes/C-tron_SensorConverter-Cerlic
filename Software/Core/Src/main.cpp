@@ -288,6 +288,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 		ModBusSlave.RequestSize = 0;
 		ModBusSlave.TransmittedBytes = 0;
 
+		std::memset(ModBusSlave.InputBuffer, 0, ModBusSlave.InputBufferSize);
+
 		HAL_TIM_Base_Start_IT(&htim4);
 
 		return;

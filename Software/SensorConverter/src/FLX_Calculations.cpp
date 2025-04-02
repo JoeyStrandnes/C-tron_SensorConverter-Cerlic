@@ -16,78 +16,39 @@ uint8_t SensorFLX::Calibrate(class ModBusRTU_BaseClass *modbus){
 
 	uint16_t Command = (((uint16_t)modbus->InputBuffer[4] << 8) | (uint16_t)modbus->InputBuffer[5]);
 
-	uint8_t GutterType = modbus->InputBuffer[6];
-	uint16_t Arg1 = (((uint16_t)modbus->InputBuffer[7] << 8) | (uint16_t)modbus->InputBuffer[8]);
-	uint16_t Arg2 = (((uint16_t)modbus->InputBuffer[9] << 8) | (uint16_t)modbus->InputBuffer[10]);
-	uint16_t Arg3 = (((uint16_t)modbus->InputBuffer[11] << 8) | (uint16_t)modbus->InputBuffer[12]);
-
 	if(Command == 0){ //Perform the computations for the gutter type.
 
-		switch(GutterType){
+		this->GutterType = modbus->InputBuffer[6];
+
+		uint16_t Arg1 = (((uint16_t)modbus->InputBuffer[7] << 8) | (uint16_t)modbus->InputBuffer[8]);
+		uint16_t Arg2 = (((uint16_t)modbus->InputBuffer[9] << 8) | (uint16_t)modbus->InputBuffer[10]);
+		uint16_t Arg3 = (((uint16_t)modbus->InputBuffer[11] << 8) | (uint16_t)modbus->InputBuffer[12]);
+
+		this->CalculateGutterCoefficient(Arg1, Arg2, Arg3);
 
 
-
-			case(Gutter_Parshall):
-			this->Width = Arg1;
-			FLX_ParshallValues(Arg1, &(this->X1), &(this->X2));
-			break;
-
-			case(Gutter_Thompson):
-			this->Width = Arg1;
-			this->X1 = FLX_ThomsonValue(Arg1);
-			break;
-
-			case(Gutter_Rekt):
-			this->Width = Arg1;
-			this->Sill = Arg2;
-
-			this->X1 = FLX_RectWeirValue(Arg1);
-			break;
-
-			case(Gutter_RSK):
-			break;
-
-			case(Gutter_PB):
-			this->Width = Arg1;
-			this->X1 = (2 * Arg1 / 100);
-			this->X2 = std::pow(Arg1/10, 2.5) * 136.244; //Taken from BB2, no idea what the magic numbers are for.
-			break;
-
-			case(Gutter_Cipoletti):
-			this->Width = Arg1;
-			this->X1 = (2.0/3) * 0.63 * sqrt(2 * 9.81) * Arg1 * 3600;
-			break;
-
-			case(Gutter_Sutro):
-			this->Width = Arg1;
-			this->Sill = Arg2;
-
-			this->X1 = (2.0/3) * 0.611 * sqrt(2 * 9.81) * Arg1 * std::pow(Arg2, 1.5);
-			this->X2 = X1/Arg2;
-			this->X3 = 0.611 * sqrt(2 * 9.81) * Arg1 * std::sqrt(Arg2);
-			break;
-
-			case(Gutter_Venturi):
-			break;
-
-			case(Gutter_VenturiU):
-			break;
-
-
-			default:
-			return MODBUS_EXCEPTION_ILLIGAL_FUNCTION;
-			break;
-
-
-		}
-
-
-
+		return MODBUS_EXCEPTION_OK;
 
 	}
-	else if(Command == 1){ //Store to NVM
+	else if(Command == 1){ //Only change gutter, no other parameters are passed.
 
+		this->GutterType = modbus->InputBuffer[6];
 
+		this->LoadDefaultFlumeParamters();
+
+		return MODBUS_EXCEPTION_OK;
+
+	}
+
+	else if(Command == 2){ //Only change the width etc
+
+		uint16_t Arg1 = (((uint16_t)modbus->InputBuffer[6] << 8) | (uint16_t)modbus->InputBuffer[7]);
+		uint16_t Arg2 = (((uint16_t)modbus->InputBuffer[8] << 8) | (uint16_t)modbus->InputBuffer[9]);
+		uint16_t Arg3 = (((uint16_t)modbus->InputBuffer[10] << 8) | (uint16_t)modbus->InputBuffer[11]);
+
+		this->CalculateGutterCoefficient(Arg1, Arg2, Arg3);
+
+		return MODBUS_EXCEPTION_OK;
 
 	}
 
@@ -95,9 +56,7 @@ uint8_t SensorFLX::Calibrate(class ModBusRTU_BaseClass *modbus){
 
 
 
-
-
-	return MODBUS_EXCEPTION_OK;
+	return MODBUS_EXCEPTION_SLAVE_DEVICE_FAILURE;
 }
 
 
@@ -216,61 +175,164 @@ void SensorFLX::GetGutterName(char *buffer, uint8_t buffer_size){
 	return;
 }
 
+void SensorFLX::CalculateGutterCoefficient(uint16_t Arg1, uint16_t Arg2, uint16_t Arg3){
+
+
+	switch(GutterType){
+
+		case(Gutter_Parshall):
+		this->Width = Arg1;
+		FLX_ParshallValues(Arg1, &(this->X1), &(this->X2));
+		break;
+
+		case(Gutter_Thompson):
+		this->Width = Arg1;
+		this->X1 = FLX_ThomsonValue(Arg1);
+		break;
+
+		case(Gutter_Rekt):
+		this->Width = Arg1;
+		this->Sill = Arg2;
+
+		this->X1 = FLX_RectWeirValue(Arg1);
+		break;
+
+		case(Gutter_RSK):
+		break;
+
+		case(Gutter_PB):
+		this->Width = Arg1;
+		this->X1 = (2 * Arg1 / 100);
+		this->X2 = std::pow(Arg1/10, 2.5) * 136.244; //Taken from BB2, no idea what the magic numbers are for.
+		break;
+
+		case(Gutter_Cipoletti):
+		this->Width = Arg1;
+		this->X1 = (2.0/3) * 0.63 * sqrt(2 * 9.81) * Arg1 * 3600;
+		break;
+
+		case(Gutter_Sutro):
+		this->Width = Arg1;
+		this->Sill = Arg2;
+
+		this->X1 = (2.0/3) * 0.611 * sqrt(2 * 9.81) * Arg1 * std::pow(Arg2, 1.5);
+		this->X2 = X1/Arg2;
+		this->X3 = 0.611 * sqrt(2 * 9.81) * Arg1 * std::sqrt(Arg2);
+		break;
+
+		case(Gutter_Venturi):
+		break;
+
+		case(Gutter_VenturiU):
+		break;
+
+
+		default:
+		return;
+
+
+	}
+
+	return;
+}
+
+void SensorFLX::LoadDefaultFlumeParamters(){
+
+
+	switch(GutterType){
+
+		case(Gutter_Parshall):
+
+			this->Width = 6;
+			this->Sill = 0;
+
+			this->X1 = 0.3812;
+			this->X2 = 1.580;
+			this->X3 = 0;
+
+			break;
+
+		case(Gutter_Thompson):
+
+			this->Width = 45; //Degrees
+			this->Sill = 0;
+
+			this->X1 = 0.58031;
+			this->X2 = 0;
+			this->X3 = 0;
+
+			break;
+
+		case(Gutter_Rekt):
+
+			this->Width = 500; //mm
+			this->Sill = 1000;
+
+			this->X1 = 0.58031;
+			this->X2 = 0;
+			this->X3 = 0;
+
+			break;
+
+		case(Gutter_RSK):
+		break;
+
+		case(Gutter_PB):
+
+			this->Width = 11; //inch
+			this->Sill = 0;
+
+			this->X1 = 0.22;
+			this->X2 = 0.009781;
+			this->X3 = 0;
+
+			break;
+
+		case(Gutter_Cipoletti):
+		break;
+
+		case(Gutter_Sutro):
+		break;
+
+		case(Gutter_Venturi):
+		break;
+
+		case(Gutter_VenturiU):
+		break;
+
+
+		default:
+		return;
+		break;
+
+
+	}
+
+	return;
+}
+
 
 
 void FLX_ParshallValues(uint16_t throat_width, float *c, float *n){
 //Only needs to be computed when the user selects the type of gutter
 //BB2 only supports up to 96 inches, general table up to 50 ft
-/*
-	uint16_t ThroatWidth[] = {1,2,3,6,9,12,18,24,36,48,60,72,84, 96};
-	float C[] = {0.338, 0.676, 0.992, 2.06, 3.07, 3.95, 6.0, 8.0, 12.0, 16.0, 20.0, 24.0, 28.0, 32.0};
-	float N[] = {1.55, 1.55, 1.55, 1.58,1.53, 1.55, 1.54, 1.55, 1.57, 1.58, 1.59, 1.59, 1.6, 1.61};
 
+	uint8_t TableSize = sizeof(parshallDefs)/sizeof(parshallDefs[0]);
 
-
-	uint8_t TableSize = sizeof(ThroatWidth)/sizeof(ThroatWidth[0]);
 
 	for(uint8_t i = 0; i < TableSize; i++){
 
-		if(throat_width == ThroatWidth[i]){
-			*c = C[i];
-			*n = N[i];
-			return;
-		}
-		else if(throat_width > ThroatWidth[i] && throat_width < ThroatWidth[i]){ //Should ideally return an error.
-			*c = C[i-1];
-			*n = N[i-1];
+		if(parshallDefs[i][0] == throat_width){
+			*c = parshallDefs[i][1];
+			*n = parshallDefs[i][2];
 
 			return;
 		}
-
-
-	}
-*/
-
-
-	uint8_t TableSize = sizeof(parshallDefs[0])/sizeof(parshallDefs[0][0]);
-
-	for(uint8_t i = 0; i < TableSize; i++){
-
-		if(throat_width == parshallDefs[0][i]){
-			*c = parshallDefs[1][i];
-			*n = parshallDefs[2][i];
-			return;
-		}
-		else if(throat_width > parshallDefs[0][i-1] && throat_width < parshallDefs[0][i]){ //Should ideally return an error.
-			*c = parshallDefs[1][i-1];
-			*n = parshallDefs[2][i-1];
-
-			return;
-		}
-
 
 	}
 
 
-
-
+	//Error if we get here!!!!
 
 	return;
 }

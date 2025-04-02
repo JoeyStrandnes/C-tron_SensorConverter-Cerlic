@@ -114,7 +114,6 @@ public:
 
 	void GetGutterName(char *buffer, uint8_t buffer_size);
 
-
 	float mH2O; //Meter vattenpelare
 
 	//Arguments used for calibration. Same as FLX X1.. in BB2.
@@ -135,6 +134,9 @@ public:
 
 
 private:
+
+	void LoadDefaultFlumeParamters();
+	void CalculateGutterCoefficient(uint16_t Arg1, uint16_t Arg2, uint16_t Arg3);
 
 
 };
