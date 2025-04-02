@@ -68,12 +68,12 @@ float SensorFLX::CalculateMeasurement(){
 //BB2 does this but im not sure if it is for the electronics or for the water.
 //Colder water = higher density so should be temperature dependent?
 
-	float Flow;
 
 	if(this->RawData <= 0){
 		return 0;
 	}
 
+	float Flow;
 	this->mH2O = this->RawData;
 
 	//All calculations are based on mH20
