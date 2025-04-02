@@ -2,7 +2,7 @@
 	(version 20250114)
 	(generator "eeschema")
 	(generator_version "9.0")
-	(uuid "967e9da9-ca8a-4b5c-8bfa-cfc31bbc70c1")
+	(uuid "d263cac9-c318-4077-9e13-f269053ef4ba")
 	(paper "A4")
 	(lib_symbols
 		(symbol "Device:C"
@@ -2171,12 +2171,6 @@
 		)
 	)
 	(junction
-		(at 53.34 129.54)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "04baf06d-614f-4839-8e0d-1a8f3c2e23d6")
-	)
-	(junction
 		(at 200.66 73.66)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -2211,12 +2205,6 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "3e30ec63-e9ef-4e39-9ac9-3311da6a3324")
-	)
-	(junction
-		(at 53.34 139.7)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "41d71036-e37b-4822-98a6-af64cdea0255")
 	)
 	(junction
 		(at 41.91 139.7)
@@ -2308,16 +2296,6 @@
 	)
 	(wire
 		(pts
-			(xy 63.5 138.43) (xy 63.5 139.7)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "1204dc64-b9fe-40b4-9f7c-ba614171a865")
-	)
-	(wire
-		(pts
 			(xy 177.8 55.88) (xy 180.34 55.88)
 		)
 		(stroke
@@ -2355,16 +2333,6 @@
 			(type default)
 		)
 		(uuid "1daeffa4-1c61-4b4e-875c-3fc6d1696f30")
-	)
-	(wire
-		(pts
-			(xy 53.34 139.7) (xy 63.5 139.7)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "1df200ef-3f72-4fda-9473-d3d06fffb3d8")
 	)
 	(wire
 		(pts
@@ -2578,16 +2546,6 @@
 	)
 	(wire
 		(pts
-			(xy 63.5 129.54) (xy 53.34 129.54)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "62983e1a-7973-4faa-9b2c-dfc7cb78e385")
-	)
-	(wire
-		(pts
 			(xy 177.8 76.2) (xy 180.34 76.2)
 		)
 		(stroke
@@ -2685,16 +2643,6 @@
 			(type default)
 		)
 		(uuid "881e8d21-6860-4456-afcb-961978d636cc")
-	)
-	(wire
-		(pts
-			(xy 63.5 130.81) (xy 63.5 129.54)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "8cc76362-72df-4725-b05a-9d5b7a5ae5d6")
 	)
 	(wire
 		(pts
@@ -4019,81 +3967,6 @@
 			(project "SensorConverter"
 				(path "/6eed4ebc-b0cb-46ac-a470-b820c56ea840/46e8f11a-77d1-4418-9670-6e0d528a19bf"
 					(reference "R4")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:C")
-		(at 63.5 134.62 180)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "c44af9a1-586d-437e-aa3a-7bfc8112912e")
-		(property "Reference" "C18"
-			(at 67.31 133.35 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "100nF"
-			(at 68.58 135.89 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
-			(at 62.5348 130.81 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 63.5 134.62 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 63.5 134.62 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Voltage" "25V"
-			(at 63.5 134.62 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "eb7452da-851a-4836-83ed-3177b46646d9")
-		)
-		(pin "2"
-			(uuid "db5ae885-3531-4659-99aa-6bff5a37d72d")
-		)
-		(instances
-			(project "SensorConverter"
-				(path "/6eed4ebc-b0cb-46ac-a470-b820c56ea840/46e8f11a-77d1-4418-9670-6e0d528a19bf"
-					(reference "C18")
 					(unit 1)
 				)
 			)
