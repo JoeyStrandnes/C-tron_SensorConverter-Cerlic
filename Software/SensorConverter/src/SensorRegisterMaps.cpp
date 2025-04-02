@@ -66,27 +66,31 @@ void LoadModBusRegisters(class ModBusRTU_BaseClass *modbus_master, class ModBusR
 
 		Sensor->RawData = modbus_master->RegisterMap[1][0].OutputData;
 
-		modbus_slave->RegisterMap[1][0].OutputData = Sensor->CalculateMeasurement();
-		modbus_slave->RegisterMap[1][1].OutputData = modbus_master->RegisterMap[1][0].OutputData;
-		modbus_slave->RegisterMap[1][2].InputData.UINT16 = (uint16_t)(modbus_master->RegisterMap[1][3].OutputData * modbus_slave->RegisterMap[1][2].ScaleFactor); // Temperature C
+		modbus_slave->RegisterMap[MODBUS_DATA_REG][0].OutputData = Sensor->CalculateMeasurement();
+		modbus_slave->RegisterMap[MODBUS_DATA_REG][1].OutputData = modbus_master->RegisterMap[1][0].OutputData;
+		modbus_slave->RegisterMap[MODBUS_DATA_REG][2].InputData.UINT16 = (uint16_t)(modbus_master->RegisterMap[1][3].OutputData * modbus_slave->RegisterMap[1][2].ScaleFactor); // Temperature C
 
-		char TmpBuffer[12];
-		uint16_t *Char_ptr = (uint16_t *)TmpBuffer;
+		modbus_slave->RegisterMap[MODBUS_SETTINGS_REG][4].InputData.UINT16 = Sensor->Sill;
+		modbus_slave->RegisterMap[MODBUS_SETTINGS_REG][5].InputData.UINT16 = Sensor->Width;
+		modbus_slave->RegisterMap[MODBUS_SETTINGS_REG][6].InputData.UINT16 = 0;
+		modbus_slave->RegisterMap[MODBUS_SETTINGS_REG][7].InputData.UINT16 = 0;
 
-		Sensor->GetGutterName(TmpBuffer, 12);
-		modbus_slave->RegisterMap[0][10].InputData.UINT16 = Char_ptr[0];
-		modbus_slave->RegisterMap[0][11].InputData.UINT16 = Char_ptr[1];
-		modbus_slave->RegisterMap[0][12].InputData.UINT16 = Char_ptr[2];
-		modbus_slave->RegisterMap[0][13].InputData.UINT16 = Char_ptr[3];
-		modbus_slave->RegisterMap[0][14].InputData.UINT16 = Char_ptr[4];
-		modbus_slave->RegisterMap[0][15].InputData.UINT16 = Char_ptr[5];
+		modbus_slave->RegisterMap[MODBUS_SETTINGS_REG][8].OutputData = Sensor->X1;
+		modbus_slave->RegisterMap[MODBUS_SETTINGS_REG][9].OutputData = Sensor->X2;
+		modbus_slave->RegisterMap[MODBUS_SETTINGS_REG][10].OutputData = Sensor->X3;
+
+		modbus_slave->RegisterMap[MODBUS_SETTINGS_REG][11].OutputData = Sensor->OffsetCal;
+		modbus_slave->RegisterMap[MODBUS_SETTINGS_REG][12].InputData.UINT32 = Sensor->OffsetCalDate;
+
+		modbus_slave->RegisterMap[MODBUS_SETTINGS_REG][13].OutputData = Sensor->LevelCal;
+		modbus_slave->RegisterMap[MODBUS_SETTINGS_REG][14].InputData.UINT32 = Sensor->LevelCalDate;
 
 
-		Char_ptr = (uint16_t*)(modbus_slave->SettingsPtr->Tag);
-		modbus_slave->RegisterMap[0][16].InputData.UINT16 = Char_ptr[0];
-		modbus_slave->RegisterMap[0][17].InputData.UINT16 = Char_ptr[1];
-		modbus_slave->RegisterMap[0][18].InputData.UINT16 = Char_ptr[2];
-		modbus_slave->RegisterMap[0][19].InputData.UINT16 = Char_ptr[3];
+		uint16_t *Char_ptr = (uint16_t*)(modbus_slave->SettingsPtr->Tag);
+		modbus_slave->RegisterMap[MODBUS_SETTINGS_REG][16].InputData.UINT16 = Char_ptr[0];
+		modbus_slave->RegisterMap[MODBUS_SETTINGS_REG][17].InputData.UINT16 = Char_ptr[1];
+		modbus_slave->RegisterMap[MODBUS_SETTINGS_REG][18].InputData.UINT16 = Char_ptr[2];
+		modbus_slave->RegisterMap[MODBUS_SETTINGS_REG][19].InputData.UINT16 = Char_ptr[3];
 
 		break;
 	}
@@ -97,10 +101,10 @@ void LoadModBusRegisters(class ModBusRTU_BaseClass *modbus_master, class ModBusR
 	}
 
 
-	modbus_slave->RegisterMap[0][0].InputData.UINT16 = modbus_slave->SettingsPtr->SerialNumber_H;
-	modbus_slave->RegisterMap[0][1].InputData.UINT16 = modbus_slave->SettingsPtr->SerialNumber_L;
-	modbus_slave->RegisterMap[0][2].InputData.UINT16 = modbus_slave->SettingsPtr->SoftwareVersion;
-	modbus_slave->RegisterMap[0][3].InputData.UINT16 = modbus_slave->Address;
+	modbus_slave->RegisterMap[MODBUS_SETTINGS_REG][0].InputData.UINT16 = modbus_slave->SettingsPtr->SerialNumber_H;
+	modbus_slave->RegisterMap[MODBUS_SETTINGS_REG][1].InputData.UINT16 = modbus_slave->SettingsPtr->SerialNumber_L;
+	modbus_slave->RegisterMap[MODBUS_SETTINGS_REG][2].InputData.UINT16 = modbus_slave->SettingsPtr->SoftwareVersion;
+	modbus_slave->RegisterMap[MODBUS_SETTINGS_REG][3].InputData.UINT16 = modbus_slave->Address;
 
 
 	return;
@@ -222,8 +226,8 @@ void LT600_FLX_SlaveRegisters(struct Measurement_Register *registers[2], uint16_
 
 
 	//Allocate all the memory
-	register_map_size[0] = LT600_HOLDING_SLAVE_MAP_SIZE;
-	register_map_size[1] = LT600_INPUT_SLAVE_MAP_SIZE;
+	register_map_size[0] = LT600_FLX_HOLDING_SLAVE_MAP_SIZE;
+	register_map_size[1] = LT600_FLX_INPUT_SLAVE_MAP_SIZE;
 
 	free(registers[0]);
 	registers[0] = (struct Measurement_Register *)malloc(register_map_size[0] * sizeof(struct Measurement_Register));

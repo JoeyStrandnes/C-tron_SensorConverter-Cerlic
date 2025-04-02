@@ -114,7 +114,6 @@ public:
 
 	void GetGutterName(char *buffer, uint8_t buffer_size);
 
-private:
 
 	float mH2O; //Meter vattenpelare
 
@@ -133,6 +132,10 @@ private:
 
 	float LevelCal{0};
 	uint32_t LevelCalDate{0};
+
+
+private:
+
 
 };
 

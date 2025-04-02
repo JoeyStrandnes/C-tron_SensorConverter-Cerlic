@@ -111,6 +111,10 @@ float SensorFLX::CalculateMeasurement(){
 
 	float Flow;
 
+	if(this->RawData <= 0){
+		return 0;
+	}
+
 	this->mH2O = this->RawData;
 
 	//All calculations are based on mH20
