@@ -139,18 +139,26 @@ void LT600_MasterRegisterMap(struct Measurement_Register *registers[2], uint16_t
 
 	registers[1][RegisterIndex].Index = 1004;
 	registers[1][RegisterIndex].ScaleFactor = 1;
+	registers[1][RegisterIndex].InputData.PONDUS_FLOAT = 0;
+	registers[1][RegisterIndex].OutputData = 0;
 	registers[1][RegisterIndex++].RegType = PONDUS_FLOAT; //Primary value
 
 	registers[1][RegisterIndex].Index = 1006;
 	registers[1][RegisterIndex].ScaleFactor = 1;
+	registers[1][RegisterIndex].InputData.PONDUS_FLOAT = 0;
+	registers[1][RegisterIndex].OutputData = 0;
 	registers[1][RegisterIndex++].RegType = PONDUS_FLOAT; //4-20mA value
 
 	registers[1][RegisterIndex].Index = 1008;
 	registers[1][RegisterIndex].ScaleFactor = 1;
+	registers[1][RegisterIndex].InputData.PONDUS_FLOAT = 0;
+	registers[1][RegisterIndex].OutputData = 0;
 	registers[1][RegisterIndex++].RegType = PONDUS_FLOAT; //% of calibrated range
 
 	registers[1][RegisterIndex].Index = 1010;
 	registers[1][RegisterIndex].ScaleFactor = 1;
+	registers[1][RegisterIndex].InputData.PONDUS_FLOAT = 0;
+	registers[1][RegisterIndex].OutputData = 0;
 	registers[1][RegisterIndex++].RegType = PONDUS_FLOAT; //Secondary value
 
 
@@ -174,14 +182,20 @@ void LT600_SlaveRegisterMap(struct Measurement_Register *registers[2], uint16_t 
 
 	registers[1][RegisterIndex].Index = 0;
 	registers[1][RegisterIndex].ScaleFactor = 1;
+	registers[1][RegisterIndex].InputData.FLOAT = 0;
+	registers[1][RegisterIndex].OutputData = 0;
 	registers[1][RegisterIndex++].RegType = FLOAT; //Primary value
 
 	registers[1][RegisterIndex].Index = 2;
 	registers[1][RegisterIndex].ScaleFactor = 10;
+	registers[1][RegisterIndex].InputData.UINT16 = 0;
+	registers[1][RegisterIndex].OutputData = 0;
 	registers[1][RegisterIndex++].RegType = UINT16; //% of calibrated range
 
 	registers[1][RegisterIndex].Index = 3;
 	registers[1][RegisterIndex].ScaleFactor = 10;
+	registers[1][RegisterIndex].InputData.UINT16 = 0;
+	registers[1][RegisterIndex].OutputData = 0;
 	registers[1][RegisterIndex++].RegType = UINT16; //Secondary value
 
 	//Holding registers
@@ -189,35 +203,51 @@ void LT600_SlaveRegisterMap(struct Measurement_Register *registers[2], uint16_t 
 
 	registers[0][RegisterIndex].Index = 0;
 	registers[0][RegisterIndex].ScaleFactor = 1;
+	registers[0][RegisterIndex].InputData.UINT16 = 0;
+	registers[0][RegisterIndex].OutputData = 0;
 	registers[0][RegisterIndex++].RegType = UINT16; //Serial H
 
 	registers[0][RegisterIndex].Index = 1;
 	registers[0][RegisterIndex].ScaleFactor = 1;
+	registers[0][RegisterIndex].InputData.UINT16 = 0;
+	registers[0][RegisterIndex].OutputData = 0;
 	registers[0][RegisterIndex++].RegType = UINT16; //Serial L
 
 	registers[0][RegisterIndex].Index = 2;
 	registers[0][RegisterIndex].ScaleFactor = 1;
+	registers[0][RegisterIndex].InputData.UINT16 = 0;
+	registers[0][RegisterIndex].OutputData = 0;
 	registers[0][RegisterIndex++].RegType = UINT16; //Software version
 
 	registers[0][RegisterIndex].Index = 3;
 	registers[0][RegisterIndex].ScaleFactor = 1;
+	registers[0][RegisterIndex].InputData.UINT16 = 0;
+	registers[0][RegisterIndex].OutputData = 0;
 	registers[0][RegisterIndex++].RegType = UINT16; //ModBus address
 
 	registers[0][RegisterIndex].Index = 4;
 	registers[0][RegisterIndex].ScaleFactor = 1;
-	registers[0][RegisterIndex++].RegType = CHAR;
+	registers[0][RegisterIndex].InputData.UINT16 = 0;
+	registers[0][RegisterIndex].OutputData = 0;
+	registers[0][RegisterIndex++].RegType = UINT16;
 
 	registers[0][RegisterIndex].Index = 5;
 	registers[0][RegisterIndex].ScaleFactor = 1;
-	registers[0][RegisterIndex++].RegType = CHAR;
+	registers[0][RegisterIndex].InputData.UINT16 = 0;
+	registers[0][RegisterIndex].OutputData = 0;
+	registers[0][RegisterIndex++].RegType = UINT16;
 
 	registers[0][RegisterIndex].Index = 6;
 	registers[0][RegisterIndex].ScaleFactor = 1;
-	registers[0][RegisterIndex++].RegType = CHAR;
+	registers[0][RegisterIndex].InputData.UINT16 = 0;
+	registers[0][RegisterIndex].OutputData = 0;
+	registers[0][RegisterIndex++].RegType = UINT16;
 
 	registers[0][RegisterIndex].Index = 7;
 	registers[0][RegisterIndex].ScaleFactor = 1;
-	registers[0][RegisterIndex++].RegType = CHAR;
+	registers[0][RegisterIndex].InputData.UINT16 = 0;
+	registers[0][RegisterIndex].OutputData = 0;
+	registers[0][RegisterIndex++].RegType = UINT16;
 
 
 	return;
@@ -242,14 +272,20 @@ void LT600_FLX_SlaveRegisters(struct Measurement_Register *registers[2], uint16_
 
 	registers[1][RegisterIndex].Index = 0;
 	registers[1][RegisterIndex].ScaleFactor = 1;
+	registers[1][RegisterIndex].InputData.FLOAT = 0;
+	registers[1][RegisterIndex].OutputData = 0;
 	registers[1][RegisterIndex++].RegType = FLOAT; //Flow of water default m^3/h
 
 	registers[1][RegisterIndex].Index = 2;
 	registers[1][RegisterIndex].ScaleFactor = 1;
+	registers[1][RegisterIndex].InputData.FLOAT = 0;
+	registers[1][RegisterIndex].OutputData = 0;
 	registers[1][RegisterIndex++].RegType = FLOAT; //Meter vattenpelare
 
 	registers[1][RegisterIndex].Index = 3;
 	registers[1][RegisterIndex].ScaleFactor = 10;
+	registers[1][RegisterIndex].InputData.UINT16 = 0;
+	registers[1][RegisterIndex].OutputData = 0;
 	registers[1][RegisterIndex++].RegType = UINT16; //Temperature
 
 
@@ -259,26 +295,38 @@ void LT600_FLX_SlaveRegisters(struct Measurement_Register *registers[2], uint16_
 
 	registers[0][RegisterIndex].Index = 0;
 	registers[0][RegisterIndex].ScaleFactor = 1;
+	registers[0][RegisterIndex].InputData.UINT16 = 0;
+	registers[0][RegisterIndex].OutputData = 0;
 	registers[0][RegisterIndex++].RegType = UINT16; //Serial H
 
 	registers[0][RegisterIndex].Index = 1;
 	registers[0][RegisterIndex].ScaleFactor = 1;
+	registers[0][RegisterIndex].InputData.UINT16 = 0;
+	registers[0][RegisterIndex].OutputData = 0;
 	registers[0][RegisterIndex++].RegType = UINT16; //Serial L
 
 	registers[0][RegisterIndex].Index = 2;
 	registers[0][RegisterIndex].ScaleFactor = 1;
+	registers[0][RegisterIndex].InputData.UINT16 = 0;
+	registers[0][RegisterIndex].OutputData = 0;
 	registers[0][RegisterIndex++].RegType = UINT16; //Software version
 
 	registers[0][RegisterIndex].Index = 3;
 	registers[0][RegisterIndex].ScaleFactor = 1;
+	registers[0][RegisterIndex].InputData.UINT16 = 0;
+	registers[0][RegisterIndex].OutputData = 0;
 	registers[0][RegisterIndex++].RegType = UINT16; //ModBus address
 
 	registers[0][RegisterIndex].Index = 4;
 	registers[0][RegisterIndex].ScaleFactor = 1;
+	registers[0][RegisterIndex].InputData.UINT16 = 0;
+	registers[0][RegisterIndex].OutputData = 0;
 	registers[0][RegisterIndex++].RegType = UINT16; // Height/sill or angle depending on gutter type
 
 	registers[0][RegisterIndex].Index = 5;
 	registers[0][RegisterIndex].ScaleFactor = 1;
+	registers[0][RegisterIndex].InputData.UINT16 = 0;
+	registers[0][RegisterIndex].OutputData = 0;
 	registers[0][RegisterIndex++].RegType = UINT16; //Width inner
 
 	registers[0][RegisterIndex].Index = 6;
@@ -287,59 +335,85 @@ void LT600_FLX_SlaveRegisters(struct Measurement_Register *registers[2], uint16_
 
 	registers[0][RegisterIndex].Index = 7;
 	registers[0][RegisterIndex].ScaleFactor = 1;
+	registers[0][RegisterIndex].InputData.UINT16 = 0;
+	registers[0][RegisterIndex].OutputData = 0;
 	registers[0][RegisterIndex++].RegType = UINT16; //Throat
 
 	registers[0][RegisterIndex].Index = 8;
 	registers[0][RegisterIndex].ScaleFactor = 1;
+	registers[0][RegisterIndex].InputData.FLOAT = 0;
+	registers[0][RegisterIndex].OutputData = 0;
 	registers[0][RegisterIndex++].RegType = FLOAT; //Calibration X1
 
 	registers[0][RegisterIndex].Index = 10;
 	registers[0][RegisterIndex].ScaleFactor = 1;
+	registers[0][RegisterIndex].InputData.FLOAT = 0;
+	registers[0][RegisterIndex].OutputData = 0;
 	registers[0][RegisterIndex++].RegType = FLOAT; //Calibration X2
 
 	registers[0][RegisterIndex].Index = 12;
 	registers[0][RegisterIndex].ScaleFactor = 1;
+	registers[0][RegisterIndex].InputData.FLOAT = 0;
+	registers[0][RegisterIndex].OutputData = 0;
 	registers[0][RegisterIndex++].RegType = FLOAT; //Calibration X3
 
 	registers[0][RegisterIndex].Index = 13;
 	registers[0][RegisterIndex].ScaleFactor = 1;
+	registers[0][RegisterIndex].InputData.FLOAT = 0;
+	registers[0][RegisterIndex].OutputData = 0;
 	registers[0][RegisterIndex++].RegType = FLOAT; //Calibration offset
 
 	registers[0][RegisterIndex].Index = 15;
 	registers[0][RegisterIndex].ScaleFactor = 1;
+	registers[0][RegisterIndex].InputData.UINT32 = 0;
+	registers[0][RegisterIndex].OutputData = 0;
 	registers[0][RegisterIndex++].RegType = UINT32; //Calibration offset date
 
 	registers[0][RegisterIndex].Index = 17;
 	registers[0][RegisterIndex].ScaleFactor = 1;
+	registers[0][RegisterIndex].InputData.FLOAT = 0;
+	registers[0][RegisterIndex].OutputData = 0;
 	registers[0][RegisterIndex++].RegType = FLOAT; //Calibration level
 
 	registers[0][RegisterIndex].Index = 19;
 	registers[0][RegisterIndex].ScaleFactor = 1;
+	registers[0][RegisterIndex].InputData.UINT32 = 0;
+	registers[0][RegisterIndex].OutputData = 0;
 	registers[0][RegisterIndex++].RegType = UINT32; //Calibration level date
 
 
 	//Type of gutter that is used, uses the index of the table.
 	registers[0][RegisterIndex].Index = 21;
 	registers[0][RegisterIndex].ScaleFactor = 1;
+	registers[0][RegisterIndex].InputData.UINT16 = 0;
+	registers[0][RegisterIndex].OutputData = 0;
 	registers[0][RegisterIndex++].RegType = UINT16;
 
 
 	//TAG
 	registers[0][RegisterIndex].Index = 22;
 	registers[0][RegisterIndex].ScaleFactor = 1;
-	registers[0][RegisterIndex++].RegType = CHAR;
+	registers[0][RegisterIndex].InputData.UINT16 = 0;
+	registers[0][RegisterIndex].OutputData = 0;
+	registers[0][RegisterIndex++].RegType = UINT16;
 
 	registers[0][RegisterIndex].Index = 23;
 	registers[0][RegisterIndex].ScaleFactor = 1;
-	registers[0][RegisterIndex++].RegType = CHAR;
+	registers[0][RegisterIndex].InputData.UINT16 = 0;
+	registers[0][RegisterIndex].OutputData = 0;
+	registers[0][RegisterIndex++].RegType = UINT16;
 
 	registers[0][RegisterIndex].Index = 24;
 	registers[0][RegisterIndex].ScaleFactor = 1;
-	registers[0][RegisterIndex++].RegType = CHAR;
+	registers[0][RegisterIndex].InputData.UINT16 = 0;
+	registers[0][RegisterIndex].OutputData = 0;
+	registers[0][RegisterIndex++].RegType = UINT16;
 
 	registers[0][RegisterIndex].Index = 25;
 	registers[0][RegisterIndex].ScaleFactor = 1;
-	registers[0][RegisterIndex++].RegType = CHAR;
+	registers[0][RegisterIndex].InputData.UINT16 = 0;
+	registers[0][RegisterIndex].OutputData = 0;
+	registers[0][RegisterIndex++].RegType = UINT16;
 
 
 

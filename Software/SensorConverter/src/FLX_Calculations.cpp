@@ -69,7 +69,7 @@ float SensorFLX::CalculateMeasurement(){
 //Colder water = higher density so should be temperature dependent?
 
 
-	if(this->RawData <= 0){
+	if(this->RawData <= 0 || this->RawData > 1000){
 		return 0;
 	}
 
