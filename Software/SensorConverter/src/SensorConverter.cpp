@@ -84,7 +84,7 @@ void SensorConverterSettings::FactoryReset(){
 	this->SerialNumber_H = 535;
 	this->SerialNumber_L = 128;
 	this->SoftwareVersion = SOFTWARE_VERSION;
-	std::memset(this->Tag, 0, 8);
+	std::memset(this->Tag, 0, SENSOR_TAG_SIZE);
 
 	this->SensorType = TYPE_LT600_FLX;
 	this->SlaveAddress = TYPE_LT600_FLX;
@@ -101,7 +101,7 @@ void SensorConverterSettings::GetSettingsFromEEPROM(){
 	this->FactoryReset();
 	return;
 
-	/*
+/*
 	uint8_t MemoryAddress[2];
 	MemoryAddress[0] = 0;
 	MemoryAddress[1] = 0;
