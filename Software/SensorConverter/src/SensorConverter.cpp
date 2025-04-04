@@ -100,9 +100,11 @@ void SensorConverterSettings::GetSettingsFromEEPROM(){
 
 
 	this->FactoryReset();
-	return;
 
+
+	return;
 /*
+
 	uint8_t MemoryAddress[2];
 	MemoryAddress[0] = 0;
 	MemoryAddress[1] = 0;
@@ -112,7 +114,7 @@ void SensorConverterSettings::GetSettingsFromEEPROM(){
 
 	//Step 1: Read the data from the EEPROM.
 	I2C1->CR1 |= I2C_CR1_START;
-	//while(!(I2C1->SR1 & I2C_SR1_SB)); //Wait for start-bit to be sent
+	while(!(I2C1->SR1 & I2C_SR1_SB)); //Wait for start-bit to be sent
 
 	I2C1->DR = 0xA0;
 	while(!(I2C1->SR1 & I2C_SR1_ADDR)); //Wait for device address to be sent
