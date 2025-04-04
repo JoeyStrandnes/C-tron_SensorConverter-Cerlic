@@ -228,10 +228,8 @@ void UART1_IRQ(){
 
 		HAL_TIM_Base_Start_IT(&htim2);
 
-		volatile uint16_t Error = USART1->SR;
+		(void)USART1->SR;
 		ModBusSlave.InputBuffer[ModBusSlave.RequestSize++] = USART1->DR; //Also clears flag
-
-		UNUSED(Error);
 
 		return;
 	}
@@ -253,9 +251,8 @@ void UART1_IRQ(){
 		}
 
 		//Clear the status flags
-		volatile uint16_t Error = USART1->SR;
-		Error = USART1->DR;
-		UNUSED(Error);
+		(void)USART1->SR;
+		(void)USART1->DR;
 
 		//Disable the TX line and enable the RX.
 		USART1->CR1 = ((USART1->CR1 & ~(USART_CR1_TXEIE | USART_SR_TC)) | USART_CR1_RXNEIE);
@@ -269,11 +266,9 @@ void UART1_IRQ(){
 		return;
 	}
 
-
 	//Clear flag if we have an error
-	volatile uint16_t Error = USART1->SR;
-	Error = USART1->DR;
-	UNUSED(Error);
+	(void)USART1->SR;
+	(void)USART1->DR;
 
 	return;
 }
@@ -334,16 +329,13 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size){
 
 	if(huart->Instance == USART2){
 
-		volatile uint16_t Error;
-
 		ModBusMaster.RequestSize = Size;
 		ModBusMaster.ParseSlaveResponse();
 		std::memset((uint8_t *)ModBusMaster.InputBuffer, 0, ModBusMaster.InputBufferSize);
 
-		Error = huart->Instance->SR;
-		Error = huart->Instance->DR;
+		(void)huart->Instance->SR;
+		(void)huart->Instance->DR;
 
-		UNUSED(Error);
 
 	}
 
@@ -369,8 +361,8 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart){
 
 void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart){
 
-	volatile uint16_t Error;
 
+/*
 	//UART for sensor
 	if(huart->Instance == USART1){
 
@@ -387,16 +379,15 @@ void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart){
 		HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
 
 	}
-
+*/
 	//UART for SCADA
 	if(huart->Instance == USART2){
 
-		Error = huart->Instance->SR;
-		Error = huart->Instance->DR;
+		(void)huart->Instance->SR;
+		(void)huart->Instance->DR;
 
 	}
 
-	UNUSED(Error);
 
 	return;
 }
