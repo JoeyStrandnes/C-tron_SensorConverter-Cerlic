@@ -98,6 +98,7 @@ void SensorConverterSettings::GetSettingsFromEEPROM(){
 //Fetch settings from EEPROM
 //Default EEPROM address is 0xA1
 
+
 	this->FactoryReset();
 	return;
 
@@ -111,7 +112,7 @@ void SensorConverterSettings::GetSettingsFromEEPROM(){
 
 	//Step 1: Read the data from the EEPROM.
 	I2C1->CR1 |= I2C_CR1_START;
-	while(!(I2C1->SR1 & I2C_SR1_SB)); //Wait for start-bit to be sent
+	//while(!(I2C1->SR1 & I2C_SR1_SB)); //Wait for start-bit to be sent
 
 	I2C1->DR = 0xA0;
 	while(!(I2C1->SR1 & I2C_SR1_ADDR)); //Wait for device address to be sent
@@ -141,8 +142,8 @@ void SensorConverterSettings::GetSettingsFromEEPROM(){
 		Settings_ptr[i] = (uint8_t)(I2C1->DR);
 
 	}
-
 */
+
 
 	/*
 	HAL_I2C_Master_Seq_Transmit_IT(&hi2c1, 0xA0, MemoryAddress, 2, I2C_FIRST_AND_NEXT_FRAME);

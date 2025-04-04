@@ -228,7 +228,10 @@ void UART1_IRQ(){
 
 		HAL_TIM_Base_Start_IT(&htim2);
 
-		ModBusSlave.InputBuffer[ModBusSlave.RequestSize++] = LL_USART_ReceiveData8(USART1);//USART1->DR; //Also clears flag
+		volatile uint16_t Error = USART1->SR;
+		ModBusSlave.InputBuffer[ModBusSlave.RequestSize++] = USART1->DR; //Also clears flag
+
+		UNUSED(Error);
 
 		return;
 	}
@@ -240,7 +243,8 @@ void UART1_IRQ(){
 		if(ModBusSlave.ResponseSize != 0){
 
 			if(ModBusSlave.TransmittedBytes <= ModBusSlave.ResponseSize){ //Last byte isnt really transmitted since the direction is set to RX.
-				LL_USART_TransmitData8(USART1, ModBusSlave.OutputBuffer[ModBusSlave.TransmittedBytes++]);
+				USART1->DR = ModBusSlave.OutputBuffer[ModBusSlave.TransmittedBytes++];
+
 				return;
 			}
 
@@ -248,11 +252,13 @@ void UART1_IRQ(){
 
 		}
 
-		LL_USART_DisableIT_TXE(USART1);
-		LL_USART_ClearFlag_TC(USART1);
+		//Clear the status flags
+		volatile uint16_t Error = USART1->SR;
+		Error = USART1->DR;
+		UNUSED(Error);
 
-		LL_USART_ReceiveData8(USART1); //Clear the register before enabling the interrupt flag.
-		LL_USART_EnableIT_RXNE(USART1);
+		//Disable the TX line and enable the RX.
+		USART1->CR1 = ((USART1->CR1 & ~(USART_CR1_TXEIE | USART_SR_TC)) | USART_CR1_RXNEIE);
 
 		ModBusSlave.RequestSize = 0;
 		ModBusSlave.TransmittedBytes = 0;
