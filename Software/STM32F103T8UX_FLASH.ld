@@ -44,8 +44,9 @@ _Min_Stack_Size = 0x400; /* required amount of stack */
 /* Memories definition */
 MEMORY
 {
-  RAM    (xrw)    : ORIGIN = 0x20000000,   LENGTH = 20K
-  FLASH    (rx)    : ORIGIN = 0x8000000,   LENGTH = 64K
+  RAM               (xrw)   : ORIGIN = 0x20000000,   LENGTH = 20K
+  FLASH             (rx)    : ORIGIN = 0x8000000,   LENGTH = 63K
+  FLASH_SETTINGS    (rw)    : ORIGIN = 0x0800FC00,   LENGTH = 1K
 }
 
 /* Sections */
@@ -174,6 +175,17 @@ SECTIONS
     . = . + _Min_Stack_Size;
     . = ALIGN(8);
   } >RAM
+
+
+  /*Add a section for the system settings*/
+  .system_settings_flash :
+  {
+      . = ALIGN(4);
+      *(.system_settings_flash_data)
+      . = ALIGN(4);
+  } > FLASH_SETTINGS
+
+
 
   /* Remove information from the compiler libraries */
   /DISCARD/ :

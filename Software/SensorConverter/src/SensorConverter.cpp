@@ -9,7 +9,7 @@
 
 //FIXME
 extern CRC_HandleTypeDef hcrc;
-
+__attribute__((section(".system_settings_flash"))) uint32_t NVMSettings[256];
 
 SensorConverterSettings::SensorConverterSettings(
 	GPIO_TypeDef *heart_beat_port,
@@ -98,8 +98,38 @@ void SensorConverterSettings::GetSettingsFromEEPROM(){
 //Fetch settings from EEPROM
 //Default EEPROM address is 0xA1
 
+	//Ghetto method used because of tight deadline...
 
-	this->FactoryReset();
+	uint32_t NVM_CRC = NVMSettings[10];
+	uint32_t Calc_CRC = HAL_CRC_Calculate(&hcrc, NVMSettings, 10);
+
+	if(NVM_CRC != Calc_CRC){
+
+		this->FactoryReset();
+
+		this->WriteSettingsToEEPROM();
+
+
+	}
+	else{
+
+		uint8_t FlashIndex = 0;
+
+		this->SerialNumber_H = NVMSettings[FlashIndex++];
+		this->SerialNumber_L = NVMSettings[FlashIndex++];
+		this->SlaveAddress = NVMSettings[FlashIndex++];
+
+		class SensorFLX *Sensor_ptr = (class SensorFLX *)this->Sensor;
+
+
+		Sensor_ptr->GutterType = NVMSettings[FlashIndex++];
+		Sensor_ptr->X1 = NVMSettings[FlashIndex++];
+		Sensor_ptr->X2 = NVMSettings[FlashIndex++];
+		Sensor_ptr->X3 = NVMSettings[FlashIndex++];
+		Sensor_ptr->Width = NVMSettings[FlashIndex++];
+
+	}
+
 
 
 	return;
@@ -160,6 +190,7 @@ void SensorConverterSettings::GetSettingsFromEEPROM(){
 	//while(!(hi2c1.Instance->SR1 & I2C_SR1_STOPF));
 	//while(!(hi2c1.Instance->SR1 & I2C_SR1_STOPF));
 */
+	/*
 	//Step 2: Calculate the checksum of the first 12 bytes of the Settings.
 	uint8_t TempBuffer[12];
 	std::memcpy(TempBuffer, (uint8_t *)(this), sizeof(TempBuffer));
@@ -174,12 +205,45 @@ void SensorConverterSettings::GetSettingsFromEEPROM(){
 		this->FactoryReset();
 		this->WriteSettingsToEEPROM();
 	}
-
+*/
 	return;
 }
 
 
 void SensorConverterSettings::WriteSettingsToEEPROM(){
+
+	HAL_FLASH_Unlock();
+
+	FLASH_EraseInitTypeDef FlashPage;
+	uint32_t PageError = 0;
+	FlashPage.TypeErase = FLASH_TYPEERASE_PAGES;
+	FlashPage.PageAddress = (uint32_t)NVMSettings;
+	FlashPage.NbPages = 1;
+
+	HAL_FLASHEx_Erase(&FlashPage, &PageError);
+
+	uint8_t FlashIndex = 0;
+
+	HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, (uint32_t)(&NVMSettings[FlashIndex++]), this->SerialNumber_H);
+	HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, (uint32_t)(&NVMSettings[FlashIndex++]), this->SerialNumber_L);
+	HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, (uint32_t)(&NVMSettings[FlashIndex++]), this->SlaveAddress); //TBD
+
+	class SensorFLX *Sensor_ptr = (class SensorFLX *)this->Sensor;
+
+	HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, (uint32_t)(&NVMSettings[FlashIndex++]), Sensor_ptr->GutterType);
+	HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, (uint32_t)(&NVMSettings[FlashIndex++]), Sensor_ptr->X1);
+	HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, (uint32_t)(&NVMSettings[FlashIndex++]), Sensor_ptr->X2);
+	HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, (uint32_t)(&NVMSettings[FlashIndex++]), Sensor_ptr->X3);
+	HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, (uint32_t)(&NVMSettings[FlashIndex++]), Sensor_ptr->Width);
+	HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, (uint32_t)(&NVMSettings[FlashIndex++]), Sensor_ptr->Sill);
+	HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, (uint32_t)(&NVMSettings[FlashIndex++]), 0);
+
+	uint32_t Calc_CRC = HAL_CRC_Calculate(&hcrc, NVMSettings, 10);
+	HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, (uint32_t)(&NVMSettings[FlashIndex++]), Calc_CRC);
+
+	HAL_FLASH_Lock();
+
+
 /*
 	uint16_t SettingsSize = sizeof(*this);
 
