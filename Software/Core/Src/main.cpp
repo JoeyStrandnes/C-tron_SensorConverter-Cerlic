@@ -270,7 +270,10 @@ void UART1_IRQ(){
 	}
 
 
-
+	//Clear flag if we have an error
+	volatile uint16_t Error = USART1->SR;
+	Error = USART1->DR;
+	UNUSED(Error);
 
 	return;
 }
