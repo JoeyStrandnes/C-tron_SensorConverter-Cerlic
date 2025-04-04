@@ -153,7 +153,7 @@ int main(void)
   HAL_UART_Transmit_IT(&huart2, (uint8_t *)ModBusMaster.OutputBuffer, ModBusMaster.ResponseSize);
 
   //Give it some time so startup in peace.
-  HAL_Delay(500);
+  //HAL_Delay(500);
 
   //Enable C-tron communication
   HAL_GPIO_WritePin(USART1_DIR_GPIO_Port, USART1_DIR_Pin, GPIO_PIN_RESET);
