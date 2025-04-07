@@ -236,7 +236,7 @@ void SensorConverterSettings::WriteSettingsToEEPROM(){
 	HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, (uint32_t)(&NVMSettings[FlashIndex++]), Sensor_ptr->X3);
 	HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, (uint32_t)(&NVMSettings[FlashIndex++]), Sensor_ptr->Width);
 	HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, (uint32_t)(&NVMSettings[FlashIndex++]), Sensor_ptr->Sill);
-	HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, (uint32_t)(&NVMSettings[FlashIndex++]), 0);
+	HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, (uint32_t)(&NVMSettings[FlashIndex++]), Sensor_ptr->OffsetCal);
 
 	uint32_t Calc_CRC = HAL_CRC_Calculate(&hcrc, NVMSettings, 10);
 	HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, (uint32_t)(&NVMSettings[FlashIndex++]), Calc_CRC);

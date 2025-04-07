@@ -329,6 +329,10 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size){
 
 		ModBusMaster.RequestSize = Size;
 		ModBusMaster.ParseSlaveResponse();
+
+		//FIXME Only temporary!!!
+		ModBusMaster.SettingsPtr->Sensor->RawData = ModBusMaster.RegisterMap[1][0].OutputData; //Need to write a map function to map the right values later!
+
 		std::memset((uint8_t *)ModBusMaster.InputBuffer, 0, ModBusMaster.InputBufferSize);
 
 		(void)huart->Instance->SR;
@@ -360,24 +364,6 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart){
 void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart){
 
 
-/*
-	//UART for sensor
-	if(huart->Instance == USART1){
-
-		//Clear the flags.
-		Error = huart->Instance->SR;
-		Error = huart->Instance->DR;
-
-		LL_USART_DisableIT_TXE(USART1);
-		LL_USART_EnableIT_RXNE(USART1);
-
-		ModBusSlave.RequestSize = 0;
-		ModBusSlave.TransmittedBytes = 0;
-
-		HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
-
-	}
-*/
 	//UART for SCADA
 	if(huart->Instance == USART2){
 

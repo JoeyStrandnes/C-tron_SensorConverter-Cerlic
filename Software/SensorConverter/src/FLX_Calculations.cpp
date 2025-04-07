@@ -54,6 +54,19 @@ uint8_t SensorFLX::Calibrate(class ModBusRTU_BaseClass *modbus){
 
 
 
+	else if(Command == 3){ //Flow offset adjustment
+
+		uint16_t Arg1 = (((uint16_t)modbus->InputBuffer[7] << 8) | (uint16_t)modbus->InputBuffer[8]);
+		uint16_t Arg2 = (((uint16_t)modbus->InputBuffer[9] << 8) | (uint16_t)modbus->InputBuffer[10]);
+
+		this->OffsetCalDate = (Arg1 << 16 | Arg2);
+		this->OffsetCal = this->RawData;
+
+		return MODBUS_EXCEPTION_OK;
+
+	}
+
+
 
 
 	return MODBUS_EXCEPTION_SLAVE_DEVICE_FAILURE;
@@ -67,14 +80,15 @@ float SensorFLX::CalculateMeasurement(){
 //Perform temperature compensation?
 //BB2 does this but im not sure if it is for the electronics or for the water.
 //Colder water = higher density so should be temperature dependent?
+//Henrik claims its due to nonlinearity on the pressure transducer. Might be in the electronics, who knows.
 
 
-	if(this->RawData <= 0 || this->RawData > 1000){
+	if(this->RawData <= 0 || this->RawData > 1000 || (this->RawData < this->OffsetCal)){
 		return 0;
 	}
 
 	float Flow;
-	this->mH2O = this->RawData;
+	this->mH2O = this->RawData - this->OffsetCal; //Remove the static offset.
 
 	//All calculations are based on mH20
 	switch(this->GutterType){

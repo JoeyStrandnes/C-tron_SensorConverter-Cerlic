@@ -64,8 +64,6 @@ void LoadModBusRegisters(class ModBusRTU_BaseClass *modbus_master, class ModBusR
 
 		class SensorFLX *Sensor = (class SensorFLX *)modbus_slave->SettingsPtr->Sensor;
 
-		Sensor->RawData = modbus_master->RegisterMap[1][0].OutputData;
-
 		modbus_slave->RegisterMap[MODBUS_DATA_REG][0].OutputData = Sensor->CalculateMeasurement();
 		modbus_slave->RegisterMap[MODBUS_DATA_REG][1].OutputData = modbus_master->RegisterMap[1][0].OutputData;
 		modbus_slave->RegisterMap[MODBUS_DATA_REG][2].InputData.UINT16 = (uint16_t)(modbus_master->RegisterMap[1][3].OutputData * modbus_slave->RegisterMap[1][2].ScaleFactor); // Temperature C
@@ -88,11 +86,18 @@ void LoadModBusRegisters(class ModBusRTU_BaseClass *modbus_master, class ModBusR
 		modbus_slave->RegisterMap[MODBUS_SETTINGS_REG][15].InputData.UINT16 = Sensor->GutterType;
 
 
+		modbus_slave->RegisterMap[MODBUS_SETTINGS_REG][16].InputData.UINT16 = 0;
+		modbus_slave->RegisterMap[MODBUS_SETTINGS_REG][17].InputData.UINT16 = 0;
+		modbus_slave->RegisterMap[MODBUS_SETTINGS_REG][18].InputData.UINT16 = 0;
+		modbus_slave->RegisterMap[MODBUS_SETTINGS_REG][19].InputData.UINT16 = 0;
+
+/*
 		uint16_t *Char_ptr = (uint16_t*)(modbus_slave->SettingsPtr->Tag);
 		modbus_slave->RegisterMap[MODBUS_SETTINGS_REG][16].InputData.UINT16 = Char_ptr[0];
 		modbus_slave->RegisterMap[MODBUS_SETTINGS_REG][17].InputData.UINT16 = Char_ptr[1];
 		modbus_slave->RegisterMap[MODBUS_SETTINGS_REG][18].InputData.UINT16 = Char_ptr[2];
 		modbus_slave->RegisterMap[MODBUS_SETTINGS_REG][19].InputData.UINT16 = Char_ptr[3];
+*/
 
 		break;
 	}
