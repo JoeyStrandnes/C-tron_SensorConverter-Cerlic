@@ -97,11 +97,20 @@ void LoadModBusRegisters(class ModBusRTU_BaseClass *modbus_master, class ModBusR
 
 		//std::memset(modbus_slave->SettingsPtr->Tag, 0, SENSOR_TAG_SIZE);
 
-		uint16_t *Char_ptr = (uint16_t*)(modbus_slave->SettingsPtr->Tag);
-		modbus_slave->RegisterMap[MODBUS_SETTINGS_REG][16].InputData.UINT16 = Char_ptr[0];
-		modbus_slave->RegisterMap[MODBUS_SETTINGS_REG][17].InputData.UINT16 = Char_ptr[1];
-		modbus_slave->RegisterMap[MODBUS_SETTINGS_REG][18].InputData.UINT16 = Char_ptr[2];
-		modbus_slave->RegisterMap[MODBUS_SETTINGS_REG][19].InputData.UINT16 = Char_ptr[3];
+
+		modbus_slave->RegisterMap[MODBUS_SETTINGS_REG][16].InputData.UINT16 = ((uint16_t)modbus_slave->SettingsPtr->Tag[0] << 8 | modbus_slave->SettingsPtr->Tag[1]);
+		modbus_slave->RegisterMap[MODBUS_SETTINGS_REG][17].InputData.UINT16 = ((uint16_t)modbus_slave->SettingsPtr->Tag[2] << 8 | modbus_slave->SettingsPtr->Tag[3]);
+		modbus_slave->RegisterMap[MODBUS_SETTINGS_REG][18].InputData.UINT16 = ((uint16_t)modbus_slave->SettingsPtr->Tag[4] << 8 | modbus_slave->SettingsPtr->Tag[5]);
+		modbus_slave->RegisterMap[MODBUS_SETTINGS_REG][19].InputData.UINT16 = ((uint16_t)modbus_slave->SettingsPtr->Tag[6] << 8 | modbus_slave->SettingsPtr->Tag[7]);
+
+/*
+		char *Char_ptr = (modbus_slave->SettingsPtr->Tag);
+		uint8_t RegisterIndex = 16;
+
+		for(uint8_t i = 0; i < SENSOR_TAG_SIZE/2;i++){
+			modbus_slave->RegisterMap[MODBUS_SETTINGS_REG][RegisterIndex++].InputData.UINT16 = ((((uint16_t)Char_ptr[i]) << 8) | Char_ptr[i+1]);
+		}
+*/
 
 
 		break;
@@ -341,6 +350,8 @@ void LT600_FLX_SlaveRegisters(struct Measurement_Register *registers[2], uint16_
 
 	registers[0][RegisterIndex].Index = 6;
 	registers[0][RegisterIndex].ScaleFactor = 1;
+	registers[0][RegisterIndex].InputData.UINT16 = 0;
+	registers[0][RegisterIndex].OutputData = 0;
 	registers[0][RegisterIndex++].RegType = UINT16; //Width outer
 
 	registers[0][RegisterIndex].Index = 7;
@@ -367,25 +378,25 @@ void LT600_FLX_SlaveRegisters(struct Measurement_Register *registers[2], uint16_
 	registers[0][RegisterIndex].OutputData = 0;
 	registers[0][RegisterIndex++].RegType = FLOAT; //Calibration X3
 
-	registers[0][RegisterIndex].Index = 13;
+	registers[0][RegisterIndex].Index = 14;
 	registers[0][RegisterIndex].ScaleFactor = 1;
 	registers[0][RegisterIndex].InputData.FLOAT = 0;
 	registers[0][RegisterIndex].OutputData = 0;
 	registers[0][RegisterIndex++].RegType = FLOAT; //Calibration offset
 
-	registers[0][RegisterIndex].Index = 15;
+	registers[0][RegisterIndex].Index = 16;
 	registers[0][RegisterIndex].ScaleFactor = 1;
 	registers[0][RegisterIndex].InputData.UINT32 = 0;
 	registers[0][RegisterIndex].OutputData = 0;
 	registers[0][RegisterIndex++].RegType = UINT32; //Calibration offset date
 
-	registers[0][RegisterIndex].Index = 17;
+	registers[0][RegisterIndex].Index = 18;
 	registers[0][RegisterIndex].ScaleFactor = 1;
 	registers[0][RegisterIndex].InputData.FLOAT = 0;
 	registers[0][RegisterIndex].OutputData = 0;
 	registers[0][RegisterIndex++].RegType = FLOAT; //Calibration level
 
-	registers[0][RegisterIndex].Index = 19;
+	registers[0][RegisterIndex].Index = 20;
 	registers[0][RegisterIndex].ScaleFactor = 1;
 	registers[0][RegisterIndex].InputData.UINT32 = 0;
 	registers[0][RegisterIndex].OutputData = 0;
@@ -393,7 +404,7 @@ void LT600_FLX_SlaveRegisters(struct Measurement_Register *registers[2], uint16_
 
 
 	//Type of gutter that is used, uses the index of the table.
-	registers[0][RegisterIndex].Index = 21;
+	registers[0][RegisterIndex].Index = 22;
 	registers[0][RegisterIndex].ScaleFactor = 1;
 	registers[0][RegisterIndex].InputData.UINT16 = 0;
 	registers[0][RegisterIndex].OutputData = 0;
@@ -401,12 +412,6 @@ void LT600_FLX_SlaveRegisters(struct Measurement_Register *registers[2], uint16_
 
 
 	//TAG
-	registers[0][RegisterIndex].Index = 22;
-	registers[0][RegisterIndex].ScaleFactor = 1;
-	registers[0][RegisterIndex].InputData.UINT16 = 0;
-	registers[0][RegisterIndex].OutputData = 0;
-	registers[0][RegisterIndex++].RegType = UINT16;
-
 	registers[0][RegisterIndex].Index = 23;
 	registers[0][RegisterIndex].ScaleFactor = 1;
 	registers[0][RegisterIndex].InputData.UINT16 = 0;
@@ -420,6 +425,12 @@ void LT600_FLX_SlaveRegisters(struct Measurement_Register *registers[2], uint16_
 	registers[0][RegisterIndex++].RegType = UINT16;
 
 	registers[0][RegisterIndex].Index = 25;
+	registers[0][RegisterIndex].ScaleFactor = 1;
+	registers[0][RegisterIndex].InputData.UINT16 = 0;
+	registers[0][RegisterIndex].OutputData = 0;
+	registers[0][RegisterIndex++].RegType = UINT16;
+
+	registers[0][RegisterIndex].Index = 26;
 	registers[0][RegisterIndex].ScaleFactor = 1;
 	registers[0][RegisterIndex].InputData.UINT16 = 0;
 	registers[0][RegisterIndex].OutputData = 0;
