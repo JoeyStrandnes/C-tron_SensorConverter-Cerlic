@@ -82,19 +82,12 @@ float SensorFLX::CalculateMeasurement(){
 //Colder water = higher density so should be temperature dependent?
 //Henrik claims its due to nonlinearity on the pressure transducer. Might be in the electronics, who knows.
 
-	if(this->RawData > 1000){
+	if((this->RawData > 1000) || (this->RawData <= this->OffsetCal)){
 		return 0;
 	}
 
 	float Flow;
-
-	if(this->RawData <= this->OffsetCal){
-		this->mH2O = this->OffsetCal;
-	}
-	else{
-		this->mH2O = this->RawData - this->OffsetCal; //Remove the static offset.
-	}
-
+	this->mH2O = this->RawData - this->OffsetCal; //Remove the static offset.
 
 	//All calculations are based on mH20
 	switch(this->GutterType){
