@@ -56,8 +56,8 @@ uint8_t SensorFLX::Calibrate(class ModBusRTU_BaseClass *modbus){
 
 	else if(Command == 3){ //Flow offset adjustment
 
-		uint16_t Arg1 = (((uint16_t)modbus->InputBuffer[7] << 8) | (uint16_t)modbus->InputBuffer[8]);
-		uint16_t Arg2 = (((uint16_t)modbus->InputBuffer[9] << 8) | (uint16_t)modbus->InputBuffer[10]);
+		uint16_t Arg1 = (((uint16_t)modbus->InputBuffer[6] << 8) | (uint16_t)modbus->InputBuffer[7]);
+		uint16_t Arg2 = (((uint16_t)modbus->InputBuffer[8] << 8) | (uint16_t)modbus->InputBuffer[9]);
 
 		this->OffsetCalDate = (Arg1 << 16 | Arg2);
 		this->OffsetCal = this->RawData;
@@ -82,13 +82,19 @@ float SensorFLX::CalculateMeasurement(){
 //Colder water = higher density so should be temperature dependent?
 //Henrik claims its due to nonlinearity on the pressure transducer. Might be in the electronics, who knows.
 
-
-	if(this->RawData <= 0 || this->RawData > 1000 || (this->RawData < this->OffsetCal)){
+	if(this->RawData > 1000){
 		return 0;
 	}
 
 	float Flow;
-	this->mH2O = this->RawData - this->OffsetCal; //Remove the static offset.
+
+	if(this->RawData <= this->OffsetCal){
+		this->mH2O = this->OffsetCal;
+	}
+	else{
+		this->mH2O = this->RawData - this->OffsetCal; //Remove the static offset.
+	}
+
 
 	//All calculations are based on mH20
 	switch(this->GutterType){
