@@ -95,18 +95,14 @@ void LoadModBusRegisters(class ModBusRTU_BaseClass *modbus_master, class ModBusR
 		modbus_slave->RegisterMap[MODBUS_SETTINGS_REG][15].InputData.UINT16 = Sensor->GutterType;
 
 
-		modbus_slave->RegisterMap[MODBUS_SETTINGS_REG][16].InputData.UINT16 = 0;
-		modbus_slave->RegisterMap[MODBUS_SETTINGS_REG][17].InputData.UINT16 = 0;
-		modbus_slave->RegisterMap[MODBUS_SETTINGS_REG][18].InputData.UINT16 = 0;
-		modbus_slave->RegisterMap[MODBUS_SETTINGS_REG][19].InputData.UINT16 = 0;
+		//std::memset(modbus_slave->SettingsPtr->Tag, 0, SENSOR_TAG_SIZE);
 
-/*
 		uint16_t *Char_ptr = (uint16_t*)(modbus_slave->SettingsPtr->Tag);
 		modbus_slave->RegisterMap[MODBUS_SETTINGS_REG][16].InputData.UINT16 = Char_ptr[0];
 		modbus_slave->RegisterMap[MODBUS_SETTINGS_REG][17].InputData.UINT16 = Char_ptr[1];
 		modbus_slave->RegisterMap[MODBUS_SETTINGS_REG][18].InputData.UINT16 = Char_ptr[2];
 		modbus_slave->RegisterMap[MODBUS_SETTINGS_REG][19].InputData.UINT16 = Char_ptr[3];
-*/
+
 
 		break;
 	}
