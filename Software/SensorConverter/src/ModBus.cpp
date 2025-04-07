@@ -472,10 +472,10 @@ void ModBusRTU_SlaveClass::HandleFC_6(){
 
     //Change the address
     this->Address = this->InputBuffer[5];
+    this->SettingsPtr->SlaveAddress = this->Address;
     this->Register[0][3] = this->InputBuffer[5];
 
-    //StoreSettingsToEEPROM((modbus_rtu->SettingsPtr));
-
+    this->SettingsPtr->WriteSettingsToEEPROM();
 
 	return;
 }
