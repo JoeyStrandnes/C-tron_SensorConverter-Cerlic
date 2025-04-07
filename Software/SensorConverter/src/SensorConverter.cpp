@@ -121,91 +121,23 @@ void SensorConverterSettings::GetSettingsFromEEPROM(){
 
 		class SensorFLX *Sensor_ptr = (class SensorFLX *)this->Sensor;
 
-
 		Sensor_ptr->GutterType = NVMSettings[FlashIndex++];
-		Sensor_ptr->X1 = NVMSettings[FlashIndex++];
-		Sensor_ptr->X2 = NVMSettings[FlashIndex++];
-		Sensor_ptr->X3 = NVMSettings[FlashIndex++];
+
+		std::memcpy((uint8_t *)&Sensor_ptr->X1, (uint8_t*)(&NVMSettings[FlashIndex++]), 4);
+		std::memcpy((uint8_t *)&Sensor_ptr->X2, (uint8_t*)(&NVMSettings[FlashIndex++]), 4);
+		std::memcpy((uint8_t *)&Sensor_ptr->X3, (uint8_t*)(&NVMSettings[FlashIndex++]), 4);
+
 		Sensor_ptr->Width = NVMSettings[FlashIndex++];
+		Sensor_ptr->Sill = NVMSettings[FlashIndex++];
+
+		std::memcpy((uint8_t *)&Sensor_ptr->OffsetCal, (uint8_t*)(&NVMSettings[FlashIndex++]), 4);
+
+
+		std::memset(this->Tag, 0, SENSOR_TAG_SIZE);
 
 	}
 
 
-
-	return;
-/*
-
-	uint8_t MemoryAddress[2];
-	MemoryAddress[0] = 0;
-	MemoryAddress[1] = 0;
-
-	uint8_t *Settings_ptr = (uint8_t *)this;
-	uint16_t SettingsSize = sizeof(*this);
-
-	//Step 1: Read the data from the EEPROM.
-	I2C1->CR1 |= I2C_CR1_START;
-	while(!(I2C1->SR1 & I2C_SR1_SB)); //Wait for start-bit to be sent
-
-	I2C1->DR = 0xA0;
-	while(!(I2C1->SR1 & I2C_SR1_ADDR)); //Wait for device address to be sent
-
-    (void)I2C1->SR1;
-    (void)I2C1->SR2;
-
-	//Set the memory address pointer to 0
-	I2C1->DR = 0;
-	while(!(I2C1->SR1 & I2C_SR1_TXE));
-	I2C1->DR = 0;
-	while(!(I2C1->SR1 & I2C_SR1_TXE));
-
-	//Send the device address again in read mode to read all the data.
-	I2C1->CR1 |= I2C_CR1_START;
-	while(!(I2C1->SR1 & I2C_SR1_SB)); //Wait for start-bit to be sent
-
-	I2C1->DR = 0xA1;
-	while(!(I2C1->SR1 & I2C_SR1_ADDR));
-
-    (void)I2C1->SR1;
-    (void)I2C1->SR2;
-
-	for(uint16_t i = 0; i < SettingsSize; i++){
-
-		while(!(I2C1->SR1 & I2C_SR1_RXNE));
-		Settings_ptr[i] = (uint8_t)(I2C1->DR);
-
-	}
-*/
-
-
-	/*
-	HAL_I2C_Master_Seq_Transmit_IT(&hi2c1, 0xA0, MemoryAddress, 2, I2C_FIRST_AND_NEXT_FRAME);
-
-	//HAL_I2C_GetState(I2C) != HAL_I2C_STATE_BUSY_TX
-	while(!(hi2c1.Instance->SR1 & I2C_SR1_TXE));
-	while(!(hi2c1.Instance->SR1 & I2C_SR1_BTF));
-
-	HAL_I2C_Master_Seq_Receive_IT(&hi2c1, 0xA0, (uint8_t *)this, SettingsSize, I2C_LAST_FRAME);
-
-	while(!(hi2c1.Instance->SR1 & I2C_SR1_RXNE));
-	//while(!(hi2c1.Instance->SR1 & I2C_SR1_STOPF));
-	//while(!(hi2c1.Instance->SR1 & I2C_SR1_STOPF));
-*/
-	/*
-	//Step 2: Calculate the checksum of the first 12 bytes of the Settings.
-	uint8_t TempBuffer[12];
-	std::memcpy(TempBuffer, (uint8_t *)(this), sizeof(TempBuffer));
-	uint32_t TempCRC = this->NVM_CRC;
-	this->NVM_CRC = HAL_CRC_Calculate(&hcrc, (uint32_t *)TempBuffer, sizeof(TempBuffer)/4);
-
-
-	//Step 3: Verify the data integrity. Keep if good, reset if not!
-	if(TempCRC != this->NVM_CRC){
-
-		//Factory reset the device.
-		this->FactoryReset();
-		this->WriteSettingsToEEPROM();
-	}
-*/
 	return;
 }
 
@@ -230,44 +162,30 @@ void SensorConverterSettings::WriteSettingsToEEPROM(){
 
 	class SensorFLX *Sensor_ptr = (class SensorFLX *)this->Sensor;
 
+	uint32_t FloatHolder{0};
+
 	HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, (uint32_t)(&NVMSettings[FlashIndex++]), Sensor_ptr->GutterType);
-	HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, (uint32_t)(&NVMSettings[FlashIndex++]), Sensor_ptr->X1);
-	HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, (uint32_t)(&NVMSettings[FlashIndex++]), Sensor_ptr->X2);
-	HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, (uint32_t)(&NVMSettings[FlashIndex++]), Sensor_ptr->X3);
+
+	std::memcpy((uint8_t *)&FloatHolder, (uint8_t*)(&(Sensor_ptr->X1)), 4);
+	HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, (uint32_t)(&NVMSettings[FlashIndex++]), FloatHolder);
+
+	std::memcpy((uint8_t *)&FloatHolder, (uint8_t*)(&(Sensor_ptr->X2)), 4);
+	HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, (uint32_t)(&NVMSettings[FlashIndex++]), FloatHolder);
+
+	std::memcpy((uint8_t *)&FloatHolder, (uint8_t*)(&(Sensor_ptr->X3)), 4);
+	HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, (uint32_t)(&NVMSettings[FlashIndex++]), FloatHolder);
+
 	HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, (uint32_t)(&NVMSettings[FlashIndex++]), Sensor_ptr->Width);
 	HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, (uint32_t)(&NVMSettings[FlashIndex++]), Sensor_ptr->Sill);
-	HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, (uint32_t)(&NVMSettings[FlashIndex++]), Sensor_ptr->OffsetCal);
+
+	std::memcpy((uint8_t *)&FloatHolder, (uint8_t*)(&(Sensor_ptr->OffsetCal)), 4);
+	HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, (uint32_t)(&NVMSettings[FlashIndex++]), FloatHolder);
 
 	uint32_t Calc_CRC = HAL_CRC_Calculate(&hcrc, NVMSettings, 10);
 	HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, (uint32_t)(&NVMSettings[FlashIndex++]), Calc_CRC);
 
 	HAL_FLASH_Lock();
 
-
-/*
-	uint16_t SettingsSize = sizeof(*this);
-
-	uint8_t MemoryAddress[2];
-	MemoryAddress[0] = 0;
-	MemoryAddress[1] = 0;
-
-	HAL_NVIC_SetPriority(I2C1_EV_IRQn, 0, 0);
-	HAL_NVIC_EnableIRQ(I2C1_EV_IRQn);
-	HAL_I2C_Master_Seq_Transmit_IT(&hi2c1, 0xA0, MemoryAddress, 2, I2C_FIRST_AND_NEXT_FRAME);
-
-	//HAL_Delay(1);
-	//while(!(hi2c1.Instance->SR1 & I2C_SR1_TXE));
-	while(!(hi2c1.Instance->SR1 & I2C_SR1_BTF));
-
-	//Yes this is very stupid, it is important that this happens before the rest of the system is initiated.
-	//ST HAL does not offer a "sequenced" transmit in blocking mode...
-	//while(HAL_I2C_GetState(I2C) != HAL_I2C_STATE_READY && HAL_I2C_GetState(I2C) != HAL_I2C_STATE_RESET);
-
-	HAL_I2C_Master_Seq_Transmit_IT(&hi2c1, 0xA0, (uint8_t *)this, SettingsSize, I2C_LAST_FRAME);
-
-	while(!(hi2c1.Instance->SR1 & I2C_SR1_BTF));
-*/
-	//HAL_Delay(100);
 
 	return;
 }
