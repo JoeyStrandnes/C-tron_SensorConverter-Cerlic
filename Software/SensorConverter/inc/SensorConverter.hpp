@@ -95,7 +95,7 @@ public:
 	virtual uint8_t Calibrate(class ModBusRTU_BaseClass *modbus){return MODBUS_EXCEPTION_SLAVE_DEVICE_FAILURE;};
 	virtual float CalculateMeasurement(){return 0;};
 
-	float RawData{0}; //Input value, can be seen as "ADC raw".
+	float *RawData{NULL}; //Input value, can be seen as "ADC raw".
 
 
 private:

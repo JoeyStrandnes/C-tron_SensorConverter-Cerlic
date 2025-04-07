@@ -330,9 +330,6 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size){
 		ModBusMaster.RequestSize = Size;
 		ModBusMaster.ParseSlaveResponse();
 
-		//FIXME Only temporary!!!
-		ModBusMaster.SettingsPtr->Sensor->RawData = ModBusMaster.RegisterMap[1][0].OutputData; //Need to write a map function to map the right values later!
-
 		std::memset((uint8_t *)ModBusMaster.InputBuffer, 0, ModBusMaster.InputBufferSize);
 
 		(void)huart->Instance->SR;

@@ -60,7 +60,7 @@ uint8_t SensorFLX::Calibrate(class ModBusRTU_BaseClass *modbus){
 		uint16_t Arg2 = (((uint16_t)modbus->InputBuffer[8] << 8) | (uint16_t)modbus->InputBuffer[9]);
 
 		this->OffsetCalDate = (Arg1 << 16 | Arg2);
-		this->OffsetCal = this->RawData;
+		this->OffsetCal = *(this->RawData);
 
 		return MODBUS_EXCEPTION_OK;
 
@@ -80,14 +80,14 @@ float SensorFLX::CalculateMeasurement(){
 //Perform temperature compensation?
 //BB2 does this but im not sure if it is for the electronics or for the water.
 //Colder water = higher density so should be temperature dependent?
-//Henrik claims its due to nonlinearity on the pressure transducer. Might be in the electronics, who knows.
+//Henrik claims its due to nonlinearity in the pressure transducer. Might be in the electronics, who knows.
 
-	if((this->RawData > 1000) || (this->RawData <= this->OffsetCal)){
+	if((*(this->RawData) > 1000) || (*(this->RawData) <= this->OffsetCal)){
 		return 0;
 	}
 
 	float Flow;
-	this->mH2O = this->RawData - this->OffsetCal; //Remove the static offset.
+	this->mH2O = *(this->RawData) - this->OffsetCal; //Remove the static offset.
 
 	//All calculations are based on mH20
 	switch(this->GutterType){
@@ -370,7 +370,9 @@ float FLX_ThomsonValue(uint16_t angle){
 		Kb = 0.593 + (( 20 - angle) * 5.556E-4);
 	}
 
-	//return Kb * (8.0/15) * std::tan(((angle * M_PI)/180) / 2) * sqrt(2 * 9.81) * 3600;
+	//float RadAngle = angle * (M_PI/180);
+
+	//return Kb * (8.0/15) * std::tan(RadAngle/ 2) * sqrt(2 * 9.81) * 3600;
 	return Kb * 8499.6 * std::tan((angle * M_PI) / 360); //Approximation of the above.
 
 }

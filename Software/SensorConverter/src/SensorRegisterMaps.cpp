@@ -22,18 +22,27 @@ void LinkSensorConfig(class ModBusRTU_BaseClass *modbus_master, class ModBusRTU_
 	case(TYPE_LT600):
 		modbus_master->LinkRegisterMap(&LT600_MasterRegisterMap);
 		modbus_slave->LinkRegisterMap(&LT600_SlaveRegisterMap);
+
+		modbus_master->LoadRegisterMap();
+		modbus_slave->LoadRegisterMap();
+
+		modbus_slave->SettingsPtr->Sensor->RawData = &(modbus_master->RegisterMap[1][0].OutputData);
 		break;
 	case(TYPE_LT600_FLX):
 		modbus_master->LinkRegisterMap(&LT600_MasterRegisterMap); //Still uses LT600 as a base but performs other calculations to approximate flow.
 		modbus_slave->LinkRegisterMap(&LT600_FLX_SlaveRegisters);
-		break;
 
+		modbus_master->LoadRegisterMap();
+		modbus_slave->LoadRegisterMap();
+
+		modbus_slave->SettingsPtr->Sensor->RawData = &(modbus_master->RegisterMap[1][0].OutputData);
+		break;
 
 	}
 
 
-	modbus_master->LoadRegisterMap();
-	modbus_slave->LoadRegisterMap();
+
+
 
 	return;
 }
@@ -107,7 +116,7 @@ void LoadModBusRegisters(class ModBusRTU_BaseClass *modbus_master, class ModBusR
 
 	}
 
-
+	//These registers a required!
 	modbus_slave->RegisterMap[MODBUS_SETTINGS_REG][0].InputData.UINT16 = modbus_slave->SettingsPtr->SerialNumber_H;
 	modbus_slave->RegisterMap[MODBUS_SETTINGS_REG][1].InputData.UINT16 = modbus_slave->SettingsPtr->SerialNumber_L;
 	modbus_slave->RegisterMap[MODBUS_SETTINGS_REG][2].InputData.UINT16 = modbus_slave->SettingsPtr->SoftwareVersion;
