@@ -9,7 +9,7 @@
 
 //FIXME
 extern CRC_HandleTypeDef hcrc;
-__attribute__((section(".system_settings_flash"))) uint32_t NVMSettings[256];
+//__attribute__((section(".system_settings_flash"))) uint32_t NVMSettings[256];
 
 SensorConverterSettings::SensorConverterSettings(
 	GPIO_TypeDef *heart_beat_port,
@@ -99,7 +99,7 @@ void SensorConverterSettings::GetSettingsFromEEPROM(){
 //Default EEPROM address is 0xA1
 
 	//Ghetto method used because of tight deadline...
-
+/*
 	uint32_t NVM_CRC = NVMSettings[10];
 	uint32_t Calc_CRC = HAL_CRC_Calculate(&hcrc, NVMSettings, 10);
 
@@ -136,14 +136,14 @@ void SensorConverterSettings::GetSettingsFromEEPROM(){
 		std::memset(this->Tag, 0, SENSOR_TAG_SIZE);
 
 	}
-
+*/
 
 	return;
 }
 
 
 void SensorConverterSettings::WriteSettingsToEEPROM(){
-
+/*
 	HAL_FLASH_Unlock();
 
 	FLASH_EraseInitTypeDef FlashPage;
@@ -185,7 +185,7 @@ void SensorConverterSettings::WriteSettingsToEEPROM(){
 	HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, (uint32_t)(&NVMSettings[FlashIndex++]), Calc_CRC);
 
 	HAL_FLASH_Lock();
-
+*/
 
 	return;
 }

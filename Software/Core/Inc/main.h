@@ -27,18 +27,7 @@ extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
-#include "stm32f1xx_hal.h"
-
-#include "stm32f1xx_ll_usart.h"
-#include "stm32f1xx_ll_rcc.h"
-#include "stm32f1xx_ll_bus.h"
-#include "stm32f1xx_ll_system.h"
-#include "stm32f1xx_ll_exti.h"
-#include "stm32f1xx_ll_cortex.h"
-#include "stm32f1xx_ll_utils.h"
-#include "stm32f1xx_ll_pwr.h"
-#include "stm32f1xx_ll_dma.h"
-#include "stm32f1xx_ll_gpio.h"
+#include "stm32g0xx_hal.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -68,20 +57,18 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define USART2_DIR_Pin GPIO_PIN_1
-#define USART2_DIR_GPIO_Port GPIOA
-#define JP4_Pin GPIO_PIN_7
-#define JP4_GPIO_Port GPIOA
-#define JP1_Pin GPIO_PIN_0
+#define JP1_Pin GPIO_PIN_2
 #define JP1_GPIO_Port GPIOB
-#define JP2_Pin GPIO_PIN_1
+#define JP2_Pin GPIO_PIN_10
 #define JP2_GPIO_Port GPIOB
-#define JP3_Pin GPIO_PIN_2
+#define JP3_Pin GPIO_PIN_11
 #define JP3_GPIO_Port GPIOB
-#define USART1_DIR_Pin GPIO_PIN_8
-#define USART1_DIR_GPIO_Port GPIOA
-#define LED_Pin GPIO_PIN_12
-#define LED_GPIO_Port GPIOA
+#define JP4_Pin GPIO_PIN_12
+#define JP4_GPIO_Port GPIOB
+#define LED_1_Pin GPIO_PIN_13
+#define LED_1_GPIO_Port GPIOB
+#define LED_2_Pin GPIO_PIN_14
+#define LED_2_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
 

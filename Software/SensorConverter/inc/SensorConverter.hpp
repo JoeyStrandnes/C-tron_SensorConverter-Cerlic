@@ -23,6 +23,7 @@ class SensorConverterSettings{
 public:
 
 	SensorConverterSettings(
+
 			GPIO_TypeDef *heart_beat_port,
 			uint16_t heart_beat_pin,
 
@@ -37,6 +38,7 @@ public:
 
 			GPIO_TypeDef *jp4_Port,
 			uint16_t jp4_pin
+
 			);
 
 	//General system info.
