@@ -2171,7 +2171,7 @@
 		)
 	)
 	(junction
-		(at 200.66 73.66)
+		(at 266.7 109.22)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "199d3d35-6810-4111-910f-a04e082ecfd5")
@@ -2213,7 +2213,7 @@
 		(uuid "4791d07c-f29a-4102-abb0-0edcc80ad0a6")
 	)
 	(junction
-		(at 190.5 71.12)
+		(at 256.54 106.68)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "518e637f-63b8-48d1-8c2b-9649cf94ec9e")
@@ -2249,7 +2249,7 @@
 		(uuid "c232ec56-904f-4380-9236-17a366f77f30")
 	)
 	(junction
-		(at 195.58 59.69)
+		(at 261.62 95.25)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "e5c8b4d8-ac9b-424d-b2a0-c6183d0912db")
@@ -2276,7 +2276,17 @@
 	)
 	(wire
 		(pts
-			(xy 177.8 109.22) (xy 180.34 109.22)
+			(xy 177.8 109.22) (xy 266.7 109.22)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "0b72dac4-fee0-4291-bc51-cbf18aa17ebb")
+	)
+	(wire
+		(pts
+			(xy 177.8 73.66) (xy 180.34 73.66)
 		)
 		(stroke
 			(width 0)
@@ -2286,7 +2296,7 @@
 	)
 	(wire
 		(pts
-			(xy 200.66 73.66) (xy 200.66 68.58)
+			(xy 266.7 109.22) (xy 266.7 104.14)
 		)
 		(stroke
 			(width 0)
@@ -2316,7 +2326,7 @@
 	)
 	(wire
 		(pts
-			(xy 195.58 58.42) (xy 195.58 59.69)
+			(xy 261.62 93.98) (xy 261.62 95.25)
 		)
 		(stroke
 			(width 0)
@@ -2336,7 +2346,7 @@
 	)
 	(wire
 		(pts
-			(xy 190.5 71.12) (xy 191.77 71.12)
+			(xy 256.54 106.68) (xy 257.81 106.68)
 		)
 		(stroke
 			(width 0)
@@ -2356,7 +2366,7 @@
 	)
 	(wire
 		(pts
-			(xy 200.66 60.96) (xy 200.66 59.69)
+			(xy 266.7 96.52) (xy 266.7 95.25)
 		)
 		(stroke
 			(width 0)
@@ -2446,7 +2456,7 @@
 	)
 	(wire
 		(pts
-			(xy 200.66 73.66) (xy 203.2 73.66)
+			(xy 266.7 109.22) (xy 269.24 109.22)
 		)
 		(stroke
 			(width 0)
@@ -2463,16 +2473,6 @@
 			(type default)
 		)
 		(uuid "3f202291-6a90-4840-8b81-409c57c2c4b3")
-	)
-	(wire
-		(pts
-			(xy 177.8 73.66) (xy 200.66 73.66)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "3f52a902-108c-4a1c-8d9a-1e1646e31c6b")
 	)
 	(wire
 		(pts
@@ -2536,7 +2536,7 @@
 	)
 	(wire
 		(pts
-			(xy 200.66 59.69) (xy 195.58 59.69)
+			(xy 266.7 95.25) (xy 261.62 95.25)
 		)
 		(stroke
 			(width 0)
@@ -2656,26 +2656,6 @@
 	)
 	(wire
 		(pts
-			(xy 111.76 20.32) (xy 111.76 58.42)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "968199ff-bd72-468d-b623-b3dee6ad6c1d")
-	)
-	(wire
-		(pts
-			(xy 250.19 20.32) (xy 111.76 20.32)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "96ab43b8-5134-423c-8428-ee860c24f299")
-	)
-	(wire
-		(pts
 			(xy 215.9 127) (xy 240.03 127)
 		)
 		(stroke
@@ -2716,7 +2696,7 @@
 	)
 	(wire
 		(pts
-			(xy 177.8 106.68) (xy 180.34 106.68)
+			(xy 177.8 78.74) (xy 180.34 78.74)
 		)
 		(stroke
 			(width 0)
@@ -2726,7 +2706,17 @@
 	)
 	(wire
 		(pts
-			(xy 190.5 60.96) (xy 190.5 59.69)
+			(xy 177.8 106.68) (xy 256.54 106.68)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b39be644-c04f-4f55-b80f-61188d3a5935")
+	)
+	(wire
+		(pts
+			(xy 256.54 96.52) (xy 256.54 95.25)
 		)
 		(stroke
 			(width 0)
@@ -2816,7 +2806,7 @@
 	)
 	(wire
 		(pts
-			(xy 195.58 59.69) (xy 190.5 59.69)
+			(xy 261.62 95.25) (xy 256.54 95.25)
 		)
 		(stroke
 			(width 0)
@@ -2856,16 +2846,6 @@
 	)
 	(wire
 		(pts
-			(xy 177.8 71.12) (xy 190.5 71.12)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "d014e21a-6b0c-41db-8a92-f8a3bfda5054")
-	)
-	(wire
-		(pts
 			(xy 177.8 83.82) (xy 180.34 83.82)
 		)
 		(stroke
@@ -2886,7 +2866,7 @@
 	)
 	(wire
 		(pts
-			(xy 190.5 68.58) (xy 190.5 71.12)
+			(xy 256.54 104.14) (xy 256.54 106.68)
 		)
 		(stroke
 			(width 0)
@@ -3022,7 +3002,7 @@
 	)
 	(hierarchical_label "SCL"
 		(shape output)
-		(at 191.77 71.12 0)
+		(at 257.81 106.68 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3088,7 +3068,7 @@
 	)
 	(hierarchical_label "SDA"
 		(shape bidirectional)
-		(at 203.2 73.66 0)
+		(at 269.24 109.22 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3143,7 +3123,7 @@
 	)
 	(hierarchical_label "USART1_TX"
 		(shape output)
-		(at 180.34 109.22 0)
+		(at 180.34 73.66 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3154,7 +3134,7 @@
 	)
 	(hierarchical_label "USART1_RX"
 		(shape input)
-		(at 180.34 106.68 0)
+		(at 180.34 78.74 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3176,7 +3156,7 @@
 	)
 	(hierarchical_label "+3v3"
 		(shape input)
-		(at 195.58 58.42 90)
+		(at 261.62 93.98 90)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3904,7 +3884,7 @@
 	)
 	(symbol
 		(lib_id "Device:R")
-		(at 200.66 64.77 0)
+		(at 266.7 100.33 0)
 		(mirror y)
 		(unit 1)
 		(exclude_from_sim no)
@@ -3914,7 +3894,7 @@
 		(fields_autoplaced yes)
 		(uuid "bbbf9618-898e-4e45-a102-462d963c8ba8")
 		(property "Reference" "R4"
-			(at 198.12 63.4999 0)
+			(at 264.16 99.0599 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3923,7 +3903,7 @@
 			)
 		)
 		(property "Value" "10k"
-			(at 198.12 66.0399 0)
+			(at 264.16 101.5999 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3932,7 +3912,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
-			(at 202.438 64.77 90)
+			(at 268.478 100.33 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3941,7 +3921,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 200.66 64.77 0)
+			(at 266.7 100.33 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3950,7 +3930,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 200.66 64.77 0)
+			(at 266.7 100.33 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4041,7 +4021,7 @@
 	)
 	(symbol
 		(lib_id "Device:R")
-		(at 190.5 64.77 0)
+		(at 256.54 100.33 0)
 		(mirror y)
 		(unit 1)
 		(exclude_from_sim no)
@@ -4051,7 +4031,7 @@
 		(fields_autoplaced yes)
 		(uuid "da47ae0d-7a14-433e-bf16-2c77e7781095")
 		(property "Reference" "R5"
-			(at 187.96 63.4999 0)
+			(at 254 99.0599 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4060,7 +4040,7 @@
 			)
 		)
 		(property "Value" "10k"
-			(at 187.96 66.0399 0)
+			(at 254 101.5999 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4069,7 +4049,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
-			(at 192.278 64.77 90)
+			(at 258.318 100.33 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4078,7 +4058,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 190.5 64.77 0)
+			(at 256.54 100.33 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4087,7 +4067,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 190.5 64.77 0)
+			(at 256.54 100.33 0)
 			(effects
 				(font
 					(size 1.27 1.27)

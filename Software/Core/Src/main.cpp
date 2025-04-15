@@ -19,7 +19,8 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "crc.h"
-//#include "tim.h"
+#include "dma.h"
+#include "i2c.h"
 #include "usart.h"
 #include "gpio.h"
 /* Private includes ----------------------------------------------------------*/
@@ -99,8 +100,11 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();
   MX_USART2_UART_Init();
   MX_CRC_Init();
+  MX_USART1_UART_Init();
+  MX_I2C1_Init();
   /*
   MX_GPIO_Init();
   MX_USART1_UART_Init();
@@ -164,7 +168,12 @@ int main(void)
   HAL_GPIO_WritePin(USART1_DIR_GPIO_Port, USART1_DIR_Pin, GPIO_PIN_RESET);
   LL_USART_EnableIT_RXNE(USART1);
 */
+
   HAL_GPIO_WritePin(LED_2_GPIO_Port, LED_2_Pin, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(USART2_DIR_GPIO_Port, USART2_DIR_Pin, GPIO_PIN_SET);
+
+  uint8_t TestBuffer[] = "HelloWorld\n\r";
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -175,9 +184,14 @@ int main(void)
 
 
     /* USER CODE BEGIN 3 */
+	  /*
 	  HAL_GPIO_TogglePin(LED_1_GPIO_Port, LED_1_Pin);
 	  HAL_GPIO_TogglePin(LED_2_GPIO_Port, LED_2_Pin);
-  HAL_Delay(500);
+	  */
+
+	  HAL_UART_Transmit(&huart2, TestBuffer, sizeof(TestBuffer)/sizeof(TestBuffer[0]), 10);
+
+	  HAL_Delay(1000);
 
 
   }
