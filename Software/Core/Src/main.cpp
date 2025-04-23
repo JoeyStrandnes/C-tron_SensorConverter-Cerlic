@@ -169,10 +169,17 @@ int main(void)
   LL_USART_EnableIT_RXNE(USART1);
 */
 
+  HAL_UARTEx_ReceiveToIdle_DMA(&huart1, ModBusSlave.InputBuffer, ModBusSlave.InputBufferSize);
+	__HAL_DMA_DISABLE_IT(&hdma_usart1_rx, DMA_IT_HT);
+	__HAL_UART_ENABLE_IT(&huart1, UART_IT_IDLE);
+
+
+  /*
   HAL_GPIO_WritePin(LED_2_GPIO_Port, LED_2_Pin, GPIO_PIN_SET);
   HAL_GPIO_WritePin(USART2_DIR_GPIO_Port, USART2_DIR_Pin, GPIO_PIN_SET);
+  */
 
-  uint8_t TestBuffer[] = "HelloWorld\n\r";
+  //uint8_t TestBuffer[] = "HelloWorld\n\r";
 
   /* USER CODE END 2 */
 
@@ -185,14 +192,12 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 	  /*
-	  HAL_GPIO_TogglePin(LED_1_GPIO_Port, LED_1_Pin);
-	  HAL_GPIO_TogglePin(LED_2_GPIO_Port, LED_2_Pin);
-	  */
+	HAL_GPIO_TogglePin(LED_1_GPIO_Port, LED_1_Pin);
+	HAL_GPIO_TogglePin(LED_2_GPIO_Port, LED_2_Pin);
 
-	  HAL_UART_Transmit(&huart2, TestBuffer, sizeof(TestBuffer)/sizeof(TestBuffer[0]), 10);
 
-	  HAL_Delay(1000);
-
+	HAL_Delay(250);
+*/
 
   }
   /* USER CODE END 3 */
@@ -356,16 +361,34 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 */
 void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size){
 
-	if(huart->Instance == USART2){
 
-		ModBusMaster.RequestSize = Size;
-		ModBusMaster.ParseSlaveResponse();
+	if(huart->Instance == USART1){
 
-		std::memset((uint8_t *)ModBusMaster.InputBuffer, 0, ModBusMaster.InputBufferSize);
-/*
-		(void)huart->Instance->SR;
-		(void)huart->Instance->DR;
-*/
+		//Clear error flags
+		huart->Instance->ICR = (USART_ICR_PECF | USART_ICR_FECF | USART_ICR_NECF | USART_ICR_ORECF);
+
+		HAL_GPIO_WritePin(LED_1_GPIO_Port, LED_1_Pin, GPIO_PIN_SET);
+
+		LoadModBusRegisters(&ModBusMaster, &ModBusSlave, ModBusSlave.SettingsPtr->SensorType);
+		ModBusSlave.ParseMasterRequest();
+
+		if(ModBusSlave.ResponseSize != 0){
+			HAL_UART_Transmit_DMA(&huart1, ModBusSlave.OutputBuffer, ModBusSlave.ResponseSize);
+			__HAL_UART_ENABLE_IT(&huart1, DMA_IT_TC);
+		}
+		else{
+
+
+			std::memset(ModBusSlave.InputBuffer, 0, ModBusSlave.InputBufferSize);
+
+			HAL_UARTEx_ReceiveToIdle_DMA(&huart1, ModBusSlave.InputBuffer, ModBusSlave.InputBufferSize);
+			__HAL_DMA_DISABLE_IT(&hdma_usart1_rx, DMA_IT_HT);
+			__HAL_UART_ENABLE_IT(&huart1, UART_IT_IDLE);
+
+			HAL_GPIO_WritePin(LED_1_GPIO_Port, LED_1_Pin, GPIO_PIN_RESET);
+
+		}
+
 
 	}
 
@@ -373,6 +396,16 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size){
 }
 
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart){
+
+	if(huart->Instance == USART1){
+
+		HAL_UARTEx_ReceiveToIdle_DMA(&huart1, ModBusSlave.InputBuffer, ModBusSlave.InputBufferSize);
+		__HAL_DMA_DISABLE_IT(&hdma_usart1_rx, DMA_IT_HT);
+		__HAL_UART_ENABLE_IT(&huart1, UART_IT_IDLE);
+
+		HAL_GPIO_WritePin(LED_1_GPIO_Port, LED_1_Pin, GPIO_PIN_RESET);
+
+	}
 
 /*
 	if(huart->Instance == USART2){
@@ -393,11 +426,11 @@ void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart){
 
 
 	//UART for SCADA
-	if(huart->Instance == USART2){
-/*
-		(void)huart->Instance->SR;
-		(void)huart->Instance->DR;
-*/
+	if(huart->Instance == USART1){
+
+		//Clear error flags
+		huart->Instance->ICR = (USART_ICR_PECF | USART_ICR_FECF | USART_ICR_NECF | USART_ICR_ORECF);
+
 	}
 
 
