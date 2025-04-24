@@ -107,6 +107,7 @@ int main(void)
   MX_USART1_UART_Init();
   MX_I2C1_Init();
   MX_TIM4_Init();
+  MX_TIM3_Init();
 
   /* USER CODE BEGIN 2 */
   class SensorConverterSettings Settings(
@@ -155,6 +156,9 @@ int main(void)
   LinkSensorConfig(&ModBusMaster, &ModBusSlave, ModBusSlave.SettingsPtr->SensorType);
 
   ModBusMaster.ReadAllSensorData();
+
+  HAL_TIM_Base_Start_IT(&htim3);
+
 /*
   HAL_GPIO_WritePin(USART2_DIR_GPIO_Port, USART2_DIR_Pin, GPIO_PIN_SET);
   HAL_UART_Transmit_IT(&huart2, (uint8_t *)ModBusMaster.OutputBuffer, ModBusMaster.ResponseSize);
@@ -234,6 +238,16 @@ void SystemClock_Config(void)
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 
+	if(htim->Instance == TIM3){ //Used for periodically sampling the slave sensor.
+
+		//HAL_TIM_Base_Stop_IT(htim);
+		HAL_GPIO_WritePin(LED_2_GPIO_Port, LED_2_Pin, GPIO_PIN_SET);
+
+		HAL_UART_Transmit_DMA(&huart2, ModBusMaster.OutputBuffer, ModBusMaster.ResponseSize);
+		__HAL_UART_ENABLE_IT(&huart2, DMA_IT_TC);
+
+	}
+
 	if(htim->Instance == TIM4){ //Used for delayed response to C-tron.
 
 		HAL_TIM_Base_Stop_IT(htim);
@@ -252,13 +266,14 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size){
 
 	if(huart->Instance == USART1){
 
-		//Clear error flags
-		huart->Instance->ICR = (USART_ICR_PECF | USART_ICR_FECF | USART_ICR_NECF | USART_ICR_ORECF);
 
 		ModBusSlave.RequestSize = Size; //Get how many bytes were received.
 
 		LoadModBusRegisters(&ModBusMaster, &ModBusSlave, ModBusSlave.SettingsPtr->SensorType);
 		ModBusSlave.ParseMasterRequest();
+
+		//Clear error flags
+		huart->Instance->ICR = (USART_ICR_PECF | USART_ICR_FECF | USART_ICR_NECF | USART_ICR_ORECF);
 
 		if(ModBusSlave.ResponseSize == 0){
 
@@ -277,6 +292,20 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size){
 
 	}
 
+	if(huart->Instance == USART2){
+
+		ModBusMaster.RequestSize = Size;
+		ModBusMaster.ParseSlaveResponse();
+
+		std::memset((uint8_t *)ModBusMaster.InputBuffer, 0, ModBusMaster.InputBufferSize);
+
+		//Clear error flags
+		huart->Instance->ICR = (USART_ICR_PECF | USART_ICR_FECF | USART_ICR_NECF | USART_ICR_ORECF);
+
+		//HAL_TIM_Base_Start_IT(&htim3);
+
+	}
+
 	return;
 }
 
@@ -289,6 +318,15 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart){
 
 		HAL_GPIO_WritePin(LED_1_GPIO_Port, LED_1_Pin, GPIO_PIN_RESET);
 
+	}
+
+	if(huart->Instance == USART2){
+
+		HAL_GPIO_WritePin(LED_2_GPIO_Port, LED_2_Pin, GPIO_PIN_RESET);
+
+		HAL_UARTEx_ReceiveToIdle_IT(&huart2, ModBusMaster.InputBuffer, ModBusMaster.InputBufferSize);
+
+		//HAL_TIM_Base_Start_IT(&htim3); //Overflows after 250 ms. Used to indicate "loss of sensors"
 	}
 
 	return;
