@@ -72,14 +72,16 @@ void SensorConverterSettings::GetSensorType(){
 		this->Sensor = new(SensorFLX);
 		break;
 	case(0b1110):
+		this->SensorType = TYPE_LT600;
 		this->Sensor = new(SensorLT600);
 		break;
 	case(0b1101):
+		this->SensorType = TYPE_LT600_FLX;
 		this->Sensor = new(SensorFLX);
 		break;
 	case(0b1011):
-		//this->Sensor = new(SensorCMC);
-		this->Sensor = new(SensorFLX);
+		this->SensorType = TYPE_CMC;
+		this->Sensor = new(SensorCMC);
 		break;
 
 	default:

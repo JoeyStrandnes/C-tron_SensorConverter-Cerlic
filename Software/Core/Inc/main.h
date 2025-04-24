@@ -57,8 +57,6 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define USART2_DIR_Pin GPIO_PIN_1
-#define USART2_DIR_GPIO_Port GPIOA
 #define JP1_Pin GPIO_PIN_2
 #define JP1_GPIO_Port GPIOB
 #define JP2_Pin GPIO_PIN_10

@@ -24,6 +24,11 @@
 #define LT600_FLX_HOLDING_SLAVE_MAP_SIZE 20
 #define LT600_FLX_INPUT_SLAVE_MAP_SIZE 3
 
+#define CMC_HOLDING_MASTER_MAP_SIZE 19
+#define CMC_INPUT_MASTER_MAP_SIZE 20
+
+#define CMC_HOLDING_SLAVE_MAP_SIZE 17
+#define CMC_INPUT_SLAVE_MAP_SIZE 4
 
 #include <cstdlib>
 #include <SensorConverter.hpp>
@@ -59,8 +64,8 @@ void LinkSensorConfig(class ModBusRTU_BaseClass *modbus_master, class ModBusRTU_
 void LoadModBusRegisters(class ModBusRTU_BaseClass *modbus_master, class ModBusRTU_BaseClass *modbus_slave, uint8_t sensor_type); //Moves the data into correct registers
 
 
-void CMC_MasterRegisters(struct Measurement_Register *registers[2]);
-void CMC_SlaveRegisters(struct Measurement_Register *registers[2]);
+void CMC_MasterRegisterMap(struct Measurement_Register *registers[2], uint16_t *register_map_size);
+void CMC_SlaveRegisterMap(struct Measurement_Register *registers[2], uint16_t *register_map_size);
 
 void LT600_MasterRegisterMap(struct Measurement_Register *registers[2], uint16_t *register_map_size);
 void LT600_SlaveRegisterMap(struct Measurement_Register *registers[2], uint16_t *register_map_size);
