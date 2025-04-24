@@ -105,6 +105,27 @@ private:
 
 };
 
+class SensorLT600 : public SensorClass{
+//FIXME Not tested, just a placeholder
+public:
+
+	SensorLT600(){};
+	uint8_t Calibrate(class ModBusRTU_BaseClass *modbus){return 0;};
+	float CalculateMeasurement(){return *RawData;};
+
+	void GetGutterName(char *buffer, uint8_t buffer_size){};
+
+	float mH2O; //Meter vattenpelare
+
+	float OffsetCal{0};
+	uint32_t OffsetCalDate{0};
+
+private:
+
+
+};
+
+
 
 class SensorFLX : public SensorClass{
 
@@ -145,7 +166,21 @@ private:
 
 
 
+class SensorCMC : public SensorClass{
+//FIXME Not tested, just a placeholder
+public:
 
+	SensorCMC(){};
+	uint8_t Calibrate(class ModBusRTU_BaseClass *modbus){return 0;};
+	float CalculateMeasurement(){return *RawData;};
+
+	void GetGutterName(char *buffer, uint8_t buffer_size){};
+
+
+private:
+
+
+};
 
 
 

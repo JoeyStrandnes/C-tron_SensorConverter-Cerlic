@@ -65,16 +65,29 @@ void SensorConverterSettings::GetSensorType(){
 	UnitType |= HAL_GPIO_ReadPin(JP3Port, JP3Pin) << 2;
 	UnitType |= HAL_GPIO_ReadPin(JP4Port, JP4Pin) << 3;
 
-/*
+
 	switch(UnitType){
 
-	case(0): //TBD
+	case(0): //No jumpers are bridged.
+		this->Sensor = new(SensorFLX);
+		break;
+	case(0b1110):
+		this->Sensor = new(SensorLT600);
+		break;
+	case(0b1101):
+		this->Sensor = new(SensorFLX);
+		break;
+	case(0b1011):
+		//this->Sensor = new(SensorCMC);
 		this->Sensor = new(SensorFLX);
 		break;
 
+	default:
+		this->Sensor = new(SensorFLX);
+		break;
 	}
-*/
-	this->Sensor = new(SensorFLX);
+
+
 
 	return;
 }

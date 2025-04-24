@@ -21,6 +21,7 @@
 #include "crc.h"
 #include "dma.h"
 #include "i2c.h"
+#include "tim.h"
 #include "usart.h"
 #include "gpio.h"
 /* Private includes ----------------------------------------------------------*/
@@ -105,15 +106,7 @@ int main(void)
   MX_CRC_Init();
   MX_USART1_UART_Init();
   MX_I2C1_Init();
-  /*
-  MX_GPIO_Init();
-  MX_USART1_UART_Init();
-  MX_USART2_UART_Init();
-  MX_TIM3_Init();
   MX_TIM4_Init();
-  MX_CRC_Init();
-  MX_TIM2_Init();
-  */
 
   /* USER CODE BEGIN 2 */
   class SensorConverterSettings Settings(
@@ -170,16 +163,9 @@ int main(void)
 */
 
   HAL_UARTEx_ReceiveToIdle_DMA(&huart1, ModBusSlave.InputBuffer, ModBusSlave.InputBufferSize);
-	__HAL_DMA_DISABLE_IT(&hdma_usart1_rx, DMA_IT_HT);
-	__HAL_UART_ENABLE_IT(&huart1, UART_IT_IDLE);
+ __HAL_DMA_DISABLE_IT(&hdma_usart1_rx, DMA_IT_HT);
+ __HAL_UART_ENABLE_IT(&huart1, UART_IT_IDLE);
 
-
-  /*
-  HAL_GPIO_WritePin(LED_2_GPIO_Port, LED_2_Pin, GPIO_PIN_SET);
-  HAL_GPIO_WritePin(USART2_DIR_GPIO_Port, USART2_DIR_Pin, GPIO_PIN_SET);
-  */
-
-  //uint8_t TestBuffer[] = "HelloWorld\n\r";
 
   /* USER CODE END 2 */
 
@@ -191,13 +177,6 @@ int main(void)
 
 
     /* USER CODE BEGIN 3 */
-	  /*
-	HAL_GPIO_TogglePin(LED_1_GPIO_Port, LED_1_Pin);
-	HAL_GPIO_TogglePin(LED_2_GPIO_Port, LED_2_Pin);
-
-
-	HAL_Delay(250);
-*/
 
   }
   /* USER CODE END 3 */
@@ -251,144 +230,52 @@ void SystemClock_Config(void)
 
 /* USER CODE BEGIN 4 */
 
-void UART1_IRQ(){
-//This gets called for every byte transmitted or received on the UART.
-/*
-	if(LL_USART_IsActiveFlag_RXNE(USART1)){
-
-		if(ModBusSlave.RequestSize >= ModBusSlave.InputBufferSize){ //ERROR
-			ModBusSlave.RequestSize = 0;
-		}
-
-		HAL_TIM_Base_Start_IT(&htim2);
-
-		(void)USART1->SR;
-		ModBusSlave.InputBuffer[ModBusSlave.RequestSize++] = USART1->DR; //Also clears flag
-
-		return;
-	}
-
-	if(LL_USART_IsActiveFlag_TXE(USART1)){ //We are sending data
-
-		HAL_TIM_Base_Stop_IT(&htim2);
-
-		if(ModBusSlave.ResponseSize != 0){
-
-			if(ModBusSlave.TransmittedBytes <= ModBusSlave.ResponseSize){ //Last byte isnt really transmitted since the direction is set to RX.
-				USART1->DR = ModBusSlave.OutputBuffer[ModBusSlave.TransmittedBytes++];
-
-				return;
-			}
-
-			std::memset(ModBusSlave.OutputBuffer, 0, ModBusSlave.OutputBufferSize);
-
-		}
-
-		//Clear the status flags
-		(void)USART1->SR;
-		(void)USART1->DR;
-
-		//Disable the TX line and enable the RX.
-		USART1->CR1 = ((USART1->CR1 & ~(USART_CR1_TXEIE | USART_SR_TC)) | USART_CR1_RXNEIE);
-
-		ModBusSlave.RequestSize = 0;
-		ModBusSlave.TransmittedBytes = 0;
-
-		HAL_GPIO_WritePin(USART1_DIR_GPIO_Port, USART1_DIR_Pin, GPIO_PIN_RESET);
-		HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
-
-		return;
-	}
-
-	//Clear flag if we have an error
-	(void)USART1->SR;
-	(void)USART1->DR;
-*/
-	return;
-}
-
-/*
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 
-
-	if(htim->Instance == TIM2){
-		//We get here when a transmission on UART 1 is IDLE. Basically a crude IDLE detection.
-
-		HAL_TIM_Base_Stop_IT(htim);
-
-		LoadModBusRegisters(&ModBusMaster, &ModBusSlave, ModBusSlave.SettingsPtr->SensorType);
-
-		ModBusSlave.ParseMasterRequest();
-
-		LL_USART_DisableIT_RXNE(USART1);
-		LL_USART_ClearFlag_RXNE(USART1);
-
-		ModBusSlave.RequestSize = 0;
-		ModBusSlave.TransmittedBytes = 0;
-
-		std::memset(ModBusSlave.InputBuffer, 0, ModBusSlave.InputBufferSize);
-
-		HAL_TIM_Base_Start_IT(&htim4);
-
-		return;
-	}
-
-	if(htim->Instance == TIM3){
-
-		HAL_GPIO_WritePin(USART2_DIR_GPIO_Port, USART2_DIR_Pin, GPIO_PIN_SET);
-
-		HAL_UART_Transmit_IT(&huart2, (uint8_t *)ModBusMaster.OutputBuffer, ModBusMaster.ResponseSize);
-		HAL_TIM_Base_Stop_IT(htim);
-
-		return;
-	}
-
-	//Delay for the response to C-tron
 	if(htim->Instance == TIM4){
 
 		HAL_TIM_Base_Stop_IT(htim);
 
-		HAL_GPIO_WritePin(USART1_DIR_GPIO_Port, USART1_DIR_Pin, GPIO_PIN_SET);
-		HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
+		HAL_UART_Transmit_DMA(&huart1, ModBusSlave.OutputBuffer, ModBusSlave.ResponseSize);
+		__HAL_UART_ENABLE_IT(&huart1, DMA_IT_TC);
 
-		//LL_USART_ClearFlag_TC(USART1);
-		LL_USART_EnableIT_TXE(USART1);
-
-		return;
 	}
 
+	return;
+
 }
-*/
+
 void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size){
 
 
 	if(huart->Instance == USART1){
 
-		//Clear error flags
-		huart->Instance->ICR = (USART_ICR_PECF | USART_ICR_FECF | USART_ICR_NECF | USART_ICR_ORECF);
-
 		HAL_GPIO_WritePin(LED_1_GPIO_Port, LED_1_Pin, GPIO_PIN_SET);
+
+		//Clear error flags
+		//huart->Instance->ICR = (USART_ICR_PECF | USART_ICR_FECF | USART_ICR_NECF | USART_ICR_ORECF);
+		HAL_UART_Abort(huart);
+
+		ModBusSlave.RequestSize = Size; //Get how many bytes were received.
 
 		LoadModBusRegisters(&ModBusMaster, &ModBusSlave, ModBusSlave.SettingsPtr->SensorType);
 		ModBusSlave.ParseMasterRequest();
 
-		if(ModBusSlave.ResponseSize != 0){
-			HAL_UART_Transmit_DMA(&huart1, ModBusSlave.OutputBuffer, ModBusSlave.ResponseSize);
-			__HAL_UART_ENABLE_IT(&huart1, DMA_IT_TC);
-		}
-		else{
+		if(ModBusSlave.ResponseSize == 0){
 
-
-			std::memset(ModBusSlave.InputBuffer, 0, ModBusSlave.InputBufferSize);
-
-			HAL_UARTEx_ReceiveToIdle_DMA(&huart1, ModBusSlave.InputBuffer, ModBusSlave.InputBufferSize);
+			HAL_UARTEx_ReceiveToIdle_DMA(huart, ModBusSlave.InputBuffer, ModBusSlave.InputBufferSize);
 			__HAL_DMA_DISABLE_IT(&hdma_usart1_rx, DMA_IT_HT);
-			__HAL_UART_ENABLE_IT(&huart1, UART_IT_IDLE);
+			__HAL_UART_ENABLE_IT(huart, UART_IT_IDLE);
 
 			HAL_GPIO_WritePin(LED_1_GPIO_Port, LED_1_Pin, GPIO_PIN_RESET);
 
+			return;
+
 		}
 
+
+		HAL_GPIO_WritePin(LED_1_GPIO_Port, LED_1_Pin, GPIO_PIN_SET);
+		HAL_TIM_Base_Start_IT(&htim4);
 
 	}
 
@@ -399,26 +286,14 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart){
 
 	if(huart->Instance == USART1){
 
-		HAL_UARTEx_ReceiveToIdle_DMA(&huart1, ModBusSlave.InputBuffer, ModBusSlave.InputBufferSize);
+		HAL_UARTEx_ReceiveToIdle_DMA(huart, ModBusSlave.InputBuffer, ModBusSlave.InputBufferSize);
 		__HAL_DMA_DISABLE_IT(&hdma_usart1_rx, DMA_IT_HT);
-		__HAL_UART_ENABLE_IT(&huart1, UART_IT_IDLE);
+		__HAL_UART_ENABLE_IT(huart, UART_IT_IDLE);
 
 		HAL_GPIO_WritePin(LED_1_GPIO_Port, LED_1_Pin, GPIO_PIN_RESET);
 
 	}
 
-/*
-	if(huart->Instance == USART2){
-
-		HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
-		HAL_GPIO_WritePin(USART2_DIR_GPIO_Port, USART2_DIR_Pin, GPIO_PIN_RESET);
-
-		HAL_UARTEx_ReceiveToIdle_IT(&huart2, (uint8_t *)ModBusMaster.InputBuffer, 20);
-
-		HAL_TIM_Base_Start_IT(&htim3); //Overflows after 250 ms. Used to indicate "loss of sensors"
-
-	}
-*/
 	return;
 }
 
@@ -430,6 +305,10 @@ void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart){
 
 		//Clear error flags
 		huart->Instance->ICR = (USART_ICR_PECF | USART_ICR_FECF | USART_ICR_NECF | USART_ICR_ORECF);
+
+		HAL_UARTEx_ReceiveToIdle_DMA(&huart1, ModBusSlave.InputBuffer, ModBusSlave.InputBufferSize);
+		__HAL_DMA_DISABLE_IT(&hdma_usart1_rx, DMA_IT_HT);
+		__HAL_UART_ENABLE_IT(&huart1, UART_IT_IDLE);
 
 	}
 

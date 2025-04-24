@@ -61,11 +61,10 @@ void LoadModBusRegisters(class ModBusRTU_BaseClass *modbus_master, class ModBusR
 		modbus_slave->RegisterMap[1][2].InputData.UINT16 = (uint16_t)(modbus_master->RegisterMap[1][3].OutputData * modbus_slave->RegisterMap[1][2].ScaleFactor); // Temperature C
 
 		//Sensor TAG
-		uint16_t *Tag_ptr = (uint16_t*)(modbus_slave->SettingsPtr->Tag);
-		modbus_slave->RegisterMap[0][4].InputData.UINT16 = Tag_ptr[0];
-		modbus_slave->RegisterMap[0][5].InputData.UINT16 = Tag_ptr[1];
-		modbus_slave->RegisterMap[0][6].InputData.UINT16 = Tag_ptr[2];
-		modbus_slave->RegisterMap[0][7].InputData.UINT16 = Tag_ptr[3];
+		modbus_slave->RegisterMap[MODBUS_SETTINGS_REG][4].InputData.UINT16 = ((uint16_t)modbus_slave->SettingsPtr->Tag[0] << 8 | modbus_slave->SettingsPtr->Tag[1]);
+		modbus_slave->RegisterMap[MODBUS_SETTINGS_REG][5].InputData.UINT16 = ((uint16_t)modbus_slave->SettingsPtr->Tag[2] << 8 | modbus_slave->SettingsPtr->Tag[3]);
+		modbus_slave->RegisterMap[MODBUS_SETTINGS_REG][6].InputData.UINT16 = ((uint16_t)modbus_slave->SettingsPtr->Tag[4] << 8 | modbus_slave->SettingsPtr->Tag[5]);
+		modbus_slave->RegisterMap[MODBUS_SETTINGS_REG][7].InputData.UINT16 = ((uint16_t)modbus_slave->SettingsPtr->Tag[6] << 8 | modbus_slave->SettingsPtr->Tag[7]);
 
 		break;
 	}
@@ -95,22 +94,10 @@ void LoadModBusRegisters(class ModBusRTU_BaseClass *modbus_master, class ModBusR
 		modbus_slave->RegisterMap[MODBUS_SETTINGS_REG][15].InputData.UINT16 = Sensor->GutterType;
 
 
-		//std::memset(modbus_slave->SettingsPtr->Tag, 0, SENSOR_TAG_SIZE);
-
-
 		modbus_slave->RegisterMap[MODBUS_SETTINGS_REG][16].InputData.UINT16 = ((uint16_t)modbus_slave->SettingsPtr->Tag[0] << 8 | modbus_slave->SettingsPtr->Tag[1]);
 		modbus_slave->RegisterMap[MODBUS_SETTINGS_REG][17].InputData.UINT16 = ((uint16_t)modbus_slave->SettingsPtr->Tag[2] << 8 | modbus_slave->SettingsPtr->Tag[3]);
 		modbus_slave->RegisterMap[MODBUS_SETTINGS_REG][18].InputData.UINT16 = ((uint16_t)modbus_slave->SettingsPtr->Tag[4] << 8 | modbus_slave->SettingsPtr->Tag[5]);
 		modbus_slave->RegisterMap[MODBUS_SETTINGS_REG][19].InputData.UINT16 = ((uint16_t)modbus_slave->SettingsPtr->Tag[6] << 8 | modbus_slave->SettingsPtr->Tag[7]);
-
-/*
-		char *Char_ptr = (modbus_slave->SettingsPtr->Tag);
-		uint8_t RegisterIndex = 16;
-
-		for(uint8_t i = 0; i < SENSOR_TAG_SIZE/2;i++){
-			modbus_slave->RegisterMap[MODBUS_SETTINGS_REG][RegisterIndex++].InputData.UINT16 = ((((uint16_t)Char_ptr[i]) << 8) | Char_ptr[i+1]);
-		}
-*/
 
 
 		break;
