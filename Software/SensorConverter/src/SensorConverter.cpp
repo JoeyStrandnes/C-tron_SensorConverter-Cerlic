@@ -208,15 +208,6 @@ void SensorConverterSettings::WriteSettingsToEEPROM(){
 
 void EnableUSART_RTO(USART_TypeDef *huart){
 
-	/*
-	huart->RTOR = (8 & USART_RTOR_RTO);
-	huart->ICR = USART_ICR_RTOCF;
-	//huart->Instance->CR2 |= USART_CR2_RTOEN;
-	//huart->Instance->CR1 |= (USART_CR1_RTOIE | USART_CR1_RXFFIE);
-	huart->CR1 |= USART_CR1_RTOIE;
-	huart->CR1 |= USART_CR1_RXFFIE;
-*/
-
 	MODIFY_REG(huart->RTOR, USART_RTOR_RTO, 16);
 	SET_BIT(huart->CR2, USART_CR2_RTOEN);
 	WRITE_REG(huart->ICR, USART_ICR_RTOCF);

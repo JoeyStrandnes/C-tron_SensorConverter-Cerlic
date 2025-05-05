@@ -162,16 +162,12 @@ int main(void)
   HAL_TIM_Base_Start_IT(&htim3);
 
   //Enable C-tron communication, for whatever reason the IDLE event does not trigger in DMA mode.
-  //HAL_UARTEx_ReceiveToIdle_IT(&huart1, ModBusSlave.InputBuffer, ModBusSlave.InputBufferSize);
-  //__HAL_UART_ENABLE_IT(&huart1, UART_IT_IDLE);
-
-  //FIXME Testing the RTO feature
   EnableUSART_RTO(USART1);
   LL_USART_EnableIT_RXNE_RXFNE(USART1);
-  //LL_USART_EnableIT_RTO(USART1);
-  //USART1->RTOR = (8 & USART_RTOR_RTO);
 
-
+  LL_USART_DisableIT_TXE_TXFNF(USART1);
+  CLEAR_BIT(USART1->CR1, USART_CR1_TE);
+  LL_USART_ClearFlag_TXFE(USART1);
 
 
   /* USER CODE END 2 */
@@ -250,24 +246,76 @@ void UART1_IRQ(){
 		ModBusSlave.InputBuffer[ModBusSlave.RequestSize++] = LL_USART_ReceiveData8(USART1);//USART1->RDR;
 		LL_USART_ClearFlag_RTO(USART1);
 
-		if(ModBusSlave.RequestSize == 8){
-			HAL_GPIO_WritePin(LED_1_GPIO_Port, LED_1_Pin, GPIO_PIN_SET);
-		}
+		HAL_GPIO_WritePin(LED_1_GPIO_Port, LED_1_Pin, GPIO_PIN_SET);
+
+		USART1->ICR = 0x0000FFFF; //Clear all flags
+
+		return;
 
 	}
 
 	if(LL_USART_IsActiveFlag_RTO(USART1)){
 
-		LL_USART_ClearFlag_RTO(USART1);
+		USART1->ICR = 0x0000FFFF; //Clear all flags
+
+		LoadModBusRegisters(&ModBusMaster, &ModBusSlave, ModBusSlave.SettingsPtr->SensorType);
+		ModBusSlave.ParseMasterRequest();
+
+
+		if(ModBusSlave.ResponseSize == 0){
+
+			EnableUSART_RTO(USART1);
+
+			HAL_GPIO_WritePin(LED_1_GPIO_Port, LED_1_Pin, GPIO_PIN_RESET);
+
+		}
+		else{
+
+			CLEAR_BIT(USART1->CR1, USART_CR1_RE); //Disable receiver.
+
+			HAL_GPIO_WritePin(LED_1_GPIO_Port, LED_1_Pin, GPIO_PIN_SET);
+			HAL_TIM_Base_Start_IT(&htim4);
+		}
+
+
+		return;
+
+	}
+
+	if(LL_USART_IsActiveFlag_TXE_TXFNF(USART1)){
+
+		USART1->ICR = 0x0000FFFF; //Clear all flags
+
+		if(ModBusSlave.ResponseSize != 0){
+
+			if(ModBusSlave.TransmittedBytes < ModBusSlave.ResponseSize){ //Last byte isnt really transmitted since the direction is set to RX.
+				USART1->TDR = ModBusSlave.OutputBuffer[ModBusSlave.TransmittedBytes++];
+
+				return;
+			}
+
+			std::memset(ModBusSlave.OutputBuffer, 0, ModBusSlave.OutputBufferSize);
+
+		}
+
+		//Disable the TX line and enable the RX.
+		CLEAR_BIT(USART1->CR1, USART_CR1_TXEIE_TXFNFIE);
+		CLEAR_BIT(USART1->CR1, USART_CR1_TE);
+		SET_BIT(USART1->CR1, USART_CR1_RE);
+
+		ModBusSlave.RequestSize = 0;
+		ModBusSlave.TransmittedBytes = 0;
 
 		HAL_GPIO_WritePin(LED_1_GPIO_Port, LED_1_Pin, GPIO_PIN_RESET);
 
+		return;
 	}
 
 
 	(void)USART1->RDR;
-	LL_USART_ClearFlag_RTO(USART1);
 	USART1->ICR = 0x0000FFFF; //Clear all flags
+
+	ModBusSlave.RequestSize = 0;
 
 	return;
 }
@@ -287,10 +335,12 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 	if(htim->Instance == TIM4){ //Used for delayed response to C-tron.
 
 		HAL_TIM_Base_Stop_IT(htim);
-/*
-		HAL_UART_Transmit_DMA(&huart1, ModBusSlave.OutputBuffer, ModBusSlave.ResponseSize);
-		__HAL_UART_ENABLE_IT(&huart1, DMA_IT_TC);
-*/
+
+		//Enable the TX line and disable the RX.
+		CLEAR_BIT(USART1->CR1, USART_CR1_RXFFIE);
+		SET_BIT(USART1->CR1, USART_CR1_TXEIE_TXFNFIE);
+		SET_BIT(USART1->CR1, USART_CR1_TE);
+
 
 	}
 
@@ -341,18 +391,13 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart){
 
 void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart){
 
-	//Clear error flags
-	huart->Instance->ICR = (USART_ICR_PECF | USART_ICR_FECF | USART_ICR_NECF | USART_ICR_ORECF);
-
-	//UART for SCADA
-	if(huart->Instance == USART1){
-		HAL_UARTEx_ReceiveToIdle_IT(huart, ModBusSlave.InputBuffer, ModBusSlave.InputBufferSize);
-	}
-	else if(huart->Instance == USART2){
+	//UART for Sensors
+	if(huart->Instance == USART2){
+		huart->Instance->ICR = (USART_ICR_PECF | USART_ICR_FECF | USART_ICR_NECF | USART_ICR_ORECF);
 		//HAL_UARTEx_ReceiveToIdle_IT(huart, ModBusMaster.InputBuffer, ModBusMaster.InputBufferSize);
+		__HAL_UART_ENABLE_IT(huart, UART_IT_IDLE);
 	}
 
-	__HAL_UART_ENABLE_IT(huart, UART_IT_IDLE);
 
 	return;
 }
