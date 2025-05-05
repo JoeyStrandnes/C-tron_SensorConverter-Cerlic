@@ -61,6 +61,13 @@ void LoadModBusRegisters(class ModBusRTU_BaseClass *modbus_master, class ModBusR
 		modbus_slave->RegisterMap[MODBUS_DATA_REG][2].InputData.UINT16 = (uint16_t)(modbus_master->RegisterMap[MODBUS_DATA_REG][9].OutputData * modbus_slave->RegisterMap[MODBUS_DATA_REG][2].ScaleFactor); // Temperature C
 
 		modbus_slave->RegisterMap[MODBUS_DATA_REG][3].OutputData = modbus_master->RegisterMap[MODBUS_DATA_REG][5].OutputData; //Raw
+
+/*
+		modbus_slave->RegisterMap[MODBUS_SETTINGS_REG][4].InputData.UINT16 = 0;
+		modbus_slave->RegisterMap[MODBUS_SETTINGS_REG][5].InputData.UINT16 = 0;
+		modbus_slave->RegisterMap[MODBUS_SETTINGS_REG][6].InputData.UINT16 = 0;
+		modbus_slave->RegisterMap[MODBUS_SETTINGS_REG][7].InputData.UINT16 = 0;
+*/
 		break;
 	case(TYPE_LT600):{
 

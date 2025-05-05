@@ -282,6 +282,7 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size){
 		HAL_GPIO_WritePin(LED_1_GPIO_Port, LED_1_Pin, GPIO_PIN_SET);
 		HAL_TIM_Base_Start_IT(&htim4);
 
+
 	}
 
 	else if(huart->Instance == USART2){

@@ -65,7 +65,6 @@ void SensorConverterSettings::GetSensorType(){
 	UnitType |= HAL_GPIO_ReadPin(JP3Port, JP3Pin) << 2;
 	UnitType |= HAL_GPIO_ReadPin(JP4Port, JP4Pin) << 3;
 
-
 	switch(UnitType){
 
 	case(0): //No jumpers are bridged.
