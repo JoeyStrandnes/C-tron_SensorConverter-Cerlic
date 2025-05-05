@@ -129,6 +129,7 @@ int main(void)
   );
 
   //TODO for testing.
+  Settings.MasterAddress = Settings.SensorType;
   Settings.SlaveAddress = Settings.SensorType;
   Settings.SerialNumber_H = 335;
   Settings.SerialNumber_L = 123;
@@ -157,16 +158,8 @@ int main(void)
 
   ModBusMaster.ReadAllSensorData();
 
+  //Start the timer responsible for periodically polling the sensor.
   HAL_TIM_Base_Start_IT(&htim3);
-
-/*
-  HAL_GPIO_WritePin(USART2_DIR_GPIO_Port, USART2_DIR_Pin, GPIO_PIN_SET);
-  HAL_UART_Transmit_IT(&huart2, (uint8_t *)ModBusMaster.OutputBuffer, ModBusMaster.ResponseSize);
-
-  //Give it some time so startup in peace.
-  //HAL_Delay(500);
-
-*/
 
   //Enable C-tron communication, for whatever reason the IDLE event does not trigger in DMA mode.
   HAL_UARTEx_ReceiveToIdle_IT(&huart1, ModBusSlave.InputBuffer, ModBusSlave.InputBufferSize);
@@ -240,7 +233,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 
 	if(htim->Instance == TIM3){ //Used for periodically sampling the slave sensor.
 
-		//HAL_TIM_Base_Stop_IT(htim);
 		HAL_GPIO_WritePin(LED_2_GPIO_Port, LED_2_Pin, GPIO_PIN_SET);
 
 		HAL_UART_Transmit_DMA(&huart2, ModBusMaster.OutputBuffer, ModBusMaster.ResponseSize);
@@ -292,7 +284,7 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size){
 
 	}
 
-	if(huart->Instance == USART2){
+	else if(huart->Instance == USART2){
 
 		ModBusMaster.RequestSize = Size;
 		ModBusMaster.ParseSlaveResponse();
@@ -302,7 +294,6 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size){
 		//Clear error flags
 		huart->Instance->ICR = (USART_ICR_PECF | USART_ICR_FECF | USART_ICR_NECF | USART_ICR_ORECF);
 
-		//HAL_TIM_Base_Start_IT(&htim3);
 
 	}
 
@@ -313,20 +304,20 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart){
 
 	if(huart->Instance == USART1){
 
+		HAL_GPIO_WritePin(LED_1_GPIO_Port, LED_1_Pin, GPIO_PIN_RESET);
+
 		HAL_UARTEx_ReceiveToIdle_IT(huart, ModBusSlave.InputBuffer, ModBusSlave.InputBufferSize);
 		__HAL_UART_ENABLE_IT(huart, UART_IT_IDLE);
 
-		HAL_GPIO_WritePin(LED_1_GPIO_Port, LED_1_Pin, GPIO_PIN_RESET);
-
 	}
 
-	if(huart->Instance == USART2){
+	else if(huart->Instance == USART2){
 
 		HAL_GPIO_WritePin(LED_2_GPIO_Port, LED_2_Pin, GPIO_PIN_RESET);
 
-		HAL_UARTEx_ReceiveToIdle_IT(&huart2, ModBusMaster.InputBuffer, ModBusMaster.InputBufferSize);
+		HAL_UARTEx_ReceiveToIdle_IT(huart, ModBusMaster.InputBuffer, ModBusMaster.InputBufferSize);
+		__HAL_UART_ENABLE_IT(huart, UART_IT_IDLE);
 
-		//HAL_TIM_Base_Start_IT(&htim3); //Overflows after 250 ms. Used to indicate "loss of sensors"
 	}
 
 	return;
@@ -334,18 +325,18 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart){
 
 void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart){
 
+	//Clear error flags
+	huart->Instance->ICR = (USART_ICR_PECF | USART_ICR_FECF | USART_ICR_NECF | USART_ICR_ORECF);
 
 	//UART for SCADA
 	if(huart->Instance == USART1){
-
-		//Clear error flags
-		huart->Instance->ICR = (USART_ICR_PECF | USART_ICR_FECF | USART_ICR_NECF | USART_ICR_ORECF);
-
 		HAL_UARTEx_ReceiveToIdle_IT(huart, ModBusSlave.InputBuffer, ModBusSlave.InputBufferSize);
-		__HAL_UART_ENABLE_IT(huart, UART_IT_IDLE);
-
+	}
+	else if(huart->Instance == USART2){
+		//HAL_UARTEx_ReceiveToIdle_IT(huart, ModBusMaster.InputBuffer, ModBusMaster.InputBufferSize);
 	}
 
+	__HAL_UART_ENABLE_IT(huart, UART_IT_IDLE);
 
 	return;
 }

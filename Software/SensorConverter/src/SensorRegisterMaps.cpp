@@ -56,15 +56,15 @@ void LoadModBusRegisters(class ModBusRTU_BaseClass *modbus_master, class ModBusR
 	switch(sensor_type){
 
 	case(TYPE_CMC):
-		modbus_slave->RegisterMap[1][0].OutputData++;
-		modbus_slave->RegisterMap[1][1].OutputData += 2;
-		modbus_slave->RegisterMap[1][2].OutputData += 3;
+		modbus_slave->RegisterMap[MODBUS_DATA_REG][0].OutputData = modbus_master->RegisterMap[MODBUS_DATA_REG][2].OutputData;
+		modbus_slave->RegisterMap[MODBUS_DATA_REG][1].InputData.UINT16 = (uint16_t)(modbus_master->RegisterMap[MODBUS_DATA_REG][3].OutputData * modbus_slave->RegisterMap[MODBUS_DATA_REG][1].ScaleFactor); // Temperature C
+		modbus_slave->RegisterMap[MODBUS_DATA_REG][2].InputData.UINT16 = (uint16_t)(modbus_master->RegisterMap[MODBUS_DATA_REG][9].OutputData * modbus_slave->RegisterMap[MODBUS_DATA_REG][2].ScaleFactor); // Temperature C
 		break;
 	case(TYPE_LT600):{
 
-		modbus_slave->RegisterMap[1][0].OutputData = modbus_master->RegisterMap[1][0].OutputData; //mH20
-		modbus_slave->RegisterMap[1][1].InputData.UINT16 = (uint16_t)(modbus_master->RegisterMap[1][2].OutputData * modbus_slave->RegisterMap[1][1].ScaleFactor); //Scale 0-100%
-		modbus_slave->RegisterMap[1][2].InputData.UINT16 = (uint16_t)(modbus_master->RegisterMap[1][3].OutputData * modbus_slave->RegisterMap[1][2].ScaleFactor); // Temperature C
+		modbus_slave->RegisterMap[MODBUS_DATA_REG][0].OutputData = modbus_master->RegisterMap[1][0].OutputData; //mH20
+		modbus_slave->RegisterMap[MODBUS_DATA_REG][1].InputData.UINT16 = (uint16_t)(modbus_master->RegisterMap[1][2].OutputData * modbus_slave->RegisterMap[1][1].ScaleFactor); //Scale 0-100%
+		modbus_slave->RegisterMap[MODBUS_DATA_REG][2].InputData.UINT16 = (uint16_t)(modbus_master->RegisterMap[1][3].OutputData * modbus_slave->RegisterMap[1][2].ScaleFactor); // Temperature C
 
 		//Sensor TAG
 		modbus_slave->RegisterMap[MODBUS_SETTINGS_REG][4].InputData.UINT16 = ((uint16_t)modbus_slave->SettingsPtr->Tag[0] << 8 | modbus_slave->SettingsPtr->Tag[1]);
@@ -157,121 +157,121 @@ void CMC_MasterRegisterMap(struct Measurement_Register *registers[2], uint16_t *
 	registers[1][RegisterIndex].ScaleFactor = 1;
 	registers[1][RegisterIndex].InputData.FLOAT = 0;
 	registers[1][RegisterIndex].OutputData = 0;
-	registers[1][RegisterIndex++].RegType = FLOAT; //Consistency
+	registers[1][RegisterIndex++].RegType = PONDUS_FLOAT; //Consistency
 
 	registers[1][RegisterIndex].Index = 4;
 	registers[1][RegisterIndex].ScaleFactor = 1;
 	registers[1][RegisterIndex].InputData.FLOAT = 0;
 	registers[1][RegisterIndex].OutputData = 0;
-	registers[1][RegisterIndex++].RegType = FLOAT; //Water temperature
+	registers[1][RegisterIndex++].RegType = PONDUS_FLOAT; //Water temperature
 
 	registers[1][RegisterIndex].Index = 6;
 	registers[1][RegisterIndex].ScaleFactor = 1;
 	registers[1][RegisterIndex].InputData.FLOAT = 0;
 	registers[1][RegisterIndex].OutputData = 0;
-	registers[1][RegisterIndex++].RegType = FLOAT; //Group delay
+	registers[1][RegisterIndex++].RegType = PONDUS_FLOAT; //Group delay
 
 	registers[1][RegisterIndex].Index = 8;
 	registers[1][RegisterIndex].ScaleFactor = 1;
 	registers[1][RegisterIndex].InputData.FLOAT = 0;
 	registers[1][RegisterIndex].OutputData = 0;
-	registers[1][RegisterIndex++].RegType = FLOAT; //Ndir signal
+	registers[1][RegisterIndex++].RegType = PONDUS_FLOAT; //Ndir signal
 
 	registers[1][RegisterIndex].Index = 10;
 	registers[1][RegisterIndex].ScaleFactor = 1;
 	registers[1][RegisterIndex].InputData.FLOAT = 0;
 	registers[1][RegisterIndex].OutputData = 0;
-	registers[1][RegisterIndex++].RegType = FLOAT; //N signal
+	registers[1][RegisterIndex++].RegType = PONDUS_FLOAT; //N signal
 
 	registers[1][RegisterIndex].Index = 12;
 	registers[1][RegisterIndex].ScaleFactor = 1;
 	registers[1][RegisterIndex].InputData.FLOAT = 0;
 	registers[1][RegisterIndex].OutputData = 0;
-	registers[1][RegisterIndex++].RegType = FLOAT; //M signal
+	registers[1][RegisterIndex++].RegType = PONDUS_FLOAT; //M signal
 
 	registers[1][RegisterIndex].Index = 14;
 	registers[1][RegisterIndex].ScaleFactor = 1;
 	registers[1][RegisterIndex].InputData.FLOAT = 0;
 	registers[1][RegisterIndex].OutputData = 0;
-	registers[1][RegisterIndex++].RegType = FLOAT; //Unfiltered Cs
+	registers[1][RegisterIndex++].RegType = PONDUS_FLOAT; //Unfiltered Cs
 
 	registers[1][RegisterIndex].Index = 16;
 	registers[1][RegisterIndex].ScaleFactor = 1;
 	registers[1][RegisterIndex].InputData.FLOAT = 0;
 	registers[1][RegisterIndex].OutputData = 0;
-	registers[1][RegisterIndex++].RegType = FLOAT; //PCB Temp
+	registers[1][RegisterIndex++].RegType = PONDUS_FLOAT; //PCB Temp
 
 	registers[1][RegisterIndex].Index = 18;
 	registers[1][RegisterIndex].ScaleFactor = 1;
 	registers[1][RegisterIndex].InputData.FLOAT = 0;
 	registers[1][RegisterIndex].OutputData = 0;
-	registers[1][RegisterIndex++].RegType = FLOAT; //Meas path phase
+	registers[1][RegisterIndex++].RegType = PONDUS_FLOAT; //Meas path phase
 
 	registers[1][RegisterIndex].Index = 20;
 	registers[1][RegisterIndex].ScaleFactor = 1;
 	registers[1][RegisterIndex].InputData.FLOAT = 0;
 	registers[1][RegisterIndex].OutputData = 0;
-	registers[1][RegisterIndex++].RegType = FLOAT; //Meas path true phase
+	registers[1][RegisterIndex++].RegType = PONDUS_FLOAT; //Meas path true phase
 
 	registers[1][RegisterIndex].Index = 22;
 	registers[1][RegisterIndex].ScaleFactor = 1;
 	registers[1][RegisterIndex].InputData.FLOAT = 0;
 	registers[1][RegisterIndex].OutputData = 0;
-	registers[1][RegisterIndex++].RegType = FLOAT; //Meas path phase diff
+	registers[1][RegisterIndex++].RegType = PONDUS_FLOAT; //Meas path phase diff
 
 	registers[1][RegisterIndex].Index = 24;
 	registers[1][RegisterIndex].ScaleFactor = 1;
 	registers[1][RegisterIndex].InputData.FLOAT = 0;
 	registers[1][RegisterIndex].OutputData = 0;
-	registers[1][RegisterIndex++].RegType = FLOAT; //Meas path phase nonlinearity
+	registers[1][RegisterIndex++].RegType = PONDUS_FLOAT; //Meas path phase nonlinearity
 
 	registers[1][RegisterIndex].Index = 26;
 	registers[1][RegisterIndex].ScaleFactor = 1;
 	registers[1][RegisterIndex].InputData.FLOAT = 0;
 	registers[1][RegisterIndex].OutputData = 0;
-	registers[1][RegisterIndex++].RegType = FLOAT; //Meas path amplitude
+	registers[1][RegisterIndex++].RegType = PONDUS_FLOAT; //Meas path amplitude
 
 	registers[1][RegisterIndex].Index = 28;
 	registers[1][RegisterIndex].ScaleFactor = 1;
 	registers[1][RegisterIndex].InputData.FLOAT = 0;
 	registers[1][RegisterIndex].OutputData = 0;
-	registers[1][RegisterIndex++].RegType = FLOAT; //Meas path attenuation
+	registers[1][RegisterIndex++].RegType = PONDUS_FLOAT; //Meas path attenuation
 
 	registers[1][RegisterIndex].Index = 30;
 	registers[1][RegisterIndex].ScaleFactor = 1;
 	registers[1][RegisterIndex].InputData.FLOAT = 0;
 	registers[1][RegisterIndex].OutputData = 0;
-	registers[1][RegisterIndex++].RegType = FLOAT; //Ref line group delay
+	registers[1][RegisterIndex++].RegType = PONDUS_FLOAT; //Ref line group delay
 
 	registers[1][RegisterIndex].Index = 32;
 	registers[1][RegisterIndex].ScaleFactor = 1;
 	registers[1][RegisterIndex].InputData.FLOAT = 0;
 	registers[1][RegisterIndex].OutputData = 0;
-	registers[1][RegisterIndex++].RegType = FLOAT; //Ref line phase
+	registers[1][RegisterIndex++].RegType = PONDUS_FLOAT; //Ref line phase
 
 	registers[1][RegisterIndex].Index = 34;
 	registers[1][RegisterIndex].ScaleFactor = 1;
 	registers[1][RegisterIndex].InputData.FLOAT = 0;
 	registers[1][RegisterIndex].OutputData = 0;
-	registers[1][RegisterIndex++].RegType = FLOAT; //Ref line true phase
+	registers[1][RegisterIndex++].RegType = PONDUS_FLOAT; //Ref line true phase
 
 	registers[1][RegisterIndex].Index = 36;
 	registers[1][RegisterIndex].ScaleFactor = 1;
 	registers[1][RegisterIndex].InputData.FLOAT = 0;
 	registers[1][RegisterIndex].OutputData = 0;
-	registers[1][RegisterIndex++].RegType = FLOAT; //Ref line non linearity
+	registers[1][RegisterIndex++].RegType = PONDUS_FLOAT; //Ref line non linearity
 
 	registers[1][RegisterIndex].Index = 38;
 	registers[1][RegisterIndex].ScaleFactor = 1;
 	registers[1][RegisterIndex].InputData.FLOAT = 0;
 	registers[1][RegisterIndex].OutputData = 0;
-	registers[1][RegisterIndex++].RegType = FLOAT; //Ref line amplitude
+	registers[1][RegisterIndex++].RegType = PONDUS_FLOAT; //Ref line amplitude
 
 	registers[1][RegisterIndex].Index = 40;
 	registers[1][RegisterIndex].ScaleFactor = 1;
 	registers[1][RegisterIndex].InputData.FLOAT = 0;
 	registers[1][RegisterIndex].OutputData = 0;
-	registers[1][RegisterIndex++].RegType = FLOAT; //Ref line attenuation step correction
+	registers[1][RegisterIndex++].RegType = PONDUS_FLOAT; //Ref line attenuation step correction
 
 
 	//Holding registers
@@ -325,7 +325,7 @@ void CMC_MasterRegisterMap(struct Measurement_Register *registers[2], uint16_t *
 	registers[0][RegisterIndex].ScaleFactor = 1;
 	registers[0][RegisterIndex].InputData.FLOAT = 0;
 	registers[0][RegisterIndex].OutputData = 0;
-	registers[0][RegisterIndex++].RegType = FLOAT; //Water offset calibration value
+	registers[0][RegisterIndex++].RegType = PONDUS_FLOAT; //Water offset calibration value
 
 	//Gain calibration
 	registers[0][RegisterIndex].Index = 11;
@@ -368,7 +368,7 @@ void CMC_MasterRegisterMap(struct Measurement_Register *registers[2], uint16_t *
 	registers[0][RegisterIndex].ScaleFactor = 1;
 	registers[0][RegisterIndex].InputData.FLOAT = 0;
 	registers[0][RegisterIndex].OutputData = 0;
-	registers[0][RegisterIndex++].RegType = FLOAT; //Calibration result
+	registers[0][RegisterIndex++].RegType = PONDUS_FLOAT; //Calibration result
 
 	//TAG
 	registers[0][RegisterIndex].Index = 20;
