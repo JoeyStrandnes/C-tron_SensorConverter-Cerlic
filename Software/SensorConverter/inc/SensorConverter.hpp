@@ -16,6 +16,10 @@
 #define SOFTWARE_VERSION 101
 #define SENSOR_TAG_SIZE 8				//Number of bytes for the sensor tag.
 
+
+void EnableUSART_RTO(USART_TypeDef *huart);
+
+
 class SensorClass;
 
 class SensorConverterSettings{
