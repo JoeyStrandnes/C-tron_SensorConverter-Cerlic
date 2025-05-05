@@ -244,11 +244,12 @@ void UART1_IRQ(){
 		}
 
 		ModBusSlave.InputBuffer[ModBusSlave.RequestSize++] = LL_USART_ReceiveData8(USART1);//USART1->RDR;
-		LL_USART_ClearFlag_RTO(USART1);
 
 		HAL_GPIO_WritePin(LED_1_GPIO_Port, LED_1_Pin, GPIO_PIN_SET);
 
 		USART1->ICR = 0x0000FFFF; //Clear all flags
+		SET_BIT(USART1->CR2, USART_CR2_RTOEN);
+		WRITE_REG(USART1->ICR, USART_ICR_RTOCF);
 
 		return;
 
@@ -256,16 +257,19 @@ void UART1_IRQ(){
 
 	if(LL_USART_IsActiveFlag_RTO(USART1)){
 
-		USART1->ICR = 0x0000FFFF; //Clear all flags
-
 		LoadModBusRegisters(&ModBusMaster, &ModBusSlave, ModBusSlave.SettingsPtr->SensorType);
 		ModBusSlave.ParseMasterRequest();
 
 
+		(void)USART1->RDR;
+		USART1->ICR = 0x0000FFFF; //Clear all flags
+		ModBusSlave.RequestSize = 0;
+
 		if(ModBusSlave.ResponseSize == 0){
 
-			EnableUSART_RTO(USART1);
-
+			//EnableUSART_RTO(USART1);
+			CLEAR_BIT(USART1->CR2, USART_CR2_RTOEN);
+			WRITE_REG(USART1->ICR, USART_ICR_RTOCF);
 			HAL_GPIO_WritePin(LED_1_GPIO_Port, LED_1_Pin, GPIO_PIN_RESET);
 
 		}
