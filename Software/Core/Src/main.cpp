@@ -292,13 +292,18 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 		LoadModBusRegisters(&ModBusMaster, &ModBusSlave, ModBusSlave.SettingsPtr->SensorType);
 		ModBusSlave.ParseMasterRequest();
 
-
 		ModBusSlave.RequestSize = 0;
 		ModBusSlave.TransmittedBytes = 0;
 
 		std::memset(ModBusSlave.InputBuffer, 0, ModBusSlave.InputBufferSize);
 
-		HAL_TIM_Base_Start_IT(&htim4);
+		if(ModBusSlave.ResponseSize != 0){
+			HAL_TIM_Base_Start_IT(&htim4);
+		}
+		else{
+			LL_USART_EnableIT_RXNE_RXFNE(USART1);
+			LL_USART_DisableIT_TXE_TXFNF(USART1);
+		}
 
 
 		return;
