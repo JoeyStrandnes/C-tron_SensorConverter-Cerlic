@@ -280,7 +280,6 @@ void ModBusRTU_SlaveClass::ParseMasterRequest(){
 	}
 
 	//FIXME Im running out of time and the UART is not behaving as it should!!!!
-	/*
 	switch(InputBuffer[1]){
 
 	case(3):
@@ -299,8 +298,6 @@ void ModBusRTU_SlaveClass::ParseMasterRequest(){
 
 
 	}
-
-*/
 
 	uint16_t CalculatedCRC = this->ModBusCRC(InputBuffer, (this->RequestSize - 2));
 	uint16_t ReceivedCRC = ((uint16_t)(this->InputBuffer[this->RequestSize - 1]) << 8);
