@@ -249,7 +249,7 @@ void UART1_IRQ(){
 
 		if(ModBusSlave.ResponseSize != 0){
 
-			if(ModBusSlave.TransmittedBytes <= ModBusSlave.ResponseSize){ //Last byte isnt really transmitted since the direction is set to RX.
+			if(ModBusSlave.TransmittedBytes < ModBusSlave.ResponseSize){
 				USART1->TDR = ModBusSlave.OutputBuffer[ModBusSlave.TransmittedBytes++];
 
 				return;
