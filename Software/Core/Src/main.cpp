@@ -323,13 +323,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 
 		USART1->ICR = 0x0000FFFF; //Clear all flags
 
-/*
-		//Enable the TX line and disable the RX.
-		CLEAR_BIT(USART1->CR1, USART_CR1_RXFFIE);
-		SET_BIT(USART1->CR1, USART_CR1_TXEIE_TXFNFIE);
-		SET_BIT(USART1->CR1, USART_CR1_TE);
-*/
-
 	}
 
 	return;
@@ -337,34 +330,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 }
 
 void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size){
-/*
-	if(huart->Instance == USART1){
 
-		for(uint8_t i = 0; i < Size; i++){
-
-			ModBusSlave.InputBuffer[i] = ~ModBusSlave.InputBuffer[i];
-
-		}
-
-		LoadModBusRegisters(&ModBusMaster, &ModBusSlave, ModBusSlave.SettingsPtr->SensorType);
-		ModBusSlave.ParseMasterRequest();
-
-		if(ModBusSlave.ResponseSize != 0){
-			HAL_TIM_Base_Start_IT(&htim4);
-		}
-		else{
-			  HAL_UARTEx_ReceiveToIdle_IT(&huart1, ModBusSlave.InputBuffer, ModBusSlave.InputBufferSize);
-			  __HAL_UART_ENABLE_IT(&huart1, UART_IT_IDLE);
-		}
-
-
-		ModBusSlave.RequestSize = 0;
-		ModBusSlave.TransmittedBytes = 0;
-
-		std::memset(ModBusSlave.InputBuffer, 0, ModBusSlave.InputBufferSize);
-
-	}
-*/
 	if(huart->Instance == USART2){
 
 		ModBusMaster.RequestSize = Size;
@@ -386,17 +352,7 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size){
 }
 
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart){
-/*
-	if(huart->Instance == USART1){
 
-		HAL_GPIO_WritePin(LED_1_GPIO_Port, LED_1_Pin, GPIO_PIN_RESET);
-
-		  HAL_UARTEx_ReceiveToIdle_IT(&huart1, ModBusSlave.InputBuffer, ModBusSlave.InputBufferSize);
-		  __HAL_UART_ENABLE_IT(&huart1, UART_IT_IDLE);
-
-
-	}
-*/
 	if(huart->Instance == USART2){
 
 		HAL_GPIO_WritePin(LED_2_GPIO_Port, LED_2_Pin, GPIO_PIN_RESET);
@@ -410,15 +366,6 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart){
 }
 
 void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart){
-/*
-	//UART for Sensors
-	if(huart->Instance == USART2){
-		huart->Instance->ICR = (USART_ICR_PECF | USART_ICR_FECF | USART_ICR_NECF | USART_ICR_ORECF);
-		//HAL_UARTEx_ReceiveToIdle_IT(huart, ModBusMaster.InputBuffer, ModBusMaster.InputBufferSize);
-		__HAL_UART_ENABLE_IT(huart, UART_IT_IDLE);
-	}
-*/
-
 
 	huart->Instance->ICR = 0x0000FFFF;
 
